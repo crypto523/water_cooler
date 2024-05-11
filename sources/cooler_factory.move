@@ -1,9 +1,9 @@
-module water_cooler::cooler_factory {
+module galliun::cooler_factory {
   use sui::sui::SUI;
   use sui::coin::{Self, Coin};
   use sui::balance::{Self, Balance};
   use std::string::{String};
-  use water_cooler::water_cooler::{createWaterCooler};
+  use galliun::water_cooler::{createWaterCooler};
 
   const EInsufficientBalance: u64 = 0;
 
@@ -27,7 +27,11 @@ module water_cooler::cooler_factory {
     });
   }
 
-  public entry fun buy_water_cooler(factory: &mut CoolerFactory, payment: &mut Coin<SUI>, name: String, ctx: &mut TxContext) {
+  public entry fun buy_water_cooler(
+    factory: &mut CoolerFactory, payment: &mut Coin<SUI>,
+    name: String, description: String, image_url: String,
+    size: u16, treasury: address, ctx: &mut TxContext
+    ) {
     assert!(coin::value(payment) >= factory.price, EInsufficientBalance);
 
     let coin_balance = coin::balance_mut(payment);
@@ -35,7 +39,7 @@ module water_cooler::cooler_factory {
     
     balance::join(&mut factory.balance, paid);
 
-    createWaterCooler(name, ctx);
+    createWaterCooler(name, description, image_url, size, treasury, ctx);
   }
 
   public entry fun collect_profit(_: &FactoryOwnerCap, coolerFactory: &mut CoolerFactory, ctx: &mut TxContext) {
@@ -43,5 +47,9 @@ module water_cooler::cooler_factory {
     let profits = coin::take(&mut coolerFactory.balance, amount, ctx);
 
     transfer::public_transfer(profits, tx_context::sender(ctx));
+  }
+  
+  public entry fun update_price(_: &FactoryOwnerCap, factory: &mut CoolerFactory, price: u64) {
+    factory.price = price;
   }
 }
