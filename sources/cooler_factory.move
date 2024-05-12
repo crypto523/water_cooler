@@ -3,7 +3,8 @@ module galliun::cooler_factory {
   use sui::coin::{Self, Coin};
   use sui::balance::{Self, Balance};
   use std::string::{String};
-  use galliun::water_cooler::{createWaterCooler};
+  use galliun::water_cooler::{Self};
+  use galliun::mint::{Self};
 
   const EInsufficientBalance: u64 = 0;
 
@@ -39,7 +40,11 @@ module galliun::cooler_factory {
     
     balance::join(&mut factory.balance, paid);
 
-    createWaterCooler(name, description, image_url, size, treasury, ctx);
+    // Create a WaterCooler and give it to the buyer
+    water_cooler::createWaterCooler(name, description, image_url, size, treasury, ctx);
+
+    // Create a Mint distributer and give it to the buyer
+    mint::create_mint_distributer(ctx);
   }
 
   public entry fun collect_profit(_: &FactoryOwnerCap, coolerFactory: &mut CoolerFactory, ctx: &mut TxContext) {

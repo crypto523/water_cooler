@@ -1,14 +1,15 @@
 module galliun::water_cooler {
-  use std::option::{Self, Option};
+  // use std::option::{Self, Option};
   use std::string::{Self, String};
-  use std::vector::{Self};
+  // use std::vector::{Self};
 
   use sui::display::{Self};
-  use sui::kiosk::{Self, Kiosk, KioskOwnerCap};
-  use sui::package::{Self, Publisher};
-  use sui::sui::SUI;
-  use sui::balance::{Self, Balance};
-  use sui::object::{Self, ID, UID};
+  // use sui::kiosk::{Self, Kiosk, KioskOwnerCap};
+  use sui::kiosk::{Self};
+  // use sui::package::{Self, Publisher};
+  // use sui::sui::SUI;
+  // use sui::balance::{Self, Balance};
+  // use sui::object::{Self, ID, UID};
   use sui::object_table::{Self, ObjectTable};
   use sui::transfer_policy::{Self};
 
@@ -16,12 +17,14 @@ module galliun::water_cooler {
 
   // === Errors ===
 
-    const EWaterCoolerAlreadyInitialized: u64 = 0;
-    const EWaterCoolerNotInitialized: u64 = 1;
-    const EWaterCoolerNotEmpty: u64 = 2;
-    const EAttributesAlreadySet: u64 = 3;
-    const EImageAlreadySet: u64 = 4;
-    const EImageNotSet: u64 = 5;
+  const EWaterCoolerAlreadyInitialized: u64 = 0;
+  // const EWaterCoolerNotInitialized: u64 = 1;
+  // const EWaterCoolerNotEmpty: u64 = 2;
+  const EAttributesAlreadySet: u64 = 3;
+  // const EImageAlreadySet: u64 = 4;
+  // const EImageNotSet: u64 = 5;
+
+  // === Structs ===
 
   // This is the structure that will be used to create the NFTs
   public struct MizuNFT has key, store {
@@ -64,6 +67,8 @@ module galliun::water_cooler {
   // Admin cap of this Water Cool to be used but the Cooler owner when making changes
   public struct WaterCoolerAdminCap has key { id: UID }
 
+  // === Functions ===
+
   fun init(otw: WATER_COOLER, ctx: &mut TxContext,) {
     // Claim the Publisher object.
     let publisher = sui::package::claim(otw, ctx);
@@ -71,7 +76,7 @@ module galliun::water_cooler {
     let mut display = display::new<MizuNFT>(&publisher, ctx);
     display::add(&mut display, string::utf8(b"name"), string::utf8(b"{collection_name} #{number}"));
     display::add(&mut display, string::utf8(b"description"), string::utf8(b"{description}"));
-    display::add(&mut display, string::utf8(b"image_url"), string::utf8(b"{image_url}/{id}"));
+    display::add(&mut display, string::utf8(b"image_url"), string::utf8(b"{image_url}"));
     display::add(&mut display, string::utf8(b"attributes"), string::utf8(b"{attributes}"));
     display::add(&mut display, string::utf8(b"minted_by"), string::utf8(b"{minted_by}"));
     display::add(&mut display, string::utf8(b"kiosk_id"), string::utf8(b"{kiosk_id}"));
@@ -103,6 +108,7 @@ module galliun::water_cooler {
       is_initialized: false
     };
 
+    // Here we transfer the admin cap to the person that bought the WaterCooler
     transfer::transfer(WaterCoolerAdminCap{ id: object::new(ctx) }, sender);
     transfer::transfer(waterCooler, sender);
   }
@@ -110,11 +116,12 @@ module galliun::water_cooler {
 
 
   // === Admin Functions ===
+
   #[allow(lint(share_owned))]
     public fun admin_initialize_water_cooler(
-        _: &WaterCoolerAdminCap,
-        waterCooler: &mut WaterCooler,
-        ctx: &mut TxContext,
+      _: &WaterCoolerAdminCap,
+      waterCooler: &mut WaterCooler,
+      ctx: &mut TxContext,
     ) {
       assert!(waterCooler.is_initialized == false, EWaterCoolerAlreadyInitialized);
 
@@ -125,7 +132,7 @@ module galliun::water_cooler {
 
         let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
 
-        let pfp = MizuNFT {
+        let nft = MizuNFT {
           id: object::new(ctx),
           number: number,
           collection_name: waterCooler.name,
@@ -140,13 +147,13 @@ module galliun::water_cooler {
 
 
         // Set the Kiosk's 'owner' field to the address of the MizuNFT.
-        kiosk::set_owner_custom(&mut kiosk, &kiosk_owner_cap, object::id_address(&pfp));
+        kiosk::set_owner_custom(&mut kiosk, &kiosk_owner_cap, object::id_address(&nft));
 
-        transfer::public_transfer(kiosk_owner_cap, object::id_to_address(&object::id(&pfp)));
+        transfer::public_transfer(kiosk_owner_cap, object::id_to_address(&object::id(&nft)));
         transfer::public_share_object(kiosk);
 
         // Add MizuNFT to factory.
-        object_table::add(&mut waterCooler.nfts, number, pfp);
+        object_table::add(&mut waterCooler.nfts, number, nft);
 
         number = number + 1;
       };
@@ -157,4 +164,93 @@ module galliun::water_cooler {
       };
     }
 
-  }
+    // === Utility functions ===
+   
+    public(package) fun owner(
+      waterCooler: &WaterCooler
+    ): address {
+      waterCooler.owner
+    }
+    
+    public(package) fun size(
+      waterCooler: &WaterCooler
+    ): u16 {
+      waterCooler.size
+    }
+    
+    public(package) fun name(
+      waterCooler: &WaterCooler
+    ): String {
+      waterCooler.name
+    }
+    
+    public(package) fun image_url(
+      waterCooler: &WaterCooler
+    ): String {
+      waterCooler.image_url
+    }
+    
+    // TO DO: create a treasury attribute and an undate treasury function
+    public(package) fun treasury(
+      waterCooler: &WaterCooler
+    ): address {
+      waterCooler.owner
+    }
+
+    // === Public Package Functions ===
+
+    public(package) fun set_image(
+      nft: &mut MizuNFT,
+      image: String,
+    ) {
+      option::fill(&mut nft.image, image);
+    }
+
+    public(package) fun id(
+        nft: &MizuNFT,
+    ): ID {
+        object::id(nft)
+    }
+
+    public(package) fun uid_mut(
+        nft: &mut MizuNFT,
+    ): &mut UID {
+        &mut nft.id
+    }
+
+    public(package) fun number(
+        nft: &MizuNFT,
+    ): u16 {
+        nft.number
+    }
+
+    public(package) fun kiosk_id(
+        nft: &MizuNFT,
+    ): ID {
+        nft.kiosk_id
+    }
+
+    public(package) fun kiosk_owner_cap_id(
+        nft: &MizuNFT,
+    ): ID {
+        nft.kiosk_owner_cap_id
+    }
+
+    public(package) fun set_attributes(
+        nft: &mut MizuNFT,
+        attributes: Attributes,
+    ) {
+        assert!(option::is_none(&nft.attributes), EAttributesAlreadySet);
+        option::fill(&mut nft.attributes, attributes);
+    }
+
+
+    public(package) fun set_minted_by_address(
+        nft: &mut MizuNFT,
+        addr: address,
+    ) {
+        option::fill(&mut nft.minted_by, addr);
+    }
+
+
+}
