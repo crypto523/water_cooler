@@ -44,17 +44,11 @@ module galliun::mint {
 
     // === Constants ===
 
-    const TARGET_NEW_MINT_COUNT: u16 = 1304;
     const EPOCHS_TO_CLAIM_MINT: u64 = 30;
 
     // === Structs ===
 
     public struct MINT has drop {}
-
-    public struct DestroyMintReceiptCap has key {
-        id: UID,
-        number: u16,
-    }
 
     public struct Mint has key {
         id: UID,
@@ -66,13 +60,6 @@ module galliun::mint {
         claim_expiration_epoch: u64,
     }
 
-    public struct MintReceipt has key {
-        id: UID,
-        name: String,
-        image_url: String,
-        number: u16,
-        mint_id: ID,
-    }
 
     public struct MintSettings has key {
         id: UID,
@@ -84,14 +71,6 @@ module galliun::mint {
         id: UID,
         nfts: TableVec<MizuNFT>,
         is_initialized: bool,
-    }
-
-    public struct RevealMintCap has key {
-        id: UID,
-        number: u16,
-        nft_id: ID,
-        mint_id: ID,
-        create_attributes_cap_id: ID
     }
 
     // === Events ===
@@ -120,16 +99,7 @@ module galliun::mint {
         otw: MINT,
         ctx: &mut TxContext,
     ) {
-      let publisher = package::claim(otw, ctx);  
-
-      let mut mint_receipt_display = display::new<MintReceipt>(&publisher, ctx);
-      display::add(&mut mint_receipt_display, string::utf8(b"name"), string::utf8(b"{name} Mint Receipt #{number}"));
-      display::add(&mut mint_receipt_display, string::utf8(b"description"), string::utf8(b"A receipt that can be used to claim {name} #{number}."));
-      display::add(&mut mint_receipt_display, string::utf8(b"number"), string::utf8(b"{number}"));
-      display::add(&mut mint_receipt_display, string::utf8(b"mint_id"), string::utf8(b"{mint_id}"));
-      display::add(&mut mint_receipt_display, string::utf8(b"image_url"), string::utf8(b"{image_url}"));
-      display::update_version(&mut mint_receipt_display);
-      transfer::public_transfer(mint_receipt_display, tx_context::sender(ctx));
+      let publisher = package::claim(otw, ctx);
 
       transfer::public_transfer(publisher, tx_context::sender(ctx));
     }
@@ -151,8 +121,10 @@ module galliun::mint {
           is_initialized: false,
         };
 
+        let adminCap = MintAdminCap{ id: object::new(ctx) };
+
         // Here we transfer the mint admin cap to the person that bought the WaterCooler
-        transfer::transfer(MintAdminCap{ id: object::new(ctx) }, tx_context::sender(ctx));
+        transfer::transfer(adminCap, tx_context::sender(ctx));
 
       // This might need to be moved to a seperate function
         // that will be called by the owner of the WaterCooler
@@ -162,13 +134,26 @@ module galliun::mint {
         transfer::share_object(mint_warehouse);
     }
 
-
-
-
     // === Public-Mutative Functions ===
 
+    public fun public_mint(
+      payment: Coin<SUI>,
+      warehouse: &mut MintWarehouse,
+      settings: &MintSettings,
+      ctx: &mut TxContext,
+    ) {
+        assert!(table_vec::length(&warehouse.nfts) > 0, EWarehouseIsEmpty);
+
+        assert!(settings.status == 1, EMintNotLive);
+
+        assert!(coin::value(&payment) == settings.price, EInvalidPaymentAmount);
+
+        let nft = table_vec::pop_back(&mut warehouse.nfts);
+
+        mint_internal(nft, payment, ctx);
+    }
+
     public fun claim_mint(
-        receipt: MintReceipt,
         waterCooler: &WaterCooler,
         mint: &mut Mint,
         kiosk: &mut Kiosk,
@@ -176,7 +161,6 @@ module galliun::mint {
         policy: &TransferPolicy<MizuNFT>,
         ctx: &TxContext,
     ) {
-        assert!(receipt.mint_id == object::id(mint), EInvalidReceiptForMint);
         assert!(mint.is_revealed == true, EMizuNFTNotRevealed);
 
         // Extract MizuNFT and payment from Mint.
@@ -200,45 +184,6 @@ module galliun::mint {
 
         // Destroy the mint.
         // destroy_mint_internal(mint);
-
-        // Destroy the mint receipt.
-        let MintReceipt { id, name: _, image_url: _, number: _, mint_id: _ } = receipt;
-        object::delete(id);
-    }
-
-    /// Destroys a mint receipt in the case that a mint is refunded by The Water Cooler Owner.
-    /// During the refund process, a DestroyMintReceiptCap is issued to the
-    /// original minter. Both the cap and receipt have to be passed into this function
-    /// in order to destroy the receipt. This prevents accidental destruction of a receipt.
-    public fun destroy_mint_receipt(
-        cap: DestroyMintReceiptCap,
-        receipt: MintReceipt,
-    ) {
-        assert!(cap.number == receipt.number, EInvalidDestroyCapForMintReceipt);
-
-        let DestroyMintReceiptCap { id, number: _ } = cap;
-        object::delete(id);
-
-        let MintReceipt { id, name: _, image_url: _, number: _, mint_id: _ } = receipt;
-        object::delete(id);
-    }
-
-    public fun public_mint(
-      waterCooler: &WaterCooler,
-      payment: Coin<SUI>,
-      warehouse: &mut MintWarehouse,
-      settings: &MintSettings,
-      ctx: &mut TxContext,
-    ) {
-        assert!(table_vec::length(&warehouse.nfts) > 0, EWarehouseIsEmpty);
-
-        assert!(settings.status == 1, EMintNotLive);
-
-        assert!(coin::value(&payment) == settings.price, EInvalidPaymentAmount);
-
-        let nft = table_vec::pop_back(&mut warehouse.nfts);
-
-        mint_internal(nft, waterCooler, payment, ctx);
     }
 
     /// Add MizuNFTs to the mint warehouse.
@@ -307,34 +252,21 @@ module galliun::mint {
 
 
     public fun admin_reveal_mint(
-        cap: RevealMintCap,
+        _: &MintAdminCap,
         mint: &mut Mint,
         attributes: Attributes,
         image: String
     ) {
-        assert!(cap.mint_id == object::id(mint), EInvalidRevealMintCapForMint);
-
         let nft = option::borrow_mut(&mut mint.nft);
 
         water_cooler::set_attributes(nft, attributes);
         water_cooler::set_image(nft, image);
-        
 
         mint.is_revealed = true;
-
-        let RevealMintCap {
-            id,
-            number: _,
-            nft_id: _,
-            mint_id: _,
-            create_attributes_cap_id: _
-        } = cap;
-        object::delete(id);
     }
 
     fun mint_internal(
         nft: MizuNFT,
-        waterCooler: &WaterCooler,
         payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
@@ -348,24 +280,6 @@ module galliun::mint {
             claim_expiration_epoch: tx_context::epoch(ctx) + EPOCHS_TO_CLAIM_MINT,
         };
 
-        let receipt = MintReceipt {
-            id: object::new(ctx),
-            name: water_cooler::name(waterCooler),
-            image_url: water_cooler::image_url(waterCooler),
-            number: water_cooler::number(&nft),
-            mint_id: object::id(&mint),
-        };
-
-        let create_attributes_cap = attributes::issue_create_attributes_cap(water_cooler::number(&nft), ctx);
-        
-        let reveal_mint_cap = RevealMintCap {
-            id: object::new(ctx),
-            number: water_cooler::number(&nft),
-            nft_id: water_cooler::id(&nft),
-            mint_id: object::id(&mint),
-            create_attributes_cap_id: attributes::create_attributes_cap_id(&create_attributes_cap),
-        };
-
         event::emit(
             MintEvent {
                 mint_id: object::id(&mint),
@@ -375,18 +289,11 @@ module galliun::mint {
             }
         );
 
-
         option::fill(&mut mint.nft, nft);
 
         let nftMut = option::borrow_mut(&mut mint.nft);
 
         water_cooler::set_minted_by_address(nftMut, tx_context::sender(ctx));
-
-
-        
-        transfer::transfer(receipt, tx_context::sender(ctx));
-        transfer::transfer(reveal_mint_cap, water_cooler::owner(waterCooler));
-        transfer::public_transfer(create_attributes_cap, water_cooler::owner(waterCooler));
 
         transfer::share_object(mint);
     }

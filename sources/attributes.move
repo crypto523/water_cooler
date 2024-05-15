@@ -27,16 +27,9 @@ module galliun::attributes {
         map: VecMap<String, String>,
     }
 
-    /// A cap object that gives ADMIN the ability to create
-    /// `Attributes` and `AttributesData` objects.
-    public  struct CreateAttributesCap has key, store {
-        id: UID,
-        number: u16,
-    }
-
     /// Create an `Attributes` object with a `CreateAttributesCap`.
-    public fun new(
-        cap: CreateAttributesCap,
+    public(package) fun new(
+        number: u16,
         attributes: VecMap<String, String>,
         ctx: &mut TxContext,
     ): Attributes {
@@ -46,27 +39,11 @@ module galliun::attributes {
 
         let attributes = Attributes {
             id: object::new(ctx),
-            number: cap.number,
+            number,
             fields: attributes_data,
         };
 
-        let CreateAttributesCap { id, number: _ } = cap;
-        object::delete(id);
-
         attributes
-    }
-
-    /// Create a `CreateAttributesCap`.
-    public(package) fun issue_create_attributes_cap(
-        number: u16,
-        ctx: &mut TxContext,
-    ): CreateAttributesCap {
-        let cap = CreateAttributesCap {
-            id: object::new(ctx),
-            number: number,
-        };
-
-        cap
     }
 
     /// Returns the number of the `Attributes` object.
@@ -74,12 +51,5 @@ module galliun::attributes {
         attributes: &Attributes,
     ): u16 {
         attributes.number
-    }
-
-    /// Returns the ID of the `CreateAttributesCap` object.
-    public(package) fun create_attributes_cap_id(
-        cap: &CreateAttributesCap,
-    ): ID {
-        object::id(cap)
     }
 }
