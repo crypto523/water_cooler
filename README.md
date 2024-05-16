@@ -5,4 +5,4 @@ The Galliun Water Cooler protocol is a minting and distribution package for NFT 
 Creates can use [Flow](https://github.com/VisionDeCreator/flow "Flow") to handle the whole process. For the creation, configuration, upload of NFT data and state management of a Water Cooler.
 
 ## How it works
-![Water Cooler life cycle](https://github.com/VisionDeCreator/flow/blob/main/images/water_cooler.png)
+![Water Cooler life cycle](https://github.com/VisionDeCreator/flow/blob/main/images/water_cooler.png?raw=true)
