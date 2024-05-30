@@ -10,6 +10,7 @@ module galliun::water_cooler {
   // use sui::sui::SUI;
   // use sui::balance::{Self, Balance};
   // use sui::object::{Self, ID, UID};
+  use sui::table::{Self, Table};
   use sui::object_table::{Self, ObjectTable};
   use sui::transfer_policy::{Self};
 
@@ -56,7 +57,7 @@ module galliun::water_cooler {
     // This is the address to where the royalty and mint fee will be sent
     treasury: address,
     // This table will keep track of all the created NFTs
-    nfts: ObjectTable<u16, MizuNFT>,
+    nfts: Table<u16, ID>,
     // This is the number of NFTs that will be in the collection
     size: u16,
     is_initialized: bool
@@ -102,7 +103,7 @@ module galliun::water_cooler {
       description,
       image_url,
       owner: sender,
-      nfts: object_table::new(ctx),
+      nfts: table::new(ctx),
       treasury,
       size,
       is_initialized: false
@@ -125,7 +126,7 @@ module galliun::water_cooler {
     ) {
       assert!(waterCooler.is_initialized == false, EWaterCoolerAlreadyInitialized);
 
-      let mut number: u16 = (object_table::length(&waterCooler.nfts) as u16) + 1;
+      let mut number: u16 = (table::length(&waterCooler.nfts) as u16) + 1;
 
       // Pre-fill the water cooler with the kiosk NFTs to the size of the NFT collection
       while (number <= waterCooler.size) {
@@ -152,14 +153,18 @@ module galliun::water_cooler {
         transfer::public_transfer(kiosk_owner_cap, object::id_to_address(&object::id(&nft)));
         transfer::public_share_object(kiosk);
 
+        
         // Add MizuNFT to factory.
-        object_table::add(&mut waterCooler.nfts, number, nft);
+        table::add(&mut waterCooler.nfts, number, object::id(&nft));
+
+        transfer::public_transfer(nft, ctx.sender());
+
 
         number = number + 1;
       };
 
       // Initialize water cooler if the number of NFT created is equal to the size of the collection.
-      if ((object_table::length(&waterCooler.nfts) as u16) == waterCooler.size) {
+      if ((table::length(&waterCooler.nfts) as u16) == waterCooler.size) {
           waterCooler.is_initialized = true;
       };
     }
