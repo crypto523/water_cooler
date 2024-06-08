@@ -70,7 +70,7 @@ module galliun::water_cooler {
 
   // === Functions ===
 
-  fun init(otw: WATER_COOLER, ctx: &mut TxContext,) {
+  fun init(otw: WATER_COOLER, ctx: &mut TxContext) {
     // Claim the Publisher object.
     let publisher = sui::package::claim(otw, ctx);
 
@@ -165,7 +165,7 @@ module galliun::water_cooler {
 
       // Initialize water cooler if the number of NFT created is equal to the size of the collection.
       if ((table::length(&waterCooler.nfts) as u16) == waterCooler.size) {
-          waterCooler.is_initialized = true;
+        waterCooler.is_initialized = true;
       };
     }
 
@@ -193,6 +193,12 @@ module galliun::water_cooler {
       waterCooler: &WaterCooler
     ): String {
       waterCooler.image_url
+    }
+
+    public(package) fun is_initialized(
+      waterCooler: &WaterCooler
+    ): bool {
+      waterCooler.is_initialized
     }
     
     // TO DO: create a treasury attribute and an undate treasury function
@@ -249,7 +255,6 @@ module galliun::water_cooler {
         option::fill(&mut nft.attributes, attributes);
     }
 
-
     public(package) fun set_minted_by_address(
         nft: &mut MizuNFT,
         addr: address,
@@ -257,5 +262,10 @@ module galliun::water_cooler {
         option::fill(&mut nft.minted_by, addr);
     }
 
+    // === Test Functions ===
+    #[test_only]
+    public fun init_for_testing(ctx: &mut TxContext) {
+      init(WATER_COOLER {}, ctx);
+    }
 
 }
