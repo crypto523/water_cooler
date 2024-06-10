@@ -318,7 +318,7 @@ module galliun::mint {
         mint.is_revealed = true;
     }
 
-    // === Modify wl & og tickets display
+    // === Modify wl & og tickets display ===
     public fun set_wl_ticket_display_name(
         wl_ticket_display: &mut display::Display<WhitelistTicket>, 
         new_name: String
