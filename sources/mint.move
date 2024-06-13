@@ -19,6 +19,7 @@ module galliun::mint {
     // === Errors ===
 
     const EInvalidPaymentAmount: u64 = 4;
+    const EInvalidPhaseNumber: u64 = 5;
     const EInvalidPrice: u64 = 6;
     const EInvalidStatusNumber: u64 = 9;
     const EInvalidTicketForMintPhase: u64 = 10;
@@ -147,6 +148,24 @@ module galliun::mint {
         // This might need to be moved to a seperate function
         // that will be called by the owner of the WaterCooler
         transfer::share_object(mint_warehouse);
+    }
+
+    public(package) fun create_wl_distributer(ctx: &mut TxContext) {
+        let whitelist_ticket =  WhitelistTicket {
+            id: object::new(ctx),
+            phase: 0,
+        };
+
+        transfer::transfer(whitelist_ticket, tx_context::sender(ctx));
+    }
+
+    public(package) fun create_og_distributer(ctx: &mut TxContext) {
+        let og_ticket =  OriginalGangsterTicket {
+            id: object::new(ctx),
+            phase: 0,
+        };
+
+        transfer::transfer(og_ticket, tx_context::sender(ctx));
     }
 
     // === Public-Mutative Functions ===
@@ -283,6 +302,7 @@ module galliun::mint {
         object::delete(id);
     }
 
+    // Set mint price, status, phase
     public fun admin_set_mint_price(
         _: &MintAdminCap,
         price: u64,
@@ -303,6 +323,15 @@ module galliun::mint {
         settings.status = status;
     }
 
+    public fun admin_set_mint_phase(
+        _: &MintAdminCap,
+        phase: u8,
+        settings: &mut MintSettings,
+        _: &TxContext,
+    ) {
+        assert!(phase >= 1 && phase <= 3, EInvalidPhaseNumber);
+        settings.phase = phase;
+    }
 
     public fun admin_reveal_mint(
         _: &MintAdminCap,
@@ -318,7 +347,7 @@ module galliun::mint {
         mint.is_revealed = true;
     }
 
-    // === Modify wl & og tickets display ===
+    // === Modify wl & og tickets display
     public fun set_wl_ticket_display_name(
         wl_ticket_display: &mut display::Display<WhitelistTicket>, 
         new_name: String
