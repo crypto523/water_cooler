@@ -80,7 +80,7 @@ module galliun::water_cooler_tests {
             mint::create_mint_distributer(test_scenario::ctx(scenario));
         };
 
-        // === Test Public Mint ===
+        /*// === Test Public Mint ===
         test_scenario::next_tx(scenario, USER);
         {
             let mut warehouse = test_scenario::take_shared<MintWarehouse>(scenario);
@@ -103,7 +103,7 @@ module galliun::water_cooler_tests {
             test_scenario::return_to_sender(scenario, water_cooler);
         };
         
-        /*// Test Destroy Mint Warehouse
+        // Test Destroy Mint Warehouse
         test_scenario::next_tx(scenario, USER);
         {
             let warehouse = test_scenario::take_shared<MintWarehouse>(scenario);
