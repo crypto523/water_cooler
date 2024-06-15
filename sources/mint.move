@@ -1,40 +1,28 @@
 module galliun::mint {
 
     // === Imports ===
-
-    use std::option::{Self, Option};
-    use std::string::{Self, String};
-    use std::vector::{Self};
+    use std::string::String;
 
     use sui::coin::{Self, Coin};
     use sui::display::{Self};
     use sui::event;
     use sui::kiosk::{Self, Kiosk, KioskOwnerCap};
-    use sui::object::{Self, ID, UID};
-    use sui::object_table::{Self, ObjectTable};
+    use sui::object_table::ObjectTable;
     use sui::package::{Self};
     use sui::sui::{SUI};
     use sui::table_vec::{Self, TableVec};
-    use sui::transfer::{Self};
     use sui::transfer_policy::{TransferPolicy};
-    use sui::tx_context::{Self, TxContext};
 
-    use galliun::attributes::{Self, Attributes};
+    use galliun::attributes::Attributes;
     use galliun::water_cooler::{Self , MizuNFT, WaterCooler};
 
     // === Errors ===
 
-    const EInvalidDestroyCapForMintReceipt: u64 = 2;
     const EInvalidPaymentAmount: u64 = 4;
+    const EInvalidPhaseNumber: u64 = 5;
     const EInvalidPrice: u64 = 6;
-    const EInvalidRevealMintCapForMint: u64 = 7;
-    const EInvalidReceiptForMint: u64 = 8;
     const EInvalidStatusNumber: u64 = 9;
-    const EMigrationMintWarehouseNotIntialized: u64 = 12;
-    const EMigrationWarehouseAlreadyInitialized: u64 = 13;
-    const EMigrationWarehouseNotEmpty: u64 = 14;
-    const EMigrationWarehouseNotInitialized: u64 = 15;
-    const EMintClaimPeriodNotExpired: u64 = 16;
+    const EInvalidTicketForMintPhase: u64 = 10;
     const EMintNotLive: u64 = 17;
     const EMintWarehouseAlreadyInitialized: u64 = 19;
     const EMintWarehouseNotEmpty: u64 = 20;
@@ -64,6 +52,7 @@ module galliun::mint {
     public struct MintSettings has key {
         id: UID,
         price: u64,
+        phase: u8,
         status: u8,
     }
 
@@ -71,6 +60,16 @@ module galliun::mint {
         id: UID,
         nfts: TableVec<MizuNFT>,
         is_initialized: bool,
+    }
+
+    public struct WhitelistTicket has key {
+        id: UID,
+        phase: u8,
+    }
+
+    public struct OriginalGangsterTicket has key {
+        id: UID,
+        phase: u8,
     }
 
     // === Events ===
@@ -101,7 +100,23 @@ module galliun::mint {
     ) {
       let publisher = package::claim(otw, ctx);
 
-      transfer::public_transfer(publisher, tx_context::sender(ctx));
+        let mut wl_ticket_display = display::new<WhitelistTicket>(&publisher, ctx);
+        wl_ticket_display.add(b"name".to_string(), b"name".to_string());
+        wl_ticket_display.add(b"description".to_string(), b"description".to_string());
+        wl_ticket_display.add(b"number".to_string(), b"{number}".to_string());
+        wl_ticket_display.add(b"image_url".to_string(), b"image_url".to_string());
+        wl_ticket_display.update_version();
+        transfer::public_transfer(wl_ticket_display, ctx.sender());
+
+        let mut og_ticket_display = display::new<OriginalGangsterTicket>(&publisher, ctx);
+        og_ticket_display.add(b"name".to_string(), b"name".to_string());
+        og_ticket_display.add(b"description".to_string(), b"description".to_string());
+        og_ticket_display.add(b"number".to_string(), b"{number}".to_string());
+        og_ticket_display.add(b"image_url".to_string(), b"image_url".to_string());
+        og_ticket_display.update_version();
+        transfer::public_transfer(og_ticket_display, ctx.sender());
+
+      transfer::public_transfer(publisher, ctx.sender());
     }
 
     public(package) fun create_mint_distributer(ctx: &mut TxContext) {
@@ -110,6 +125,7 @@ module galliun::mint {
         let mint_settings = MintSettings {
           id: object::new(ctx),
           price: 0,
+          phase: 0,
           status: 0,
         };
         
@@ -134,13 +150,31 @@ module galliun::mint {
         transfer::share_object(mint_warehouse);
     }
 
+    public(package) fun create_wl_distributer(ctx: &mut TxContext) {
+        let whitelist_ticket =  WhitelistTicket {
+            id: object::new(ctx),
+            phase: 0,
+        };
+
+        transfer::transfer(whitelist_ticket, tx_context::sender(ctx));
+    }
+
+    public(package) fun create_og_distributer(ctx: &mut TxContext) {
+        let og_ticket =  OriginalGangsterTicket {
+            id: object::new(ctx),
+            phase: 0,
+        };
+
+        transfer::transfer(og_ticket, tx_context::sender(ctx));
+    }
+
     // === Public-Mutative Functions ===
 
     public fun public_mint(
-      payment: Coin<SUI>,
-      warehouse: &mut MintWarehouse,
-      settings: &MintSettings,
-      ctx: &mut TxContext,
+        payment: Coin<SUI>,
+        warehouse: &mut MintWarehouse,
+        settings: &MintSettings,
+        ctx: &mut TxContext,
     ) {
         assert!(table_vec::length(&warehouse.nfts) > 0, EWarehouseIsEmpty);
 
@@ -151,6 +185,44 @@ module galliun::mint {
         let nft = table_vec::pop_back(&mut warehouse.nfts);
 
         mint_internal(nft, payment, ctx);
+    }
+
+    public fun whitelist_mint(
+        ticket: WhitelistTicket,
+        payment: Coin<SUI>,
+        warehouse: &mut MintWarehouse,
+        settings: &MintSettings,
+        ctx: &mut TxContext,
+    ) {
+        assert!(settings.status == 1, EMintNotLive);
+        assert!(ticket.phase == settings.phase, EInvalidTicketForMintPhase);
+
+        assert!(payment.value() == settings.price, EInvalidPaymentAmount);
+
+        let nft = warehouse.nfts.pop_back();
+        mint_internal(nft, payment, ctx);
+
+        let WhitelistTicket { id, phase: _ } = ticket;
+        id.delete();
+    }
+
+    public fun og_mint(
+        ticket: OriginalGangsterTicket,
+        payment: Coin<SUI>,
+        warehouse: &mut MintWarehouse,
+        settings: &MintSettings,
+        ctx: &mut TxContext,
+    ) {
+        assert!(settings.status == 1, EMintNotLive);
+        assert!(ticket.phase == settings.phase, EInvalidTicketForMintPhase);
+
+        assert!(payment.value() == settings.price, EInvalidPaymentAmount);
+
+        let nft = warehouse.nfts.pop_back();
+        mint_internal(nft, payment, ctx);
+
+        let OriginalGangsterTicket { id, phase: _ } = ticket;
+        id.delete();
     }
 
     public fun claim_mint(
@@ -230,6 +302,7 @@ module galliun::mint {
         object::delete(id);
     }
 
+    // Set mint price, status, phase
     public fun admin_set_mint_price(
         _: &MintAdminCap,
         price: u64,
@@ -250,6 +323,15 @@ module galliun::mint {
         settings.status = status;
     }
 
+    public fun admin_set_mint_phase(
+        _: &MintAdminCap,
+        phase: u8,
+        settings: &mut MintSettings,
+        _: &TxContext,
+    ) {
+        assert!(phase >= 1 && phase <= 3, EInvalidPhaseNumber);
+        settings.phase = phase;
+    }
 
     public fun admin_reveal_mint(
         _: &MintAdminCap,
@@ -263,6 +345,35 @@ module galliun::mint {
         water_cooler::set_image(nft, image);
 
         mint.is_revealed = true;
+    }
+
+    // === Modify wl & og tickets display
+    public fun set_wl_ticket_display_name(
+        wl_ticket_display: &mut display::Display<WhitelistTicket>, 
+        new_name: String
+    ) {
+        display::edit(wl_ticket_display, b"name".to_string(), new_name);
+    }
+
+    public fun set_wl_ticket_display_image(
+        wl_ticket_display: &mut display::Display<WhitelistTicket>, 
+        new_image: String
+    ) {
+        display::edit(wl_ticket_display, b"image_url".to_string(), new_image);
+    }
+
+    public fun set_og_ticket_display_name(
+        wl_ticket_display: &mut display::Display<OriginalGangsterTicket>, 
+        new_name: String
+    ) {
+        display::edit(wl_ticket_display, b"name".to_string(), new_name);
+    }
+
+    public fun set_og_ticket_display_image(
+        wl_ticket_display: &mut display::Display<OriginalGangsterTicket>, 
+        new_image: String
+    ) {
+        display::edit(wl_ticket_display, b"image_url".to_string(), new_image);
     }
 
     fun mint_internal(
@@ -314,5 +425,11 @@ module galliun::mint {
         option::destroy_none(nft);
         option::destroy_none(payment);
         object::delete(id);
+    }
+
+    // === Test Functions ===
+    #[test_only]
+    public fun init_for_testing(ctx: &mut TxContext) {
+      init(MINT {}, ctx);
     }
 }
