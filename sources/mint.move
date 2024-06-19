@@ -41,7 +41,7 @@ module galliun::mint {
 
     public struct Mint has key {
         id: UID,
-        number: u16,    
+        number: u64,    
         nft: Option<MizuNFT>,
         payment: Option<Coin<SUI>>,
         is_revealed: bool,
@@ -77,7 +77,7 @@ module galliun::mint {
     
     public struct MintClaimedEvent has copy, drop {
         nft_id: ID,
-        nft_number: u16,
+        nft_number: u64,
         claimed_by: address,
         kiosk_id: ID,
     }
@@ -85,7 +85,7 @@ module galliun::mint {
     public struct MintEvent has copy, drop {
         mint_id: ID,
         nft_id: ID,
-        nft_number: u16,
+        nft_number: u64,
         minted_by: address,
     }
 
@@ -94,7 +94,6 @@ module galliun::mint {
 
     // === Init Function ===
 
-    #[allow(unused_variable)]
     fun init(
         otw: MINT,
         ctx: &mut TxContext,
@@ -119,6 +118,200 @@ module galliun::mint {
 
         transfer::public_transfer(publisher, ctx.sender());
     }
+
+    // === Public-Mutative Functions ===
+
+    public fun public_mint(
+        payment: Coin<SUI>,
+        warehouse: &mut MintWarehouse,
+        settings: &MintSettings,
+        ctx: &mut TxContext,
+    ) {
+        assert!(warehouse.nfts.length() > 0, EWarehouseIsEmpty);
+        assert!(settings.status == 1, EMintNotLive);
+        assert!(payment.value() == settings.price, EInvalidPaymentAmount);
+
+        mint_internal(warehouse, payment, ctx);
+    }
+
+    public fun whitelist_mint(
+        ticket: WhitelistTicket,
+        payment: Coin<SUI>,
+        warehouse: &mut MintWarehouse,
+        settings: &MintSettings,
+        ctx: &mut TxContext,
+    ) {
+        let WhitelistTicket { id, phase } = ticket;
+        id.delete();
+
+        assert!(settings.status == 1, EMintNotLive);
+        assert!(phase == settings.phase, EInvalidTicketForMintPhase);
+        assert!(payment.value() == settings.price, EInvalidPaymentAmount);
+
+        mint_internal(warehouse, payment, ctx);
+    }
+
+    public fun og_mint(
+        ticket: OriginalGangsterTicket,
+        payment: Coin<SUI>,
+        warehouse: &mut MintWarehouse,
+        settings: &MintSettings,
+        ctx: &mut TxContext,
+    ) {
+        let OriginalGangsterTicket { id, phase } = ticket;
+        id.delete();
+
+        assert!(settings.status == 1, EMintNotLive);
+        assert!(phase == settings.phase, EInvalidTicketForMintPhase);
+        assert!(payment.value() == settings.price, EInvalidPaymentAmount);
+
+        mint_internal(warehouse, payment, ctx);
+    }
+
+    public fun claim_mint(
+        water_cooler: &mut WaterCooler,
+        mut mint: Mint,
+        kiosk: &mut Kiosk,
+        kiosk_owner_cap: &KioskOwnerCap,
+        policy: &TransferPolicy<MizuNFT>,
+        ctx: &TxContext,
+    ) {
+        assert!(mint.is_revealed == true, EMizuNFTNotRevealed);
+
+        // Extract MizuNFT and payment from Mint.
+        let nft = mint.nft.extract();
+        let payment = mint.payment.extract();
+
+        event::emit(
+            MintClaimedEvent {
+                nft_id: object::id(&nft),
+                nft_number: nft.number(),
+                claimed_by: ctx.sender(),
+                kiosk_id: object::id(kiosk),
+            }
+        );
+
+        // Lock MizuNFT into buyer's kiosk.
+        kiosk.lock(kiosk_owner_cap, policy, nft);
+        // collect payment
+        water_cooler.add_balance(payment);
+        // Destroy the mint.
+        destroy_mint_internal(mint);
+    }
+
+    // === Admin functions ===
+
+    /// Add MizuNFTs to the mint warehouse.
+    public fun add_to_mint_warehouse(
+        _: &MintAdminCap,
+        water_cooler: &WaterCooler,
+        mut nfts: vector<MizuNFT>,
+        warehouse: &mut MintWarehouse,
+    ) {
+        assert!(warehouse.is_initialized == false, EMintWarehouseAlreadyInitialized);
+
+        while (!nfts.is_empty()) {
+            let pfp = nfts.pop_back();
+            warehouse.nfts.push_back(pfp);
+        };
+        nfts.destroy_empty();
+
+        if (warehouse.nfts.length() == water_cooler.supply()) {
+            warehouse.is_initialized = true;
+        };
+    }
+
+
+    /// Destroy an empty mint warehouse when it's no longer needed.
+    public fun destroy_mint_warehouse(
+        _: &MintAdminCap,
+        warehouse: MintWarehouse,
+    ) {
+        assert!(warehouse.nfts.is_empty(), EMintWarehouseNotEmpty);
+        assert!(warehouse.is_initialized == true, EMintWarehouseNotInitialized);
+
+        let MintWarehouse {
+            id,
+            nfts,
+            is_initialized: _,
+        } = warehouse;
+
+        nfts.destroy_empty();
+        id.delete();
+    }
+
+    // Set mint price, status, phase
+    public fun set_mint_price(
+        _: &MintAdminCap,
+        price: u64,
+        settings: &mut MintSettings,
+    ) {
+        assert!(price > 0, EInvalidPrice);
+        settings.price = price;
+    }
+
+    public fun set_mint_status(
+        _: &MintAdminCap,
+        status: u8,
+        settings: &mut MintSettings,
+    ) {
+        assert!(settings.status == 0 || settings.status == 1, EInvalidStatusNumber);
+        settings.status = status;
+    }
+
+    public fun set_mint_phase(
+        _: &MintAdminCap,
+        phase: u8,
+        settings: &mut MintSettings,
+    ) {
+        assert!(phase >= 1 && phase <= 3, EInvalidPhaseNumber);
+        settings.phase = phase;
+    }
+
+    public fun reveal_mint(
+        _: &MintAdminCap,
+        mint: &mut Mint,
+        attributes: Attributes,
+        image: String
+    ) {
+        let nft = option::borrow_mut(&mut mint.nft);
+
+        water_cooler::set_attributes(nft, attributes);
+        water_cooler::set_image(nft, image);
+
+        mint.is_revealed = true;
+    }
+
+    // Modify wl & og tickets display
+    public fun set_wl_ticket_display_name(
+        wl_ticket_display: &mut Display<WhitelistTicket>, 
+        new_name: String
+    ) {
+        wl_ticket_display.edit(b"name".to_string(), new_name);
+    }
+
+    public fun set_wl_ticket_display_image(
+        wl_ticket_display: &mut Display<WhitelistTicket>, 
+        new_image: String
+    ) {
+        wl_ticket_display.edit(b"image_url".to_string(), new_image);
+    }
+
+    public fun set_og_ticket_display_name(
+        wl_ticket_display: &mut Display<OriginalGangsterTicket>, 
+        new_name: String
+    ) {
+        wl_ticket_display.edit(b"name".to_string(), new_name);
+    }
+
+    public fun set_og_ticket_display_image(
+        wl_ticket_display: &mut Display<OriginalGangsterTicket>, 
+        new_image: String
+    ) {
+        wl_ticket_display.edit(b"image_url".to_string(), new_image);
+    }
+
+    // === Package functions ===
 
     public(package) fun create_mint_distributer(ctx: &mut TxContext) {
         // This might need to be moved to a seperate function
@@ -169,212 +362,15 @@ module galliun::mint {
         transfer::transfer(og_ticket, ctx.sender());
     }
 
-    // === Public-Mutative Functions ===
-
-    public fun public_mint(
-        payment: Coin<SUI>,
-        warehouse: &mut MintWarehouse,
-        settings: &MintSettings,
-        ctx: &mut TxContext,
-    ) {
-        assert!(warehouse.nfts.length() > 0, EWarehouseIsEmpty);
-
-        assert!(settings.status == 1, EMintNotLive);
-
-        assert!(payment.value() == settings.price, EInvalidPaymentAmount);
-
-        let nft = warehouse.nfts.pop_back();
-
-        mint_internal(nft, payment, ctx);
-    }
-
-    public fun whitelist_mint(
-        ticket: WhitelistTicket,
-        payment: Coin<SUI>,
-        warehouse: &mut MintWarehouse,
-        settings: &MintSettings,
-        ctx: &mut TxContext,
-    ) {
-        assert!(settings.status == 1, EMintNotLive);
-        assert!(ticket.phase == settings.phase, EInvalidTicketForMintPhase);
-
-        assert!(payment.value() == settings.price, EInvalidPaymentAmount);
-
-        let nft = warehouse.nfts.pop_back();
-        mint_internal(nft, payment, ctx);
-
-        let WhitelistTicket { id, phase: _ } = ticket;
-        id.delete();
-    }
-
-    public fun og_mint(
-        ticket: OriginalGangsterTicket,
-        payment: Coin<SUI>,
-        warehouse: &mut MintWarehouse,
-        settings: &MintSettings,
-        ctx: &mut TxContext,
-    ) {
-        assert!(settings.status == 1, EMintNotLive);
-        assert!(ticket.phase == settings.phase, EInvalidTicketForMintPhase);
-
-        assert!(payment.value() == settings.price, EInvalidPaymentAmount);
-
-        let nft = warehouse.nfts.pop_back();
-        mint_internal(nft, payment, ctx);
-
-        let OriginalGangsterTicket { id, phase: _ } = ticket;
-        id.delete();
-    }
-
-    public fun claim_mint(
-        water_cooler: &WaterCooler,
-        mint: &mut Mint,
-        kiosk: &mut Kiosk,
-        kiosk_owner_cap: &KioskOwnerCap,
-        policy: &TransferPolicy<MizuNFT>,
-        ctx: &TxContext,
-    ) {
-        assert!(mint.is_revealed == true, EMizuNFTNotRevealed);
-
-        // Extract MizuNFT and payment from Mint.
-        let nft = mint.nft.extract();
-        let payment = mint.payment.extract();
-
-        event::emit(
-            MintClaimedEvent {
-                nft_id: nft.id(),
-                nft_number: nft.number(),
-                claimed_by: ctx.sender(),
-                kiosk_id: object::id(kiosk),
-            }
-        );
-
-        // Lock MizuNFT into buyer's kiosk.
-        kiosk.lock(kiosk_owner_cap, policy, nft);
-
-        // Transfer payment to Water cooler owner.
-        transfer::public_transfer(payment, water_cooler.owner());
-
-        // Destroy the mint.
-        // destroy_mint_internal(mint);
-    }
-
-    /// Add MizuNFTs to the mint warehouse.
-    public fun admin_add_to_mint_warehouse(
-        _: &MintAdminCap,
-        water_cooler: &WaterCooler,
-        nfts: &mut vector<MizuNFT>,
-        warehouse: &mut MintWarehouse,
-    ) {
-        assert!(warehouse.is_initialized == false, EMintWarehouseAlreadyInitialized);
-
-        while (!nfts.is_empty()) {
-            let pfp = nfts.pop_back();
-            warehouse.nfts.push_back(pfp);
-        };
-
-        if (warehouse.nfts.length() == water_cooler.size() as u64) {
-            warehouse.is_initialized = true;
-        };
-        
-        // vector::destroy_empty(nfts);
-    }
-
-
-    /// Destroy an empty mint warehouse when it's no longer needed.
-    public fun admin_destroy_mint_warehouse(
-        _: &MintAdminCap,
-        warehouse: MintWarehouse,
-    ) {
-        assert!(warehouse.nfts.is_empty(), EMintWarehouseNotEmpty);
-        assert!(warehouse.is_initialized == true, EMintWarehouseNotInitialized);
-
-        let MintWarehouse {
-            id,
-            nfts,
-            is_initialized: _,
-        } = warehouse;
-
-        nfts.destroy_empty();
-        id.delete();
-    }
-
-    // Set mint price, status, phase
-    public fun admin_set_mint_price(
-        _: &MintAdminCap,
-        price: u64,
-        settings: &mut MintSettings,
-    ) {
-        assert!(price > 0, EInvalidPrice);
-        settings.price = price;
-    }
-
-    public fun admin_set_mint_status(
-        _: &MintAdminCap,
-        status: u8,
-        settings: &mut MintSettings,
-    ) {
-        assert!(settings.status == 0 || settings.status == 1, EInvalidStatusNumber);
-        settings.status = status;
-    }
-
-    public fun admin_set_mint_phase(
-        _: &MintAdminCap,
-        phase: u8,
-        settings: &mut MintSettings,
-    ) {
-        assert!(phase >= 1 && phase <= 3, EInvalidPhaseNumber);
-        settings.phase = phase;
-    }
-
-    public fun admin_reveal_mint(
-        _: &MintAdminCap,
-        mint: &mut Mint,
-        attributes: Attributes,
-        image: String
-    ) {
-        let nft = option::borrow_mut(&mut mint.nft);
-
-        water_cooler::set_attributes(nft, attributes);
-        water_cooler::set_image(nft, image);
-
-        mint.is_revealed = true;
-    }
-
-    // Modify wl & og tickets display
-    public fun set_wl_ticket_display_name(
-        wl_ticket_display: &mut Display<WhitelistTicket>, 
-        new_name: String
-    ) {
-        wl_ticket_display.edit(b"name".to_string(), new_name);
-    }
-
-    public fun set_wl_ticket_display_image(
-        wl_ticket_display: &mut Display<WhitelistTicket>, 
-        new_image: String
-    ) {
-        wl_ticket_display.edit(b"image_url".to_string(), new_image);
-    }
-
-    public fun set_og_ticket_display_name(
-        wl_ticket_display: &mut Display<OriginalGangsterTicket>, 
-        new_name: String
-    ) {
-        wl_ticket_display.edit(b"name".to_string(), new_name);
-    }
-
-    public fun set_og_ticket_display_image(
-        wl_ticket_display: &mut Display<OriginalGangsterTicket>, 
-        new_image: String
-    ) {
-        wl_ticket_display.edit(b"image_url".to_string(), new_image);
-    }
+    // === Private Functions ===
 
     fun mint_internal(
-        nft: MizuNFT,
+        warehouse: &mut MintWarehouse,
         payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
+        let nft = warehouse.nfts.pop_back();
+
         let mut mint = Mint {
             id: object::new(ctx),
             number: nft.number(),
@@ -388,22 +384,20 @@ module galliun::mint {
         event::emit(
             MintEvent {
                 mint_id: object::id(&mint),
-                nft_id: nft.id(),
+                nft_id: object::id(&nft),
                 nft_number: nft.number(),
                 minted_by: ctx.sender(),
             }
         );
 
         mint.nft.fill(nft);
-        let nftMut = mint.nft.borrow_mut();
-        nftMut.set_minted_by_address(ctx.sender());
+        let nft_mut = mint.nft.borrow_mut();
+        nft_mut.set_minted_by_address(ctx.sender());
 
         transfer::share_object(mint);
     }
 
-    fun destroy_mint_internal(
-        mint: Mint,
-    ) {
+    fun destroy_mint_internal(mint: Mint) {
         let Mint {
             id,
             number: _,
