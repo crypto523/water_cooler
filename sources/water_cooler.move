@@ -65,6 +65,7 @@ module galliun::water_cooler {
 
     // === Public mutative functions ===
 
+    #[allow(lint(share_owned))]
     fun init(otw: WATER_COOLER, ctx: &mut TxContext) {
         // Claim the Publisher object.
         let publisher = sui::package::claim(otw, ctx);
@@ -230,7 +231,7 @@ module galliun::water_cooler {
     }
 
     // === Test Functions ===
-    
+
     #[test_only]
     public fun init_for_testing(ctx: &mut TxContext) {
         init(WATER_COOLER {}, ctx);

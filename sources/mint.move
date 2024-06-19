@@ -6,7 +6,7 @@ module galliun::mint {
         coin::Coin,
         display::{Self, Display},
         event,
-        kiosk::{Self, Kiosk, KioskOwnerCap},
+        kiosk::{Kiosk, KioskOwnerCap},
         package::{Self},
         sui::{SUI},
         table_vec::{Self, TableVec},
