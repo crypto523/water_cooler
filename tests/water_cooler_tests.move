@@ -10,7 +10,7 @@ module galliun::water_cooler_tests {
     // === Users ===
     const USER: address = @0xab;
     
-  #[test]
+    #[test]
     fun test_water_cooler() {
 
         let mut scenario_val = test_scenario::begin(USER);

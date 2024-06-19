@@ -1,20 +1,21 @@
 module galliun::mint {
-
     // === Imports ===
+
     use std::string::String;
-
-    use sui::coin::{Self, Coin};
-    use sui::display::{Self};
-    use sui::event;
-    use sui::kiosk::{Self, Kiosk, KioskOwnerCap};
-    use sui::object_table::ObjectTable;
-    use sui::package::{Self};
-    use sui::sui::{SUI};
-    use sui::table_vec::{Self, TableVec};
-    use sui::transfer_policy::{TransferPolicy};
-
-    use galliun::attributes::Attributes;
-    use galliun::water_cooler::{Self , MizuNFT, WaterCooler};
+    use sui::{
+        coin::Coin,
+        display::{Self, Display},
+        event,
+        kiosk::{Self, Kiosk, KioskOwnerCap},
+        package::{Self},
+        sui::{SUI},
+        table_vec::{Self, TableVec},
+        transfer_policy::{TransferPolicy},
+    };
+    use galliun::{
+        attributes::Attributes,
+        water_cooler::{Self, MizuNFT, WaterCooler},
+    };
 
     // === Errors ===
 
@@ -98,7 +99,7 @@ module galliun::mint {
         otw: MINT,
         ctx: &mut TxContext,
     ) {
-      let publisher = package::claim(otw, ctx);
+        let publisher = package::claim(otw, ctx);
 
         let mut wl_ticket_display = display::new<WhitelistTicket>(&publisher, ctx);
         wl_ticket_display.add(b"name".to_string(), b"name".to_string());
@@ -116,31 +117,31 @@ module galliun::mint {
         og_ticket_display.update_version();
         transfer::public_transfer(og_ticket_display, ctx.sender());
 
-      transfer::public_transfer(publisher, ctx.sender());
+        transfer::public_transfer(publisher, ctx.sender());
     }
 
     public(package) fun create_mint_distributer(ctx: &mut TxContext) {
-      // This might need to be moved to a seperate function
+        // This might need to be moved to a seperate function
         // that will be called by the owner of the WaterCooler
         let mint_settings = MintSettings {
-          id: object::new(ctx),
-          price: 0,
-          phase: 0,
-          status: 0,
+            id: object::new(ctx),
+            price: 0,
+            phase: 0,
+            status: 0,
         };
         
         // This might need to be moved to a seperate function
         // that will be called by the owner of the WaterCooler
         let mint_warehouse = MintWarehouse {
-          id: object::new(ctx),
-          nfts: table_vec::empty(ctx),
-          is_initialized: false,
+            id: object::new(ctx),
+            nfts: table_vec::empty(ctx),
+            is_initialized: false,
         };
 
         let adminCap = MintAdminCap{ id: object::new(ctx) };
 
         // Here we transfer the mint admin cap to the person that bought the WaterCooler
-        transfer::transfer(adminCap, tx_context::sender(ctx));
+        transfer::transfer(adminCap, ctx.sender());
 
       // This might need to be moved to a seperate function
         // that will be called by the owner of the WaterCooler
@@ -156,7 +157,7 @@ module galliun::mint {
             phase: 0,
         };
 
-        transfer::transfer(whitelist_ticket, tx_context::sender(ctx));
+        transfer::transfer(whitelist_ticket, ctx.sender());
     }
 
     public(package) fun create_og_distributer(ctx: &mut TxContext) {
@@ -165,7 +166,7 @@ module galliun::mint {
             phase: 0,
         };
 
-        transfer::transfer(og_ticket, tx_context::sender(ctx));
+        transfer::transfer(og_ticket, ctx.sender());
     }
 
     // === Public-Mutative Functions ===
@@ -176,13 +177,13 @@ module galliun::mint {
         settings: &MintSettings,
         ctx: &mut TxContext,
     ) {
-        assert!(table_vec::length(&warehouse.nfts) > 0, EWarehouseIsEmpty);
+        assert!(warehouse.nfts.length() > 0, EWarehouseIsEmpty);
 
         assert!(settings.status == 1, EMintNotLive);
 
-        assert!(coin::value(&payment) == settings.price, EInvalidPaymentAmount);
+        assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
-        let nft = table_vec::pop_back(&mut warehouse.nfts);
+        let nft = warehouse.nfts.pop_back();
 
         mint_internal(nft, payment, ctx);
     }
@@ -226,7 +227,7 @@ module galliun::mint {
     }
 
     public fun claim_mint(
-        waterCooler: &WaterCooler,
+        water_cooler: &WaterCooler,
         mint: &mut Mint,
         kiosk: &mut Kiosk,
         kiosk_owner_cap: &KioskOwnerCap,
@@ -236,23 +237,23 @@ module galliun::mint {
         assert!(mint.is_revealed == true, EMizuNFTNotRevealed);
 
         // Extract MizuNFT and payment from Mint.
-        let nft = option::extract(&mut mint.nft);
-        let payment = option::extract(&mut mint.payment);
+        let nft = mint.nft.extract();
+        let payment = mint.payment.extract();
 
         event::emit(
-          MintClaimedEvent {
-            nft_id: water_cooler::id(&nft),
-            nft_number: water_cooler::number(&nft),
-            claimed_by: tx_context::sender(ctx),
-            kiosk_id: object::id(kiosk),
-          }
+            MintClaimedEvent {
+                nft_id: nft.id(),
+                nft_number: nft.number(),
+                claimed_by: ctx.sender(),
+                kiosk_id: object::id(kiosk),
+            }
         );
 
         // Lock MizuNFT into buyer's kiosk.
-        kiosk::lock(kiosk, kiosk_owner_cap, policy, nft);
+        kiosk.lock(kiosk_owner_cap, policy, nft);
 
         // Transfer payment to Water cooler owner.
-        transfer::public_transfer(payment, water_cooler::owner(waterCooler));
+        transfer::public_transfer(payment, water_cooler.owner());
 
         // Destroy the mint.
         // destroy_mint_internal(mint);
@@ -261,23 +262,20 @@ module galliun::mint {
     /// Add MizuNFTs to the mint warehouse.
     public fun admin_add_to_mint_warehouse(
         _: &MintAdminCap,
-        waterCooler: &WaterCooler,
+        water_cooler: &WaterCooler,
         nfts: &mut vector<MizuNFT>,
         warehouse: &mut MintWarehouse,
-        _: &TxContext,
     ) {
-
         assert!(warehouse.is_initialized == false, EMintWarehouseAlreadyInitialized);
 
-        while (!vector::is_empty(nfts)) {
-            let pfp = vector::pop_back(nfts);
-            table_vec::push_back(&mut warehouse.nfts, pfp);
+        while (!nfts.is_empty()) {
+            let pfp = nfts.pop_back();
+            warehouse.nfts.push_back(pfp);
         };
 
-        if ((table_vec::length(&warehouse.nfts) as u16) == water_cooler::size(waterCooler)) {
+        if (warehouse.nfts.length() == water_cooler.size() as u64) {
             warehouse.is_initialized = true;
         };
-
         
         // vector::destroy_empty(nfts);
     }
@@ -287,9 +285,8 @@ module galliun::mint {
     public fun admin_destroy_mint_warehouse(
         _: &MintAdminCap,
         warehouse: MintWarehouse,
-        _: &TxContext,
     ) {
-        assert!(table_vec::is_empty(&warehouse.nfts), EMintWarehouseNotEmpty);
+        assert!(warehouse.nfts.is_empty(), EMintWarehouseNotEmpty);
         assert!(warehouse.is_initialized == true, EMintWarehouseNotInitialized);
 
         let MintWarehouse {
@@ -298,8 +295,8 @@ module galliun::mint {
             is_initialized: _,
         } = warehouse;
 
-        table_vec::destroy_empty(nfts);
-        object::delete(id);
+        nfts.destroy_empty();
+        id.delete();
     }
 
     // Set mint price, status, phase
@@ -307,7 +304,6 @@ module galliun::mint {
         _: &MintAdminCap,
         price: u64,
         settings: &mut MintSettings,
-        _: &TxContext,
     ) {
         assert!(price > 0, EInvalidPrice);
         settings.price = price;
@@ -317,7 +313,6 @@ module galliun::mint {
         _: &MintAdminCap,
         status: u8,
         settings: &mut MintSettings,
-        _: &TxContext,
     ) {
         assert!(settings.status == 0 || settings.status == 1, EInvalidStatusNumber);
         settings.status = status;
@@ -327,7 +322,6 @@ module galliun::mint {
         _: &MintAdminCap,
         phase: u8,
         settings: &mut MintSettings,
-        _: &TxContext,
     ) {
         assert!(phase >= 1 && phase <= 3, EInvalidPhaseNumber);
         settings.phase = phase;
@@ -347,33 +341,33 @@ module galliun::mint {
         mint.is_revealed = true;
     }
 
-    // === Modify wl & og tickets display
+    // Modify wl & og tickets display
     public fun set_wl_ticket_display_name(
-        wl_ticket_display: &mut display::Display<WhitelistTicket>, 
+        wl_ticket_display: &mut Display<WhitelistTicket>, 
         new_name: String
     ) {
-        display::edit(wl_ticket_display, b"name".to_string(), new_name);
+        wl_ticket_display.edit(b"name".to_string(), new_name);
     }
 
     public fun set_wl_ticket_display_image(
-        wl_ticket_display: &mut display::Display<WhitelistTicket>, 
+        wl_ticket_display: &mut Display<WhitelistTicket>, 
         new_image: String
     ) {
-        display::edit(wl_ticket_display, b"image_url".to_string(), new_image);
+        wl_ticket_display.edit(b"image_url".to_string(), new_image);
     }
 
     public fun set_og_ticket_display_name(
-        wl_ticket_display: &mut display::Display<OriginalGangsterTicket>, 
+        wl_ticket_display: &mut Display<OriginalGangsterTicket>, 
         new_name: String
     ) {
-        display::edit(wl_ticket_display, b"name".to_string(), new_name);
+        wl_ticket_display.edit(b"name".to_string(), new_name);
     }
 
     public fun set_og_ticket_display_image(
-        wl_ticket_display: &mut display::Display<OriginalGangsterTicket>, 
+        wl_ticket_display: &mut Display<OriginalGangsterTicket>, 
         new_image: String
     ) {
-        display::edit(wl_ticket_display, b"image_url".to_string(), new_image);
+        wl_ticket_display.edit(b"image_url".to_string(), new_image);
     }
 
     fun mint_internal(
@@ -383,28 +377,26 @@ module galliun::mint {
     ) {
         let mut mint = Mint {
             id: object::new(ctx),
-            number: water_cooler::number(&nft),
+            number: nft.number(),
             nft: option::none(),
             payment: option::some(payment),
             is_revealed: false,
-            minted_by: tx_context::sender(ctx),
-            claim_expiration_epoch: tx_context::epoch(ctx) + EPOCHS_TO_CLAIM_MINT,
+            minted_by: ctx.sender(),
+            claim_expiration_epoch: ctx.epoch() + EPOCHS_TO_CLAIM_MINT,
         };
 
         event::emit(
             MintEvent {
                 mint_id: object::id(&mint),
-                nft_id: water_cooler::id(&nft),
-                nft_number: water_cooler::number(&nft),
-                minted_by: tx_context::sender(ctx),
+                nft_id: nft.id(),
+                nft_number: nft.number(),
+                minted_by: ctx.sender(),
             }
         );
 
-        option::fill(&mut mint.nft, nft);
-
-        let nftMut = option::borrow_mut(&mut mint.nft);
-
-        water_cooler::set_minted_by_address(nftMut, tx_context::sender(ctx));
+        mint.nft.fill(nft);
+        let nftMut = mint.nft.borrow_mut();
+        nftMut.set_minted_by_address(ctx.sender());
 
         transfer::share_object(mint);
     }
@@ -430,6 +422,6 @@ module galliun::mint {
     // === Test Functions ===
     #[test_only]
     public fun init_for_testing(ctx: &mut TxContext) {
-      init(MINT {}, ctx);
+        init(MINT {}, ctx);
     }
 }

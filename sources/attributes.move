@@ -1,16 +1,8 @@
 module galliun::attributes {
-
     // === Imports ===
 
     use std::string::{String};
-
-    use sui::object::{Self, ID, UID};
-    use sui::tx_context::{TxContext};
     use sui::vec_map::{VecMap};
-
-    // === Friends ===
-
-    use galliun::water_cooler;
 
     // === Structs ===
     
@@ -26,6 +18,8 @@ module galliun::attributes {
     public struct AttributesData has store {
         map: VecMap<String, String>,
     }
+
+    // === Package functions ===
 
     /// Create an `Attributes` object with a `CreateAttributesCap`.
     public(package) fun new(
