@@ -1,59 +1,82 @@
 module galliun::cooler_factory {
-    use sui::sui::SUI;
-    use sui::coin::{Self, Coin};
-    use sui::balance::{Self, Balance};
+    // === Imports ===
+
     use std::string::{String};
+    use sui::{
+        sui::SUI,
+        coin::{Self, Coin},
+        balance::{Self, Balance},
+    };
     use galliun::water_cooler::{Self};
     use galliun::mint::{Self};
 
+    // === Errors ===
+
     const EInsufficientBalance: u64 = 0;
 
+    // === Structs ===
+
+    // shared object collecting fees from generated water coolers
     public struct CoolerFactory has key {
         id: UID,
-        price: u64,
+        fee: u64,
         balance: Balance<SUI>,
-        owner: address
     }
 
-    public struct FactoryOwnerCap has key { id: UID }
-    
+    public struct FactoryOwnerCap has key, store { id: UID }
+
+    // === Public mutative functions ===
+
     fun init(ctx: &mut TxContext) {
-        transfer::transfer(FactoryOwnerCap {
-        id: object::new(ctx)
-        }, tx_context::sender(ctx));
+        transfer::transfer(
+            FactoryOwnerCap { id: object::new(ctx) }, 
+            ctx.sender()
+        );
         
-        transfer::share_object(CoolerFactory {
-        id: object::new(ctx),
-        price: 100,
-        balance: balance::zero(),
-        owner: tx_context::sender(ctx)
-        });
+        transfer::share_object(
+            CoolerFactory {
+                id: object::new(ctx),
+                fee: 100,
+                balance: balance::zero(),
+            }
+        );
     }
 
     public entry fun buy_water_cooler(
-        factory: &mut CoolerFactory, payment: Coin<SUI>,
-        name: String, description: String, image_url: String,
-        size: u16, treasury: address, ctx: &mut TxContext
-        ) {
-        assert!(coin::value(&payment) >= factory.price, EInsufficientBalance);
-
-
+        factory: &mut CoolerFactory, 
+        payment: Coin<SUI>,
+        name: String, 
+        description: String, 
+        image_url: String,
+        supply: u64, 
+        treasury: address, 
+        ctx: &mut TxContext
+    ) {
+        assert!(payment.value() == factory.fee, EInsufficientBalance);
         // Create a WaterCooler and give it to the buyer
-        water_cooler::createWaterCooler(name, description, image_url, size, treasury, ctx);
-
+        water_cooler::create_water_cooler(name, description, image_url, supply, treasury, ctx);
         // Create a Mint distributer and give it to the buyer
         mint::create_mint_distributer(ctx);
-
-        // Send payment to the owner of the Factory
-        transfer::public_transfer(payment, factory.owner);
+        // Put fee into factory balance
+        factory.balance.join(payment.into_balance());
     }
 
     
-    public entry fun update_price(_: &FactoryOwnerCap, factory: &mut CoolerFactory, price: u64) {
-        factory.price = price;
+    public entry fun update_fee(_: &FactoryOwnerCap, factory: &mut CoolerFactory, fee: u64) {
+        factory.fee = fee;
     }
     
-    public entry fun update_owner(_: &FactoryOwnerCap, factory: &mut CoolerFactory, owner: address) {
-        factory.owner = owner;
+    public entry fun claim_fee(_: &FactoryOwnerCap, factory: &mut CoolerFactory, ctx: &mut TxContext) {
+        let value = factory.balance.value();
+        let coin = coin::take(&mut factory.balance, value, ctx);
+        transfer::public_transfer(coin, ctx.sender());
     }
+
+    // === Test Functions ===
+
+    #[test_only]
+    public fun init_for_testing(ctx: &mut TxContext) {
+        init(ctx);
+    }
+
 }
