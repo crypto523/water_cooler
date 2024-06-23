@@ -106,11 +106,10 @@ module galliun::water_cooler {
     public fun is_initialized(water_cooler: &WaterCooler): bool {
         water_cooler.is_initialized
     }
-    
-    // TO DO: create a treasury attribute and an update treasury function
-    // public fun treasury(water_cooler: &WaterCooler): address {
 
-    // }
+    public fun treasury(water_cooler: &WaterCooler): address {
+        water_cooler.treasury
+    }
 
     public fun number(nft: &MizuNFT): u64 {
         nft.number
