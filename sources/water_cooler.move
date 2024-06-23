@@ -180,6 +180,10 @@ module galliun::water_cooler {
         transfer::public_transfer(coin, ctx.sender());
     }
 
+    public fun set_treasury(_: &WaterCoolerAdminCap, water_cooler: &mut WaterCooler, treasury: address) {
+        water_cooler.treasury = treasury;
+    }
+
     // === Package Functions ===
 
     // The function that allow the Cooler Factory to create coolers and give them to creators
