@@ -126,7 +126,7 @@ module galliun::water_cooler {
     // === Admin Functions ===
 
     // TODO: might need to split in multiple calls if the supply is too high
-    #[allow(lint(share_owned))]
+    #[allow(lint(share_owned, self_transfer))]
     public fun initialize_water_cooler(
         _: &WaterCoolerAdminCap,
         water_cooler: &mut WaterCooler,
