@@ -119,7 +119,7 @@ module galliun::water_cooler_test {
     }
 
     #[test]
-    public fun test_cooler_factory() {
+    public fun test_public_mint() {
 
         let mut scenario_test = init_test_helper();
         let scenario = &mut scenario_test;
@@ -197,6 +197,34 @@ module galliun::water_cooler_test {
             ts::return_to_sender(scenario, mint_cap);
             ts::return_shared(mint_warehouse);
             ts::return_shared(water_cooler);
+        };
+        // set mint_price and status
+        ts::next_tx(scenario, TEST_ADDRESS1);
+        {
+            let mint_cap = ts::take_from_sender<MintAdminCap>(scenario);
+            let mut mint_settings = ts::take_shared<MintSettings>(scenario);
+            let price: u64 = 1_000_000_000;
+            let status: u8 = 1;
+
+            mint::set_mint_price(&mint_cap, &mut mint_settings, price);
+            mint::set_mint_status(&mint_cap, &mut mint_settings, status);
+
+            ts::return_to_sender(scenario, mint_cap);
+      
+            ts::return_shared(mint_settings);
+        };
+
+         // we can publish_mint 
+        ts::next_tx(scenario, TEST_ADDRESS1);
+        {
+            let mint_settings = ts::take_shared<MintSettings>(scenario);
+            let mut mint_warehouse = ts::take_shared<MintWarehouse>(scenario);
+            let coin_ = coin::mint_for_testing<SUI>(1_000_000_000, ts::ctx(scenario));
+
+            mint::public_mint(&mut mint_warehouse, &mint_settings, coin_, ts::ctx(scenario));
+            
+            ts::return_shared(mint_warehouse);
+            ts::return_shared(mint_settings);
         };
 
 

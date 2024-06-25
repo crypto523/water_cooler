@@ -122,9 +122,9 @@ module galliun::mint {
     // === Public-Mutative Functions ===
 
     public fun public_mint(
-        payment: Coin<SUI>,
         warehouse: &mut MintWarehouse,
         settings: &MintSettings,
+        payment: Coin<SUI>,        
         ctx: &mut TxContext,
     ) {
         assert!(warehouse.nfts.length() > 0, EWarehouseIsEmpty);
@@ -246,8 +246,8 @@ module galliun::mint {
     // Set mint price, status, phase
     public fun set_mint_price(
         cap: &MintAdminCap,
-        price: u64,
         settings: &mut MintSettings,
+        price: u64,
     ) {
         assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
 
@@ -257,8 +257,8 @@ module galliun::mint {
 
     public fun set_mint_status(
         cap: &MintAdminCap,
+        settings: &mut MintSettings,        
         status: u8,
-        settings: &mut MintSettings,
     ) {
         assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
         assert!(settings.status == 0 || settings.status == 1, EInvalidStatusNumber);
