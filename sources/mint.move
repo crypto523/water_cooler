@@ -136,9 +136,9 @@ module galliun::mint {
 
     public fun whitelist_mint(
         ticket: WhitelistTicket,
-        payment: Coin<SUI>,
         warehouse: &mut MintWarehouse,
         settings: &MintSettings,
+        payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
         let WhitelistTicket { id, phase } = ticket;
