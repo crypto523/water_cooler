@@ -90,7 +90,7 @@ module galliun::mint {
     }
 
     // Mint Admin cap this can be used to make changes to the mint setting and warehouse
-    public struct MintAdminCap has key { id: UID }
+    public struct MintAdminCap has key { id: UID, `for_setting`: ID, `for_warehouse`: ID}
 
     // === Init Function ===
 
@@ -332,7 +332,11 @@ module galliun::mint {
         };
 
         // Here we transfer the mint admin cap to the person that bought the WaterCooler
-        transfer::transfer(MintAdminCap{ id: object::new(ctx)}, ctx.sender());
+        transfer::transfer(MintAdminCap{
+             id: object::new(ctx),
+            `for_setting`: object::id(&mint_settings),
+            `for_warehouse`: object::id(&mint_warehouse)},
+             ctx.sender());
 
         // This might need to be moved to a seperate function
         // that will be called by the owner of the WaterCooler
