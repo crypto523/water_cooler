@@ -415,7 +415,7 @@ module galliun::mint {
 
     // === Test Functions ===
     #[test_only]
-    public fun init_for_testing(ctx: &mut TxContext) {
+    public fun init_for_mint(ctx: &mut TxContext) {
         init(MINT {}, ctx);
     }
 }

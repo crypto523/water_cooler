@@ -243,7 +243,7 @@ module galliun::water_cooler {
     // === Test Functions ===
 
     #[test_only]
-    public fun init_for_testing(ctx: &mut TxContext) {
+    public fun init_for_water(ctx: &mut TxContext) {
         init(WATER_COOLER {}, ctx);
     }
 
