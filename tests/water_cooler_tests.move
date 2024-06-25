@@ -13,7 +13,8 @@ module galliun::water_cooler_test {
     use std::string::{Self, String};
 
     use galliun::helpers::{Self, init_test_helper};
-    
+    use galliun::water_cooler::{Self, WaterCooler, WaterCoolerAdminCap, MizuNFT};
+
     const ADMIN: address = @0xA;
     const TEST_ADDRESS1: address = @0xB;
     const TEST_ADDRESS2: address = @0xC;
@@ -32,9 +33,32 @@ module galliun::water_cooler_test {
             let size = 150;
             helpers::create_water_cooler(scenario, name, description, image_url, size, TEST_ADDRESS1);
         };
-        
-    
 
+        // init WaterCooler. the number count to 1. So it is working. 
+        ts::next_tx(scenario, TEST_ADDRESS1);
+        {
+            let mut water_cooler = ts::take_shared<WaterCooler>(scenario);
+            let water_cooler_admin_cap = ts::take_from_sender<WaterCoolerAdminCap>(scenario);
+
+            water_cooler::initialize_water_cooler(&water_cooler_admin_cap, &mut water_cooler, ts::ctx(scenario));
+
+            ts::return_shared(water_cooler);
+            ts::return_to_sender(scenario, water_cooler_admin_cap);
+        };
+        ts::next_tx(scenario, TEST_ADDRESS1);
+        {
+            let water_cooler = ts::take_shared<WaterCooler>(scenario);
+
+            // Check Nft Created
+            assert!(ts::has_most_recent_for_sender<MizuNFT>(scenario), 0);
+            assert!(water_cooler.is_initialized() == true, 0);
+            // the number of supply should be stay as 150. 
+            assert_eq(water_cooler.supply(), 150);
+            // in the vec_map the nft ID 's are must be 150. 
+            assert_eq(water_cooler.get_nfts_num(), 150);
+            ts::return_shared(water_cooler);
+        };
+        
         ts::end(scenario_test);
     }
 }

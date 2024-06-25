@@ -1,6 +1,6 @@
 #[test_only]
 module galliun::helpers {
-    use sui::test_scenario::{Self as ts, next_tx,Scenario};
+    use sui::test_scenario::{Self as ts, next_tx, Scenario};
     use sui::clock::{Self};
     use std::string::{String};
 
