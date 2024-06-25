@@ -331,12 +331,10 @@ module galliun::mint {
             is_initialized: false,
         };
 
-        let adminCap = MintAdminCap{ id: object::new(ctx) };
-
         // Here we transfer the mint admin cap to the person that bought the WaterCooler
-        transfer::transfer(adminCap, ctx.sender());
+        transfer::transfer(MintAdminCap{ id: object::new(ctx)}, ctx.sender());
 
-      // This might need to be moved to a seperate function
+        // This might need to be moved to a seperate function
         // that will be called by the owner of the WaterCooler
         transfer::share_object(mint_settings);
         // This might need to be moved to a seperate function

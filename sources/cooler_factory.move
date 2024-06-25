@@ -66,10 +66,17 @@ module galliun::cooler_factory {
         factory.fee = fee;
     }
     
-    public entry fun claim_fee(_: &FactoryOwnerCap, factory: &mut CoolerFactory, ctx: &mut TxContext) {
+    public fun claim_fee(_: &FactoryOwnerCap, factory: &mut CoolerFactory, ctx: &mut TxContext) : Coin<SUI> {
         let value = factory.balance.value();
         let coin = coin::take(&mut factory.balance, value, ctx);
-        transfer::public_transfer(coin, ctx.sender());
+        coin
+    }
+
+    public fun get_balance(self: &CoolerFactory) : u64 {
+        self.balance.value()
+    }
+    public fun get_fee(self: &CoolerFactory) : u64 {
+        self.fee
     }
 
     // === Test Functions ===

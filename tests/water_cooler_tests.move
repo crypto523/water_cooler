@@ -14,6 +14,7 @@ module galliun::water_cooler_test {
 
     use galliun::helpers::{Self, init_test_helper};
     use galliun::water_cooler::{Self, WaterCooler, WaterCoolerAdminCap, MizuNFT};
+    use galliun::cooler_factory::{Self, CoolerFactory, FactoryOwnerCap};
 
     const ADMIN: address = @0xA;
     const TEST_ADDRESS1: address = @0xB;
@@ -24,14 +25,60 @@ module galliun::water_cooler_test {
 
         let mut scenario_test = init_test_helper();
         let scenario = &mut scenario_test;
-
+        
+        // User has to buy water_cooler from cooler_factory share object. 
         next_tx(scenario, TEST_ADDRESS1);
         {
+            let mut cooler_factory = ts::take_shared<CoolerFactory>(scenario);
+            let coin_ = coin::mint_for_testing<SUI>(100, ts::ctx(scenario));
+            
             let name = b"watercoolername".to_string();
             let description = b"some desc".to_string();
             let image_url = b"https://media.nfts.photos/nft.jpg".to_string();
-            let size = 150;
-            helpers::create_water_cooler(scenario, name, description, image_url, size, TEST_ADDRESS1);
+            let supply = 150;
+
+            cooler_factory::buy_water_cooler(
+                &mut cooler_factory,
+                coin_,
+                name,
+                description,
+                image_url,
+                supply,
+                TEST_ADDRESS1,
+                ts::ctx(scenario)
+            );
+            // check the balance 
+            assert_eq(cooler_factory.get_balance(), 100);
+
+            ts::return_shared(cooler_factory);
+        };
+
+        next_tx(scenario, ADMIN);
+        {
+            let mut cooler_factory = ts::take_shared<CoolerFactory>(scenario);
+            let cap = ts::take_from_sender<FactoryOwnerCap>(scenario);
+            // admin can claim fee which is 100 
+            let coin_ = cooler_factory::claim_fee(&cap, &mut cooler_factory, ts::ctx(scenario));
+            // it should be equal to 100
+            assert_eq(coin_.value(), 100);
+            // transfer it to admin address 
+            transfer::public_transfer(coin_, ADMIN);
+     
+            ts::return_to_sender(scenario, cap);
+            ts::return_shared(cooler_factory);
+        };
+        // set the new fee 
+        next_tx(scenario, ADMIN);
+        {
+            let mut cooler_factory = ts::take_shared<CoolerFactory>(scenario);
+            let cap = ts::take_from_sender<FactoryOwnerCap>(scenario);
+          
+            let new_fee_rate: u64 = 90;
+            cooler_factory::update_fee(&cap, &mut cooler_factory, new_fee_rate);
+            assert_eq(cooler_factory.get_fee(), new_fee_rate);
+
+            ts::return_to_sender(scenario, cap);
+            ts::return_shared(cooler_factory);
         };
 
         // init WaterCooler. the number count to 1. So it is working. 
@@ -45,6 +92,7 @@ module galliun::water_cooler_test {
             ts::return_shared(water_cooler);
             ts::return_to_sender(scenario, water_cooler_admin_cap);
         };
+        
         ts::next_tx(scenario, TEST_ADDRESS1);
         {
             let water_cooler = ts::take_shared<WaterCooler>(scenario);
@@ -58,7 +106,7 @@ module galliun::water_cooler_test {
             assert_eq(water_cooler.get_nfts_num(), 150);
             ts::return_shared(water_cooler);
         };
-        
+
         ts::end(scenario_test);
     }
 }
