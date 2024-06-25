@@ -92,7 +92,13 @@ module galliun::water_cooler_test {
             ts::return_shared(water_cooler);
             ts::return_to_sender(scenario, water_cooler_admin_cap);
         };
-        
+        // check that does user has MizuNFT ?
+        ts::next_tx(scenario, TEST_ADDRESS1);
+        {
+            let nft = ts::take_from_sender<MizuNFT>(scenario);
+            ts::return_to_sender(scenario, nft);
+        };
+
         ts::next_tx(scenario, TEST_ADDRESS1);
         {
             let water_cooler = ts::take_shared<WaterCooler>(scenario);
