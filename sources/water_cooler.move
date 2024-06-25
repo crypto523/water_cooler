@@ -126,8 +126,8 @@ module galliun::water_cooler {
     // === Admin Functions ===
 
     // TODO: might need to split in multiple calls if the supply is too high
-    #[allow(lint(share_owned, self_transfer))]
-    public fun initialize_water_cooler(
+    #[allow(lint(share_owned))]
+    public entry fun initialize_water_cooler(
         _: &WaterCoolerAdminCap,
         water_cooler: &mut WaterCooler,
         ctx: &mut TxContext,
@@ -174,7 +174,11 @@ module galliun::water_cooler {
         };
     }
     
-    public entry fun claim_balance(_: &WaterCoolerAdminCap, water_cooler: &mut WaterCooler, ctx: &mut TxContext) {
+    public entry fun claim_balance(
+        _: &WaterCoolerAdminCap,
+        water_cooler: &mut WaterCooler,
+        ctx: &mut TxContext
+    ) {
         let value = water_cooler.balance.value();
         let coin = coin::take(&mut water_cooler.balance, value, ctx);
         transfer::public_transfer(coin, ctx.sender());
@@ -212,7 +216,10 @@ module galliun::water_cooler {
         transfer::transfer(WaterCoolerAdminCap { id: object::new(ctx) }, ctx.sender());
     }
 
-    public(package) fun add_balance(water_cooler: &mut WaterCooler, coin: Coin<SUI>) {
+    public(package) fun add_balance(
+        water_cooler: &mut WaterCooler,
+        coin: Coin<SUI>
+    ) {
         water_cooler.balance.join(coin.into_balance());
     }
 

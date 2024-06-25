@@ -6,3 +6,7 @@ Creates can use [Flow](https://github.com/VisionDeCreator/flow "Flow") to handle
 
 ## How it works
 ![Water Cooler life cycle](https://github.com/VisionDeCreator/water_cooler/blob/main/images/water_cooler.png?raw=true)
+
+
+## Contribute
+If you are interested in contributing to the project please see the ![Style Guide](https://chip-brownie-44a.notion.site/Move-Style-Guide-3d8bd29c18794874ae791754fa4a84fa) to keep the code readable.
