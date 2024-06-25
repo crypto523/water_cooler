@@ -422,6 +422,10 @@ module galliun::mint {
         object::delete(id);
     }
 
+    public fun get_mintwarehouse_length(self: &MintWarehouse) : u64 {
+        self.nfts.length()
+    }
+
     // === Test Functions ===
     #[test_only]
     public fun init_for_mint(ctx: &mut TxContext) {
