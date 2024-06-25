@@ -153,9 +153,9 @@ module galliun::mint {
 
     public fun og_mint(
         ticket: OriginalGangsterTicket,
-        payment: Coin<SUI>,
         warehouse: &mut MintWarehouse,
         settings: &MintSettings,
+        payment: Coin<SUI>,        
         ctx: &mut TxContext,
     ) {
         let OriginalGangsterTicket { id, phase } = ticket;
