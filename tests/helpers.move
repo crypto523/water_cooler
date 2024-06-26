@@ -1,5 +1,6 @@
 #[test_only]
 module galliun::helpers {
+    // === Imports ===
     use std::string::{String};
     use sui::{
         test_scenario::{Self as ts, Scenario},
@@ -11,8 +12,10 @@ module galliun::helpers {
         water_cooler::{Self, init_for_water}
     };
 
+    // === Constants ===
     const ADMIN: address = @0xA;
 
+    // === Test functions ===
     public fun init_test_helper() : Scenario {
        let mut scenario_val = ts::begin(ADMIN);
        let scenario = &mut scenario_val;

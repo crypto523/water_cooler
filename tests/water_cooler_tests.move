@@ -9,7 +9,8 @@ module galliun::water_cooler_test {
     };
     use galliun::{
         helpers::{init_test_helper},
-        water_cooler::{Self, WaterCooler, WaterCoolerAdminCap, MizuNFT},
+        water_cooler::{Self, WaterCooler, WaterCoolerAdminCap},
+        mizu_nft::{MizuNFT},
         cooler_factory::{Self, CoolerFactory, FactoryOwnerCap},
         mint::{Self, MintAdminCap, MintSettings, MintWarehouse, WhitelistTicket, OriginalGangsterTicket},
     };
@@ -19,6 +20,7 @@ module galliun::water_cooler_test {
     const TEST_ADDRESS1: address = @0xB;
     // const TEST_ADDRESS2: address = @0xC;
 
+    // === Test functions ===
     #[test]
     public fun test_water_cooler() {
 

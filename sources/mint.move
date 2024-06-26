@@ -14,22 +14,24 @@ module galliun::mint {
     };
     use galliun::{
         attributes::Attributes,
-        water_cooler::{Self, MizuNFT, WaterCooler},
+        water_cooler::{WaterCooler},
+        mizu_nft::{Self, MizuNFT},
     };
 
     // === Errors ===
+    
     const ENotOwner: u64 = 0;
-    const EInvalidPaymentAmount: u64 = 4;
-    const EInvalidPhaseNumber: u64 = 5;
-    const EInvalidPrice: u64 = 6;
-    const EInvalidStatusNumber: u64 = 9;
-    const EInvalidTicketForMintPhase: u64 = 10;
-    const EMintNotLive: u64 = 17;
-    const EMintWarehouseAlreadyInitialized: u64 = 19;
-    const EMintWarehouseNotEmpty: u64 = 20;
-    const EMintWarehouseNotInitialized: u64 = 21;
-    const EMizuNFTNotRevealed: u64 = 22;
-    const EWarehouseIsEmpty: u64 = 23;
+    const EInvalidPaymentAmount: u64 = 1;
+    const EInvalidPhaseNumber: u64 = 2;
+    const EInvalidPrice: u64 = 3;
+    const EInvalidStatusNumber: u64 = 4;
+    const EInvalidTicketForMintPhase: u64 = 5;
+    const EMintNotLive: u64 = 6;
+    const EMintWarehouseAlreadyInitialized: u64 = 7;
+    const EMintWarehouseNotEmpty: u64 = 8;
+    const EMintWarehouseNotInitialized: u64 = 9;
+    const EMizuNFTNotRevealed: u64 = 10;
+    const EWarehouseIsEmpty: u64 = 11;
 
     // === Constants ===
 
@@ -283,8 +285,8 @@ module galliun::mint {
     ) {
         let nft = option::borrow_mut(&mut mint.nft);
 
-        water_cooler::set_attributes(nft, attributes);
-        water_cooler::set_image(nft, image);
+        mizu_nft::set_attributes(nft, attributes);
+        mizu_nft::set_image(nft, image);
 
         mint.is_revealed = true;
     }

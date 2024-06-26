@@ -10,38 +10,20 @@ module galliun::water_cooler {
         table_vec::{Self, TableVec},
         transfer_policy,
     };
-    use galliun::attributes::{Attributes};
+    // use galliun::{
+    //     attributes::{Attributes},
+        use galliun::mizu_nft::{Self, MizuNFT};
+    // };
 
     // === Errors ===
 
     const EWaterCoolerAlreadyInitialized: u64 = 0;
     // const EWaterCoolerNotInitialized: u64 = 1;
     // const EWaterCoolerNotEmpty: u64 = 2;
-    const EAttributesAlreadySet: u64 = 3;
-    // const EImageAlreadySet: u64 = 4;
-    // const EImageNotSet: u64 = 5;
 
     // === Structs ===
 
     public struct WATER_COOLER has drop {}
-
-    // This is the structure that will be used to create the NFTs
-    public struct MizuNFT has key, store {
-        id: UID,
-        // This name will be joined with the number to create the NFT name
-        collection_name: String,
-        description: String,
-        // This url will be joined with the id to create the image url
-        image_url: String,
-        number: u64,
-        attributes: Option<Attributes>,
-        image: Option<String>,
-        minted_by: Option<address>,
-        // ID of the Kiosk assigned to the NFT.
-        kiosk_id: ID,
-        // ID of the KioskOwnerCap owned by the NFT.
-        kiosk_owner_cap_id: ID,
-    }
 
     // This is the structure of WaterCooler that will be loaded with and distribute the NFTs
     public struct WaterCooler has key {
@@ -116,18 +98,6 @@ module galliun::water_cooler {
         water_cooler.treasury
     }
 
-    public fun number(nft: &MizuNFT): u64 {
-        nft.number
-    }
-
-    public fun kiosk_id(nft: &MizuNFT): ID {
-        nft.kiosk_id
-    }
-
-    public fun kiosk_owner_cap_id(nft: &MizuNFT): ID {
-        nft.kiosk_owner_cap_id
-    }
-
     // === Admin Functions ===
 
     // TODO: might need to split in multiple calls if the supply is too high
@@ -145,19 +115,19 @@ module galliun::water_cooler {
         while (number != 0) {
 
             let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
-
-            let nft = MizuNFT {
-                id: object::new(ctx),
+            
+            let nft: MizuNFT = mizu_nft::create_mizu_nft(
                 number,
-                collection_name: water_cooler.name,
-                description: water_cooler.description,
-                image_url: water_cooler.image_url,
-                attributes: option::none(),
-                image: option::none(),
-                minted_by: option::none(),
-                kiosk_id: object::id(&kiosk),
-                kiosk_owner_cap_id: object::id(&kiosk_owner_cap),
-            };
+                water_cooler.name,
+                water_cooler.description,
+                water_cooler.image_url,
+                option::none(),
+                option::none(),
+                option::none(),
+                object::id(&kiosk),
+                object::id(&kiosk_owner_cap),
+                ctx,
+            );
 
             // Set the Kiosk's 'owner' field to the address of the MizuNFT.
             kiosk::set_owner_custom(&mut kiosk, &kiosk_owner_cap, object::id_address(&nft));
@@ -186,7 +156,7 @@ module galliun::water_cooler {
     ) {
         let value = water_cooler.balance.value();
         let coin = coin::take(&mut water_cooler.balance, value, ctx);
-        transfer::public_transfer(coin, ctx.sender());
+        transfer::public_transfer(coin, water_cooler.treasury);
     }
 
     public fun set_treasury(_: &WaterCoolerAdminCap, water_cooler: &mut WaterCooler, treasury: address) {
@@ -226,23 +196,6 @@ module galliun::water_cooler {
         coin: Coin<SUI>
     ) {
         water_cooler.balance.join(coin.into_balance());
-    }
-
-    public(package) fun set_image(nft: &mut MizuNFT, image: String) {
-        option::fill(&mut nft.image, image);
-    }
-
-    public(package) fun uid_mut(nft: &mut MizuNFT): &mut UID {
-        &mut nft.id
-    }
-
-    public(package) fun set_attributes(nft: &mut MizuNFT, attributes: Attributes) {
-        assert!(option::is_none(&nft.attributes), EAttributesAlreadySet);
-        option::fill(&mut nft.attributes, attributes);
-    }
-
-    public(package) fun set_minted_by_address(nft: &mut MizuNFT, addr: address) {
-        option::fill(&mut nft.minted_by, addr);
     }
 
     // === Test Functions ===
