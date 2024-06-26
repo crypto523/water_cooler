@@ -18,7 +18,7 @@ module galliun::mint {
     };
 
     // === Errors ===
-
+    const ENotOwner: u64 = 0;
     const EInvalidPaymentAmount: u64 = 4;
     const EInvalidPhaseNumber: u64 = 5;
     const EInvalidPrice: u64 = 6;
@@ -90,7 +90,7 @@ module galliun::mint {
     }
 
     // Mint Admin cap this can be used to make changes to the mint setting and warehouse
-    public struct MintAdminCap has key { id: UID }
+    public struct MintAdminCap has key { id: UID, `for_settings`: ID, `for_warehouse`: ID}
 
     // === Init Function ===
 
@@ -122,9 +122,9 @@ module galliun::mint {
     // === Public-Mutative Functions ===
 
     public fun public_mint(
-        payment: Coin<SUI>,
         warehouse: &mut MintWarehouse,
         settings: &MintSettings,
+        payment: Coin<SUI>,        
         ctx: &mut TxContext,
     ) {
         assert!(warehouse.nfts.length() > 0, EWarehouseIsEmpty);
@@ -136,9 +136,9 @@ module galliun::mint {
 
     public fun whitelist_mint(
         ticket: WhitelistTicket,
-        payment: Coin<SUI>,
         warehouse: &mut MintWarehouse,
         settings: &MintSettings,
+        payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
         let WhitelistTicket { id, phase } = ticket;
@@ -153,9 +153,9 @@ module galliun::mint {
 
     public fun og_mint(
         ticket: OriginalGangsterTicket,
-        payment: Coin<SUI>,
         warehouse: &mut MintWarehouse,
         settings: &MintSettings,
+        payment: Coin<SUI>,        
         ctx: &mut TxContext,
     ) {
         let OriginalGangsterTicket { id, phase } = ticket;
@@ -203,11 +203,12 @@ module galliun::mint {
 
     /// Add MizuNFTs to the mint warehouse.
     public fun add_to_mint_warehouse(
-        _: &MintAdminCap,
+        cap: &MintAdminCap,
         water_cooler: &WaterCooler,
         mut nfts: vector<MizuNFT>,
         warehouse: &mut MintWarehouse,
     ) {
+        assert!(object::id(warehouse) == cap.`for_warehouse`, ENotOwner);        
         assert!(warehouse.is_initialized == false, EMintWarehouseAlreadyInitialized);
 
         while (!nfts.is_empty()) {
@@ -224,7 +225,7 @@ module galliun::mint {
 
     /// Destroy an empty mint warehouse when it's no longer needed.
     public fun destroy_mint_warehouse(
-        _: &MintAdminCap,
+        cap: &MintAdminCap,
         warehouse: MintWarehouse,
     ) {
         assert!(warehouse.nfts.is_empty(), EMintWarehouseNotEmpty);
@@ -236,40 +237,46 @@ module galliun::mint {
             is_initialized: _,
         } = warehouse;
 
+        assert!(object::uid_to_inner(&id) == cap.`for_warehouse`, ENotOwner);        
+
         nfts.destroy_empty();
         id.delete();
     }
 
     // Set mint price, status, phase
     public fun set_mint_price(
-        _: &MintAdminCap,
-        price: u64,
+        cap: &MintAdminCap,
         settings: &mut MintSettings,
+        price: u64,
     ) {
+        assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
+
         assert!(price > 0, EInvalidPrice);
         settings.price = price;
     }
 
     public fun set_mint_status(
-        _: &MintAdminCap,
+        cap: &MintAdminCap,
+        settings: &mut MintSettings,        
         status: u8,
-        settings: &mut MintSettings,
     ) {
+        assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
         assert!(settings.status == 0 || settings.status == 1, EInvalidStatusNumber);
         settings.status = status;
     }
 
     public fun set_mint_phase(
-        _: &MintAdminCap,
+        cap: &MintAdminCap,
         phase: u8,
         settings: &mut MintSettings,
     ) {
+        assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
         assert!(phase >= 1 && phase <= 3, EInvalidPhaseNumber);
         settings.phase = phase;
     }
-
+    // FIXME: we should discuss 
     public fun reveal_mint(
-        _: &MintAdminCap,
+        cap: &MintAdminCap,
         mint: &mut Mint,
         attributes: Attributes,
         image: String
@@ -331,12 +338,14 @@ module galliun::mint {
             is_initialized: false,
         };
 
-        let adminCap = MintAdminCap{ id: object::new(ctx) };
-
         // Here we transfer the mint admin cap to the person that bought the WaterCooler
-        transfer::transfer(adminCap, ctx.sender());
+        transfer::transfer(MintAdminCap{
+             id: object::new(ctx),
+            `for_settings`: object::id(&mint_settings),
+            `for_warehouse`: object::id(&mint_warehouse)},
+             ctx.sender());
 
-      // This might need to be moved to a seperate function
+        // This might need to be moved to a seperate function
         // that will be called by the owner of the WaterCooler
         transfer::share_object(mint_settings);
         // This might need to be moved to a seperate function
@@ -413,9 +422,13 @@ module galliun::mint {
         object::delete(id);
     }
 
+    public fun get_mintwarehouse_length(self: &MintWarehouse) : u64 {
+        self.nfts.length()
+    }
+
     // === Test Functions ===
     #[test_only]
-    public fun init_for_testing(ctx: &mut TxContext) {
+    public fun init_for_mint(ctx: &mut TxContext) {
         init(MINT {}, ctx);
     }
 }

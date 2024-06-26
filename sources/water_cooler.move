@@ -1,5 +1,6 @@
 module galliun::water_cooler {
     use std::string::{Self, String};
+    use std::debug::{print};
     use sui::{
         balance::{Self, Balance},
         sui::SUI,
@@ -93,6 +94,10 @@ module galliun::water_cooler {
     
     public fun supply(water_cooler: &WaterCooler): u64 {
         water_cooler.supply
+    }
+
+    public fun get_nfts_num(water_cooler: &WaterCooler): u64 {
+        table_vec::length(&water_cooler.nfts)
     }
     
     public fun name(water_cooler: &WaterCooler): String {
@@ -243,8 +248,7 @@ module galliun::water_cooler {
     // === Test Functions ===
 
     #[test_only]
-    public fun init_for_testing(ctx: &mut TxContext) {
+    public fun init_for_water(ctx: &mut TxContext) {
         init(WATER_COOLER {}, ctx);
     }
-
 }
