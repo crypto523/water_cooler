@@ -276,7 +276,7 @@ module galliun::mint {
     }
     // FIXME: we should discuss 
     public fun reveal_mint(
-        cap: &MintAdminCap,
+        _cap: &MintAdminCap,
         mint: &mut Mint,
         attributes: Attributes,
         image: String

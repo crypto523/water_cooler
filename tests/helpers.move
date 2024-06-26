@@ -1,12 +1,15 @@
 #[test_only]
 module galliun::helpers {
-    use sui::test_scenario::{Self as ts, next_tx, Scenario};
-    use sui::clock::{Self};
     use std::string::{String};
-
-    use galliun::cooler_factory::{init_for_cooler};
-    use galliun::mint::{init_for_mint};
-    use galliun::water_cooler::{Self, init_for_water};
+    use sui::{
+        test_scenario::{Self as ts, Scenario},
+        clock::{Self}
+    };    
+    use galliun::{
+        cooler_factory::{init_for_cooler},
+        mint::{init_for_mint},
+        water_cooler::{Self, init_for_water}
+    };
 
     const ADMIN: address = @0xA;
 

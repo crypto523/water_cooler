@@ -1,6 +1,6 @@
 module galliun::water_cooler {
+    // === Imports ===
     use std::string::{Self, String};
-    use std::debug::{print};
     use sui::{
         balance::{Self, Balance},
         sui::SUI,

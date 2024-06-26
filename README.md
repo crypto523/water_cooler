@@ -9,4 +9,4 @@ Creates can use [Flow](https://github.com/VisionDeCreator/flow "Flow") to handle
 
 
 ## Contribute
-If you are interested in contributing to the project please see the ![Style Guide](https://chip-brownie-44a.notion.site/Move-Style-Guide-3d8bd29c18794874ae791754fa4a84fa) to keep the code readable.
+If you are interested in contributing to the project please see the [Move Style Guide](https://chip-brownie-44a.notion.site/Move-Style-Guide-3d8bd29c18794874ae791754fa4a84fa "Move Style Guide") to keep the code readable.
