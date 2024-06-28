@@ -57,11 +57,12 @@ module galliun::mint {
 
     public struct MintSettings has key {
         id: UID,
+        // This is the price that must be paid by the minter to get the NFT
         price: u64,
         /// The phase determins the current minting phase
-        /// 0 = og
-        /// 1 = whiteList
-        /// 2 = public
+        /// 1 = og
+        /// 2 = whiteList
+        /// 3 = public
         phase: u8,
         /// The state determings whether the mint is active or not
         /// 0 = inactive
