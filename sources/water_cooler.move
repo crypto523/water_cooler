@@ -113,7 +113,7 @@ module galliun::water_cooler {
 
             let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
             
-            let nft: MizuNFT = mizu_nft::create_mizu_nft(
+            let nft: MizuNFT = mizu_nft::new(
                 number,
                 self.name,
                 self.description,

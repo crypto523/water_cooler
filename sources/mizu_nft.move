@@ -43,7 +43,7 @@ module galliun::mizu_nft {
 
     // === Package Functions ===
 
-    public(package) fun create_mizu_nft(
+    public(package) fun new(
         number: u64,
         collection_name: String,
         description: String,
@@ -55,7 +55,7 @@ module galliun::mizu_nft {
         kiosk_owner_cap_id: ID,
         ctx: &mut TxContext,
     ): MizuNFT {
-        let self = MizuNFT {
+        MizuNFT {
             id: object::new(ctx),
             number,
             collection_name,
@@ -66,9 +66,7 @@ module galliun::mizu_nft {
             minted_by,
             kiosk_id,
             kiosk_owner_cap_id,
-        };
-
-        self
+        }
     }
 
     public(package) fun uid_mut(self: &mut MizuNFT): &mut UID {

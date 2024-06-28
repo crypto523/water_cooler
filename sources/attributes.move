@@ -15,8 +15,8 @@ module galliun::attributes {
     // === Public view functions ===
 
     /// Returns the number of the `Attributes` object.
-    public fun number(attributes: &Attributes): u64 {
-        attributes.fields.size()
+    public fun number(self: &Attributes): u64 {
+        self.fields.size()
     }
 
     // === Package functions ===
