@@ -29,16 +29,16 @@ module galliun::mizu_nft {
 
     // === Public view functions ===
 
-    public fun number(nft: &MizuNFT): u64 {
-        nft.number
+    public fun number(self: &MizuNFT): u64 {
+        self.number
     }
 
-    public fun kiosk_id(nft: &MizuNFT): ID {
-        nft.kiosk_id
+    public fun kiosk_id(self: &MizuNFT): ID {
+        self.kiosk_id
     }
 
-    public fun kiosk_owner_cap_id(nft: &MizuNFT): ID {
-        nft.kiosk_owner_cap_id
+    public fun kiosk_owner_cap_id(self: &MizuNFT): ID {
+        self.kiosk_owner_cap_id
     }
 
     // === Package Functions ===
@@ -55,7 +55,7 @@ module galliun::mizu_nft {
         kiosk_owner_cap_id: ID,
         ctx: &mut TxContext,
     ): MizuNFT {
-        let nft = MizuNFT {
+        let self = MizuNFT {
             id: object::new(ctx),
             number,
             collection_name,
@@ -68,23 +68,23 @@ module galliun::mizu_nft {
             kiosk_owner_cap_id,
         };
 
-        nft
+        self
     }
 
-    public(package) fun uid_mut(nft: &mut MizuNFT): &mut UID {
-        &mut nft.id
+    public(package) fun uid_mut(self: &mut MizuNFT): &mut UID {
+        &mut self.id
     }
 
-    public(package) fun set_attributes(nft: &mut MizuNFT, attributes: Attributes) {
-        assert!(option::is_none(&nft.attributes), EAttributesAlreadySet);
-        option::fill(&mut nft.attributes, attributes);
+    public(package) fun set_attributes(self: &mut MizuNFT, attributes: Attributes) {
+        assert!(option::is_none(&self.attributes), EAttributesAlreadySet);
+        option::fill(&mut self.attributes, attributes);
     }
 
-    public(package) fun set_minted_by_address(nft: &mut MizuNFT, addr: address) {
-        option::fill(&mut nft.minted_by, addr);
+    public(package) fun set_minted_by_address(self: &mut MizuNFT, addr: address) {
+        option::fill(&mut self.minted_by, addr);
     }
 
-    public(package) fun set_image(nft: &mut MizuNFT, image: String) {
-        option::fill(&mut nft.image, image);
+    public(package) fun set_image(self: &mut MizuNFT, image: String) {
+        option::fill(&mut self.image, image);
     }
 }

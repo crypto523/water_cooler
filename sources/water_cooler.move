@@ -10,10 +10,7 @@ module galliun::water_cooler {
         table_vec::{Self, TableVec},
         transfer_policy,
     };
-    // use galliun::{
-    //     attributes::{Attributes},
-        use galliun::mizu_nft::{Self, MizuNFT};
-    // };
+    use galliun::mizu_nft::{Self, MizuNFT};
 
     // === Errors ===
 
@@ -74,28 +71,28 @@ module galliun::water_cooler {
 
     // === Public view functions ===
     
-    public fun supply(water_cooler: &WaterCooler): u64 {
-        water_cooler.supply
+    public fun supply(self: &WaterCooler): u64 {
+        self.supply
     }
 
-    public fun get_nfts_num(water_cooler: &WaterCooler): u64 {
-        table_vec::length(&water_cooler.nfts)
+    public fun get_nfts_num(self: &WaterCooler): u64 {
+        table_vec::length(&self.nfts)
     }
     
-    public fun name(water_cooler: &WaterCooler): String {
-        water_cooler.name
+    public fun name(self: &WaterCooler): String {
+        self.name
     }
     
-    public fun image_url(water_cooler: &WaterCooler): String {
-        water_cooler.image_url
+    public fun image_url(self: &WaterCooler): String {
+        self.image_url
     }
 
-    public fun is_initialized(water_cooler: &WaterCooler): bool {
-        water_cooler.is_initialized
+    public fun is_initialized(self: &WaterCooler): bool {
+        self.is_initialized
     }
 
-    public fun treasury(water_cooler: &WaterCooler): address {
-        water_cooler.treasury
+    public fun treasury(self: &WaterCooler): address {
+        self.treasury
     }
 
     // === Admin Functions ===
@@ -104,12 +101,12 @@ module galliun::water_cooler {
     #[allow(lint(share_owned))]
     public entry fun initialize_water_cooler(
         _: &WaterCoolerAdminCap,
-        water_cooler: &mut WaterCooler,
+        self: &mut WaterCooler,
         ctx: &mut TxContext,
     ) {
-        assert!(water_cooler.is_initialized == false, EWaterCoolerAlreadyInitialized);
+        assert!(self.is_initialized == false, EWaterCoolerAlreadyInitialized);
 
-        let mut number = water_cooler.supply;
+        let mut number = self.supply;
         // Pre-fill the water cooler with the kiosk NFTs to the size of the NFT collection
         // ! using LIFO here because TableVec
         while (number != 0) {
@@ -118,9 +115,9 @@ module galliun::water_cooler {
             
             let nft: MizuNFT = mizu_nft::create_mizu_nft(
                 number,
-                water_cooler.name,
-                water_cooler.description,
-                water_cooler.image_url,
+                self.name,
+                self.description,
+                self.image_url,
                 option::none(),
                 option::none(),
                 option::none(),
@@ -136,7 +133,7 @@ module galliun::water_cooler {
             transfer::public_share_object(kiosk);
 
             // Add MizuNFT to factory.
-            water_cooler.nfts.push_back(object::id(&nft));
+            self.nfts.push_back(object::id(&nft));
 
             transfer::public_transfer(nft, ctx.sender());
 
@@ -144,23 +141,23 @@ module galliun::water_cooler {
         };
 
         // Initialize water cooler if the number of NFT created is equal to the size of the collection.
-        if (water_cooler.nfts.length() == water_cooler.supply) {
-            water_cooler.is_initialized = true;
+        if (self.nfts.length() == self.supply) {
+            self.is_initialized = true;
         };
     }
     
     public entry fun claim_balance(
         _: &WaterCoolerAdminCap,
-        water_cooler: &mut WaterCooler,
+        self: &mut WaterCooler,
         ctx: &mut TxContext
     ) {
-        let value = water_cooler.balance.value();
-        let coin = coin::take(&mut water_cooler.balance, value, ctx);
-        transfer::public_transfer(coin, water_cooler.treasury);
+        let value = self.balance.value();
+        let coin = coin::take(&mut self.balance, value, ctx);
+        transfer::public_transfer(coin, self.treasury);
     }
 
-    public fun set_treasury(_: &WaterCoolerAdminCap, water_cooler: &mut WaterCooler, treasury: address) {
-        water_cooler.treasury = treasury;
+    public fun set_treasury(_: &WaterCoolerAdminCap, self: &mut WaterCooler, treasury: address) {
+        self.treasury = treasury;
     }
 
     // === Package Functions ===
@@ -192,10 +189,10 @@ module galliun::water_cooler {
     }
 
     public(package) fun add_balance(
-        water_cooler: &mut WaterCooler,
+        self: &mut WaterCooler,
         coin: Coin<SUI>
     ) {
-        water_cooler.balance.join(coin.into_balance());
+        self.balance.join(coin.into_balance());
     }
 
     // === Test Functions ===

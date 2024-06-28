@@ -43,7 +43,7 @@ module galliun::cooler_factory {
     }
 
     public entry fun buy_water_cooler(
-        factory: &mut CoolerFactory, 
+        self: &mut CoolerFactory, 
         payment: Coin<SUI>,
         name: String, 
         description: String, 
@@ -52,23 +52,23 @@ module galliun::cooler_factory {
         treasury: address, 
         ctx: &mut TxContext
     ) {
-        assert!(payment.value() == factory.fee, EInsufficientBalance);
+        assert!(payment.value() == self.fee, EInsufficientBalance);
         // Create a WaterCooler and give it to the buyer
         water_cooler::create_water_cooler(name, description, image_url, supply, treasury, ctx);
         // Create a Mint distributer and give it to the buyer
         mint::create_mint_distributer(ctx);
         // Put fee into factory balance
-        factory.balance.join(payment.into_balance());
+        self.balance.join(payment.into_balance());
     }
 
     
-    public entry fun update_fee(_: &FactoryOwnerCap, factory: &mut CoolerFactory, fee: u64) {
-        factory.fee = fee;
+    public entry fun update_fee(_: &FactoryOwnerCap, self: &mut CoolerFactory, fee: u64) {
+        self.fee = fee;
     }
     
-    public fun claim_fee(_: &FactoryOwnerCap, factory: &mut CoolerFactory, ctx: &mut TxContext) : Coin<SUI> {
-        let value = factory.balance.value();
-        let coin = coin::take(&mut factory.balance, value, ctx);
+    public fun claim_fee(_: &FactoryOwnerCap, self: &mut CoolerFactory, ctx: &mut TxContext) : Coin<SUI> {
+        let value = self.balance.value();
+        let coin = coin::take(&mut self.balance, value, ctx);
         coin
     }
 

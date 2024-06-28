@@ -204,9 +204,11 @@ module galliun::water_cooler_test {
             let mut mint_settings = ts::take_shared<MintSettings>(scenario);
             let price: u64 = 1_000_000_000;
             let status: u8 = 1;
+            let phase: u8 = 3;
 
             mint::set_mint_price(&mint_cap, &mut mint_settings, price);
             mint::set_mint_status(&mint_cap, &mut mint_settings, status);
+            mint::set_mint_phase(&mint_cap, &mut mint_settings, phase);
 
             ts::return_to_sender(scenario, mint_cap);
       
@@ -315,9 +317,11 @@ module galliun::water_cooler_test {
             let mut mint_settings = ts::take_shared<MintSettings>(scenario);
             let price: u64 = 1_000_000_000;
             let status: u8 = 1;
+            let phase: u8 = 2;
 
             mint::set_mint_price(&mint_cap, &mut mint_settings, price);
             mint::set_mint_status(&mint_cap, &mut mint_settings, status);
+            mint::set_mint_phase(&mint_cap, &mut mint_settings, phase);
 
             ts::return_to_sender(scenario, mint_cap);
       
@@ -433,9 +437,11 @@ module galliun::water_cooler_test {
             let mut mint_settings = ts::take_shared<MintSettings>(scenario);
             let price: u64 = 1_000_000_000;
             let status: u8 = 1;
+            let phase: u8 = 1;
 
             mint::set_mint_price(&mint_cap, &mut mint_settings, price);
             mint::set_mint_status(&mint_cap, &mut mint_settings, status);
+            mint::set_mint_phase(&mint_cap, &mut mint_settings, phase);
 
             ts::return_to_sender(scenario, mint_cap);
       

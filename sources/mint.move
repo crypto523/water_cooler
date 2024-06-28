@@ -32,10 +32,13 @@ module galliun::mint {
     const EMintWarehouseNotInitialized: u64 = 9;
     const EMizuNFTNotRevealed: u64 = 10;
     const EWarehouseIsEmpty: u64 = 11;
+    const EWrongPhase: u64 = 12;
 
     // === Constants ===
 
     const EPOCHS_TO_CLAIM_MINT: u64 = 30;
+    const MINT_STATE_INACTIVE: u8 = 0;
+    const MINT_STATE_ACTIVE: u8 = 1;
 
     // === Structs ===
 
@@ -55,7 +58,14 @@ module galliun::mint {
     public struct MintSettings has key {
         id: UID,
         price: u64,
+        /// The phase determins the current minting phase
+        /// 0 = og
+        /// 1 = whiteList
+        /// 2 = public
         phase: u8,
+        /// The state determings whether the mint is active or not
+        /// 0 = inactive
+        /// 1 = active
         status: u8,
     }
 
@@ -130,7 +140,8 @@ module galliun::mint {
         ctx: &mut TxContext,
     ) {
         assert!(warehouse.nfts.length() > 0, EWarehouseIsEmpty);
-        assert!(settings.status == 1, EMintNotLive);
+        assert!(settings.phase == 3, EWrongPhase);
+        assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
         mint_internal(warehouse, payment, ctx);
@@ -146,7 +157,7 @@ module galliun::mint {
         let WhitelistTicket { id, phase } = ticket;
         id.delete();
 
-        assert!(settings.status == 1, EMintNotLive);
+        assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
         assert!(phase == settings.phase, EInvalidTicketForMintPhase);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
@@ -163,7 +174,7 @@ module galliun::mint {
         let OriginalGangsterTicket { id, phase } = ticket;
         id.delete();
 
-        assert!(settings.status == 1, EMintNotLive);
+        assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
         assert!(phase == settings.phase, EInvalidTicketForMintPhase);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
@@ -253,7 +264,7 @@ module galliun::mint {
     ) {
         assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
 
-        assert!(price > 0, EInvalidPrice);
+        assert!(price >= 0, EInvalidPrice);
         settings.price = price;
     }
 
@@ -263,14 +274,14 @@ module galliun::mint {
         status: u8,
     ) {
         assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
-        assert!(settings.status == 0 || settings.status == 1, EInvalidStatusNumber);
+        assert!(settings.status == MINT_STATE_INACTIVE || settings.status == MINT_STATE_ACTIVE, EInvalidStatusNumber);
         settings.status = status;
     }
 
     public fun set_mint_phase(
         cap: &MintAdminCap,
-        phase: u8,
         settings: &mut MintSettings,
+        phase: u8,
     ) {
         assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
         assert!(phase >= 1 && phase <= 3, EInvalidPhaseNumber);
@@ -355,22 +366,22 @@ module galliun::mint {
         transfer::share_object(mint_warehouse);
     }
 
-    public(package) fun create_wl_distributer(ctx: &mut TxContext) {
-        let whitelist_ticket =  WhitelistTicket {
-            id: object::new(ctx),
-            phase: 0,
-        };
-
-        transfer::transfer(whitelist_ticket, ctx.sender());
-    }
-
     public(package) fun create_og_distributer(ctx: &mut TxContext) {
         let og_ticket =  OriginalGangsterTicket {
             id: object::new(ctx),
-            phase: 0,
+            phase: 1,
         };
 
         transfer::transfer(og_ticket, ctx.sender());
+    }
+
+    public(package) fun create_wl_distributer(ctx: &mut TxContext) {
+        let whitelist_ticket =  WhitelistTicket {
+            id: object::new(ctx),
+            phase: 2,
+        };
+
+        transfer::transfer(whitelist_ticket, ctx.sender());
     }
 
     // === Private Functions ===
