@@ -110,17 +110,16 @@ module galliun::water_cooler {
         // Pre-fill the water cooler with the kiosk NFTs to the size of the NFT collection
         // ! using LIFO here because TableVec
         while (number != 0) {
-
             let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
-            
+
             let nft: MizuNFT = mizu_nft::new(
                 number,
                 self.name,
                 self.description,
-                self.image_url,
-                option::none(),
-                option::none(),
-                option::none(),
+                option::none(), // image_url
+                option::none(), // attributes
+                option::none(), // image
+                option::none(), // minted_by
                 object::id(&kiosk),
                 object::id(&kiosk_owner_cap),
                 ctx,

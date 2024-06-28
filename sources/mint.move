@@ -14,8 +14,9 @@ module galliun::mint {
     };
     use galliun::{
         attributes::Attributes,
-        water_cooler::{WaterCooler},
+        water_cooler::WaterCooler,
         mizu_nft::{Self, MizuNFT},
+        image::Image,
     };
 
     // === Errors ===
@@ -293,12 +294,14 @@ module galliun::mint {
         _cap: &MintAdminCap,
         mint: &mut Mint,
         attributes: Attributes,
-        image: String
+        image: Image,
+        image_url: String,
     ) {
         let nft = option::borrow_mut(&mut mint.nft);
 
         mizu_nft::set_attributes(nft, attributes);
         mizu_nft::set_image(nft, image);
+        mizu_nft::set_image_url(nft, image_url);
 
         mint.is_revealed = true;
     }

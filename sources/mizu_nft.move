@@ -1,7 +1,10 @@
 module galliun::mizu_nft {
   // === Imports ===
     use std::string::{String};
-    use galliun::attributes::{Attributes};
+    use galliun::{
+        image::Image,
+        attributes::Attributes
+    };
 
     // === Errors ===
 
@@ -16,10 +19,10 @@ module galliun::mizu_nft {
         collection_name: String,
         description: String,
         // This url will be joined with the id to create the image url
-        image_url: String,
+        image_url: Option<String>,
         number: u64,
         attributes: Option<Attributes>,
-        image: Option<String>,
+        image: Option<Image>,
         minted_by: Option<address>,
         // ID of the Kiosk assigned to the NFT.
         kiosk_id: ID,
@@ -47,9 +50,9 @@ module galliun::mizu_nft {
         number: u64,
         collection_name: String,
         description: String,
-        image_url: String,
+        image_url: Option<String>,
         attributes: Option<Attributes>,
-        image: Option<String>,
+        image: Option<Image>,
         minted_by: Option<address>,
         kiosk_id: ID,
         kiosk_owner_cap_id: ID,
@@ -82,7 +85,11 @@ module galliun::mizu_nft {
         option::fill(&mut self.minted_by, addr);
     }
 
-    public(package) fun set_image(self: &mut MizuNFT, image: String) {
+    public(package) fun set_image(self: &mut MizuNFT, image: Image) {
         option::fill(&mut self.image, image);
+    }
+    
+    public(package) fun set_image_url(self: &mut MizuNFT, image_url: String) {
+        option::fill(&mut self.image_url, image_url);
     }
 }
