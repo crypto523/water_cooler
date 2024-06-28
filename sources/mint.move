@@ -133,6 +133,16 @@ module galliun::mint {
         transfer::public_transfer(publisher, ctx.sender());
     }
 
+     // === Public-view Functions ===
+
+    public fun get_mintwarehouse_length(self: &MintWarehouse) : u64 {
+        self.nfts.length()
+    }
+
+    public fun get_mint_reveal(self: &Mint) : bool {
+        self.is_revealed
+    }
+
     // === Public-Mutative Functions ===
 
     public fun public_mint(
@@ -439,13 +449,15 @@ module galliun::mint {
         object::delete(id);
     }
 
-    public fun get_mintwarehouse_length(self: &MintWarehouse) : u64 {
-        self.nfts.length()
-    }
-
     // === Test Functions ===
     #[test_only]
     public fun init_for_mint(ctx: &mut TxContext) {
         init(MINT {}, ctx);
+    }
+
+    #[test_only]
+    public fun get_nft_id(self: &Mint) : ID {
+       let nft = self.nft.borrow();
+       object::id(nft)
     }
 }
