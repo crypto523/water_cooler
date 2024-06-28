@@ -232,7 +232,7 @@ module galliun::mint {
         };
         nfts.destroy_empty();
 
-        if (warehouse.nfts.length() == water_cooler.supply()) {
+        if (warehouse.nfts.length() as u64 == water_cooler.supply()) {
             warehouse.is_initialized = true;
         };
     }

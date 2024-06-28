@@ -10,7 +10,12 @@ module galliun::water_cooler {
         table_vec::{Self, TableVec},
         transfer_policy,
     };
-    use galliun::mizu_nft::{Self, MizuNFT};
+    // use galliun::mizu_nft::{Self, MizuNFT};
+    use galliun::{
+        mizu_nft::{Self, MizuNFT},
+        registry::{Self, Registry},
+        collection::{Self, Collection},
+    };
 
     // === Errors ===
 
@@ -33,14 +38,20 @@ module galliun::water_cooler {
         treasury: address,
         // This table will keep track of all the created NFTs
         nfts: TableVec<ID>,
-        // This is the number of NFTs that will be in the collection
+        // This is the ID of the registry that keeps track of the NFTs in the collection
+        registry_id: ID,
         supply: u64,
+        // This is the ID that is associalted with this NFT collection. 
+        // It was created for the purpose of avoiding a cercular dependency 
+        // between the Registry and the WaterCooler which need to share the 
+        // supply of NFTs in the collection
+        collection_id: ID,
         is_initialized: bool,
         // balance for creator
         balance: Balance<SUI>,
     }
 
-    // Admin cap of this Water Cool to be used but the Cooler owner when making changes
+    // Admin cap of this Water Cooler to be used but the Cooler owner when making changes
     public struct WaterCoolerAdminCap has key { id: UID }
 
     // === Public mutative functions ===
@@ -69,11 +80,126 @@ module galliun::water_cooler {
         transfer::public_share_object(policy);
     }
 
-    // === Public view functions ===
+    // === Package Functions ===
+
+    // The function that allow the Cooler Factory to create coolers and give them to creators
+    public(package) fun create_water_cooler(
+        name: String, 
+        description: String, 
+        image_url: String, 
+        supply: u64, 
+        treasury: address, 
+        ctx: &mut TxContext
+    ) {
+
+        let collection = collection::new(supply as u16, ctx);
+        let registry = registry::create_registry(name, description, image_url, ctx);
+
+        transfer::share_object(
+            WaterCooler {
+                id: object::new(ctx),
+                name,
+                description,
+                image_url,
+                supply,
+                nfts: table_vec::empty(ctx),
+                treasury,
+                registry_id: object::id(&registry),
+                collection_id: object::id(&collection),
+                is_initialized: false,
+                balance: balance::zero(),
+            }
+        );
+
+        collection::transfer_collection(collection, ctx);
+        registry::transfer_registry(registry, ctx);
+        
+
+        transfer::transfer(WaterCoolerAdminCap { id: object::new(ctx) }, ctx.sender());
+    }
+
+    public(package) fun add_balance(
+        self: &mut WaterCooler,
+        coin: Coin<SUI>
+    ) {
+        self.balance.join(coin.into_balance());
+    }
     
     public fun supply(self: &WaterCooler): u64 {
         self.supply
     }
+
+    // === Admin Functions ===
+
+    // TODO: might need to split in multiple calls if the supply is too high
+    #[allow(lint(share_owned))]
+    public entry fun initialize_water_cooler(
+        _: &WaterCoolerAdminCap,
+        self: &mut WaterCooler,
+        registry: &mut Registry,
+        collection: &Collection,
+        ctx: &mut TxContext,
+    ) {
+        assert!(self.is_initialized == false, EWaterCoolerAlreadyInitialized);
+
+        let mut number = collection::supply(collection) as u64;
+        // Pre-fill the water cooler with the kiosk NFTs to the size of the NFT collection
+        // ! using LIFO here because TableVec
+        while (number != 0) {
+            let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
+
+            let nft: MizuNFT = mizu_nft::new(
+                number,
+                self.name,
+                self.description,
+                option::none(), // image_url
+                option::none(), // attributes
+                option::none(), // image
+                option::none(), // minted_by
+                object::id(&kiosk),
+                object::id(&kiosk_owner_cap),
+                ctx,
+            );
+
+            registry::add(number as u16, object::id(&nft), registry, collection);
+
+            // Set the Kiosk's 'owner' field to the address of the MizuNFT.
+            kiosk::set_owner_custom(&mut kiosk, &kiosk_owner_cap, object::id_address(&nft));
+
+            transfer::public_transfer(kiosk_owner_cap, object::id_to_address(&object::id(&nft)));
+            transfer::public_share_object(kiosk);
+
+            // Add MizuNFT to factory.
+            self.nfts.push_back(object::id(&nft));
+
+            transfer::public_transfer(nft, ctx.sender());
+
+            number = number - 1;
+        };
+
+        // Initialize water cooler if the number of NFT created is equal to the size of the collection.
+        if (self.nfts.length() == collection::supply(collection) as u64) {
+            self.is_initialized = true;
+        };
+    }
+    
+    public entry fun claim_balance(
+        _: &WaterCoolerAdminCap,
+        self: &mut WaterCooler,
+        ctx: &mut TxContext
+    ) {
+        let value = self.balance.value();
+        let coin = coin::take(&mut self.balance, value, ctx);
+        transfer::public_transfer(coin, self.treasury);
+    }
+
+    public fun set_treasury(_: &WaterCoolerAdminCap, self: &mut WaterCooler, treasury: address) {
+        self.treasury = treasury;
+    }
+
+
+
+    // === Public view functions ===
 
     public fun get_nfts_num(self: &WaterCooler): u64 {
         table_vec::length(&self.nfts)
@@ -93,105 +219,6 @@ module galliun::water_cooler {
 
     public fun treasury(self: &WaterCooler): address {
         self.treasury
-    }
-
-    // === Admin Functions ===
-
-    // TODO: might need to split in multiple calls if the supply is too high
-    #[allow(lint(share_owned))]
-    public entry fun initialize_water_cooler(
-        _: &WaterCoolerAdminCap,
-        self: &mut WaterCooler,
-        ctx: &mut TxContext,
-    ) {
-        assert!(self.is_initialized == false, EWaterCoolerAlreadyInitialized);
-
-        let mut number = self.supply;
-        // Pre-fill the water cooler with the kiosk NFTs to the size of the NFT collection
-        // ! using LIFO here because TableVec
-        while (number != 0) {
-            let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
-
-            let nft: MizuNFT = mizu_nft::new(
-                number,
-                self.name,
-                self.description,
-                option::none(), // image_url
-                option::none(), // attributes
-                option::none(), // image
-                option::none(), // minted_by
-                object::id(&kiosk),
-                object::id(&kiosk_owner_cap),
-                ctx,
-            );
-
-            // Set the Kiosk's 'owner' field to the address of the MizuNFT.
-            kiosk::set_owner_custom(&mut kiosk, &kiosk_owner_cap, object::id_address(&nft));
-
-            transfer::public_transfer(kiosk_owner_cap, object::id_to_address(&object::id(&nft)));
-            transfer::public_share_object(kiosk);
-
-            // Add MizuNFT to factory.
-            self.nfts.push_back(object::id(&nft));
-
-            transfer::public_transfer(nft, ctx.sender());
-
-            number = number - 1;
-        };
-
-        // Initialize water cooler if the number of NFT created is equal to the size of the collection.
-        if (self.nfts.length() == self.supply) {
-            self.is_initialized = true;
-        };
-    }
-    
-    public entry fun claim_balance(
-        _: &WaterCoolerAdminCap,
-        self: &mut WaterCooler,
-        ctx: &mut TxContext
-    ) {
-        let value = self.balance.value();
-        let coin = coin::take(&mut self.balance, value, ctx);
-        transfer::public_transfer(coin, self.treasury);
-    }
-
-    public fun set_treasury(_: &WaterCoolerAdminCap, self: &mut WaterCooler, treasury: address) {
-        self.treasury = treasury;
-    }
-
-    // === Package Functions ===
-
-    // The function that allow the Cooler Factory to create coolers and give them to creators
-    public(package) fun create_water_cooler(
-        name: String, 
-        description: String, 
-        image_url: String, 
-        supply: u64, 
-        treasury: address, 
-        ctx: &mut TxContext
-    ) {
-        transfer::share_object(
-            WaterCooler {
-                id: object::new(ctx),
-                name,
-                description,
-                image_url,
-                nfts: table_vec::empty(ctx),
-                treasury,
-                supply,
-                is_initialized: false,
-                balance: balance::zero(),
-            }
-        );
-
-        transfer::transfer(WaterCoolerAdminCap { id: object::new(ctx) }, ctx.sender());
-    }
-
-    public(package) fun add_balance(
-        self: &mut WaterCooler,
-        coin: Coin<SUI>
-    ) {
-        self.balance.join(coin.into_balance());
     }
 
     // === Test Functions ===

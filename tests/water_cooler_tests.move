@@ -13,6 +13,8 @@ module galliun::water_cooler_test {
         mizu_nft::{MizuNFT},
         cooler_factory::{Self, CoolerFactory, FactoryOwnerCap},
         mint::{Self, MintAdminCap, MintSettings, MintWarehouse, WhitelistTicket, OriginalGangsterTicket},
+        collection::{Collection},
+        registry::{Registry},
     };
 
     // === Constants ===
@@ -87,10 +89,14 @@ module galliun::water_cooler_test {
         {
             let mut water_cooler = ts::take_shared<WaterCooler>(scenario);
             let water_cooler_admin_cap = ts::take_from_sender<WaterCoolerAdminCap>(scenario);
+            let mut registry = ts::take_from_sender<Registry>(scenario);
+            let collection = ts::take_from_sender<Collection>(scenario);
 
-            water_cooler::initialize_water_cooler(&water_cooler_admin_cap, &mut water_cooler, ts::ctx(scenario));
+            water_cooler::initialize_water_cooler(&water_cooler_admin_cap, &mut water_cooler, &mut registry, &collection, ts::ctx(scenario));
 
             ts::return_shared(water_cooler);
+            ts::return_to_sender(scenario, collection);
+            ts::return_to_sender(scenario, registry);
             ts::return_to_sender(scenario, water_cooler_admin_cap);
         };
         // check that does user has MizuNFT ?
@@ -155,10 +161,14 @@ module galliun::water_cooler_test {
         {
             let mut water_cooler = ts::take_shared<WaterCooler>(scenario);
             let water_cooler_admin_cap = ts::take_from_sender<WaterCoolerAdminCap>(scenario);
+            let mut registry = ts::take_from_sender<Registry>(scenario);
+            let collection = ts::take_from_sender<Collection>(scenario);
 
-            water_cooler::initialize_water_cooler(&water_cooler_admin_cap, &mut water_cooler, ts::ctx(scenario));
+            water_cooler::initialize_water_cooler(&water_cooler_admin_cap, &mut water_cooler, &mut registry, &collection, ts::ctx(scenario));
 
             ts::return_shared(water_cooler);
+            ts::return_to_sender(scenario, collection);
+            ts::return_to_sender(scenario, registry);
             ts::return_to_sender(scenario, water_cooler_admin_cap);
         };
 
@@ -268,10 +278,14 @@ module galliun::water_cooler_test {
         {
             let mut water_cooler = ts::take_shared<WaterCooler>(scenario);
             let water_cooler_admin_cap = ts::take_from_sender<WaterCoolerAdminCap>(scenario);
+            let mut registry = ts::take_from_sender<Registry>(scenario);
+            let collection = ts::take_from_sender<Collection>(scenario);
 
-            water_cooler::initialize_water_cooler(&water_cooler_admin_cap, &mut water_cooler, ts::ctx(scenario));
+            water_cooler::initialize_water_cooler(&water_cooler_admin_cap, &mut water_cooler, &mut registry, &collection, ts::ctx(scenario));
 
             ts::return_shared(water_cooler);
+            ts::return_to_sender(scenario, collection);
+            ts::return_to_sender(scenario, registry);
             ts::return_to_sender(scenario, water_cooler_admin_cap);
         };
 
@@ -388,10 +402,14 @@ module galliun::water_cooler_test {
         {
             let mut water_cooler = ts::take_shared<WaterCooler>(scenario);
             let water_cooler_admin_cap = ts::take_from_sender<WaterCoolerAdminCap>(scenario);
+            let mut registry = ts::take_from_sender<Registry>(scenario);
+            let collection = ts::take_from_sender<Collection>(scenario);
 
-            water_cooler::initialize_water_cooler(&water_cooler_admin_cap, &mut water_cooler, ts::ctx(scenario));
+            water_cooler::initialize_water_cooler(&water_cooler_admin_cap, &mut water_cooler, &mut registry, &collection, ts::ctx(scenario));
 
             ts::return_shared(water_cooler);
+            ts::return_to_sender(scenario, collection);
+            ts::return_to_sender(scenario, registry);
             ts::return_to_sender(scenario, water_cooler_admin_cap);
         };
 
