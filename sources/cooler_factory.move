@@ -20,6 +20,7 @@ module galliun::cooler_factory {
     public struct CoolerFactory has key {
         id: UID,
         fee: u64,
+        treasury: address,
         balance: Balance<SUI>,
     }
 
@@ -36,7 +37,8 @@ module galliun::cooler_factory {
         transfer::share_object(
             CoolerFactory {
                 id: object::new(ctx),
-                fee: 100,
+                fee: 100_000_000,
+                treasury: @galliun_treasury,
                 balance: balance::zero(),
             }
         );
@@ -66,10 +68,10 @@ module galliun::cooler_factory {
         self.fee = fee;
     }
     
-    public fun claim_fee(_: &FactoryOwnerCap, self: &mut CoolerFactory, ctx: &mut TxContext) : Coin<SUI> {
+    public fun claim_fee(_: &FactoryOwnerCap, self: &mut CoolerFactory, ctx: &mut TxContext) {
         let value = self.balance.value();
         let coin = coin::take(&mut self.balance, value, ctx);
-        coin
+        transfer::public_transfer(coin, self.treasury);
     }
 
     public fun get_balance(self: &CoolerFactory) : u64 {

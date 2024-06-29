@@ -40,7 +40,7 @@ module galliun::test_claim_mint {
         next_tx(scenario, TEST_ADDRESS1);
         {
             let mut cooler_factory = ts::take_shared<CoolerFactory>(scenario);
-            let coin_ = coin::mint_for_testing<SUI>(100, ts::ctx(scenario));
+            let coin_ = coin::mint_for_testing<SUI>(100_000_000, ts::ctx(scenario));
             
             let name = b"watercoolername".to_string();
             let description = b"some desc".to_string();
@@ -58,7 +58,7 @@ module galliun::test_claim_mint {
                 ts::ctx(scenario)
             );
             // check the balance 
-            assert_eq(cooler_factory.get_balance(), 100);
+            assert_eq(cooler_factory.get_balance(), 100_000_000);
 
             ts::return_shared(cooler_factory);
         };

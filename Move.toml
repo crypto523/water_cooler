@@ -20,6 +20,7 @@ Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-fram
 
 [addresses]
 galliun = "0x0"
+galliun_treasury = "0xB"
 
 # Named addresses will be accessible in Move as `@name`. They're also exported:
 # for example, `std = "0x1"` is exported by the Standard Library.
@@ -31,6 +32,7 @@ galliun = "0x0"
 # Local = { local = "../path/to/dev-build" }
 
 [dev-addresses]
+# factory_treasury = "0xBOB"
 # The dev-addresses section allows overwriting named addresses for the `--test`
 # and `--dev` modes.
 # alice = "0xB0B"

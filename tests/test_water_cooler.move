@@ -32,7 +32,7 @@ module galliun::test_water_cooler {
         next_tx(scenario, TEST_ADDRESS1);
         {
             let mut cooler_factory = ts::take_shared<CoolerFactory>(scenario);
-            let coin_ = coin::mint_for_testing<SUI>(100, ts::ctx(scenario));
+            let coin_ = coin::mint_for_testing<SUI>(100_000_000, ts::ctx(scenario));
             
             let name = b"watercoolername".to_string();
             let description = b"some desc".to_string();
@@ -50,7 +50,7 @@ module galliun::test_water_cooler {
                 ts::ctx(scenario)
             );
             // check the balance 
-            assert_eq(cooler_factory.get_balance(), 100);
+            assert_eq(cooler_factory.get_balance(), 100_000_000);
 
             ts::return_shared(cooler_factory);
         };
@@ -59,12 +59,13 @@ module galliun::test_water_cooler {
         {
             let mut cooler_factory = ts::take_shared<CoolerFactory>(scenario);
             let cap = ts::take_from_sender<FactoryOwnerCap>(scenario);
-            // admin can claim fee which is 100 
-            let coin_ = cooler_factory::claim_fee(&cap, &mut cooler_factory, ts::ctx(scenario));
-            // it should be equal to 100
-            assert_eq(coin_.value(), 100);
-            // transfer it to admin address 
-            transfer::public_transfer(coin_, ADMIN);
+            
+            // confirm correct balance is 100_000_000 
+            let balance_ = cooler_factory::get_balance(&cooler_factory);
+            // it should be equal to 100_000_000
+            assert_eq(balance_, 100_000_000);
+            // admin can claim fee which is 100_000_000 
+            cooler_factory::claim_fee(&cap, &mut cooler_factory, ts::ctx(scenario));
      
             ts::return_to_sender(scenario, cap);
             ts::return_shared(cooler_factory);
