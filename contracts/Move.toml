@@ -2,8 +2,11 @@
 name = "Galliun"
 edition = "2024.beta" # edition = "legacy" to use legacy (pre-2024) Move
 
+
 [dependencies]
 Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/testnet"}
 
+
 [addresses]
 galliun = "0x0"
+galliun_treasury = "0xB"
