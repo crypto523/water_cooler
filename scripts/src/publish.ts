@@ -114,38 +114,38 @@ if (!cooler_factory_cap_id) {
 deployed_address.cooler_factory.CoolerFactory=  cooler_factory_cap_id;
 
 // Get Water_Cooler_Policy
-const policy = `0x2::transfer_policy::TransferPolicy<${deployed_address.packageId}::water_cooler::MizuNFT>`
+// const policy = `0x2::transfer_policy::TransferPolicy<${deployed_address.packageId}::water_cooler::MizuNFT>`
 
-const policy_id = find_one_by_type(objectChanges, policy)
-if (!policy_id) {
-    console.log("Error: Could not find policy object ")
-    process.exit(1)
-}
+// const policy_id = find_one_by_type(objectChanges, policy)
+// if (!policy_id) {
+//     console.log("Error: Could not find policy object ")
+//     process.exit(1)
+// }
 
-deployed_address.water_cooler.policy = policy_id;
+// deployed_address.water_cooler.policy = policy_id;
 
-// Get Water_Cooler_Policy_Cap
-const policy_cap = `0x2::transfer_policy::TransferPolicyCap<${deployed_address.packageId}::water_cooler::MizuNFT>`
+// // Get Water_Cooler_Policy_Cap
+// const policy_cap = `0x2::transfer_policy::TransferPolicyCap<${deployed_address.packageId}::water_cooler::MizuNFT>`
 
-const policy_cap_id = find_one_by_type(objectChanges, policy_cap)
-if (!policy_cap_id) {
-    console.log("Error: Could not find policycap object ")
-    process.exit(1)
-}
+// const policy_cap_id = find_one_by_type(objectChanges, policy_cap)
+// if (!policy_cap_id) {
+//     console.log("Error: Could not find policycap object ")
+//     process.exit(1)
+// }
 
-deployed_address.water_cooler.policy = policy_id;
+// deployed_address.water_cooler.policy = policy_id;
 
-// Get imagePublisher share object 
+// // Get imagePublisher share object 
 
-const image_publisher = `0x2::package::Publisher<${deployed_address.packageId}::water_cooler>`
+// const image_publisher = `0x2::package::Publisher<${deployed_address.packageId}::water_cooler>`
 
-const image_publisher_id = find_one_by_type(objectChanges, image_publisher)
+// const image_publisher_id = find_one_by_type(objectChanges, image_publisher)
 
-if (!image_publisher_id) {
-    console.log("Error: Could not find Admin object ")
-    process.exit(1)
-}
+// if (!image_publisher_id) {
+//     console.log("Error: Could not find Admin object ")
+//     process.exit(1)
+// }
 
-deployed_address.image.image_publisher = image_publisher_id;
+// deployed_address.image.image_publisher = image_publisher_id;
 
 writeFileSync(path.join(path_to_scripts, "../deployed_objects.json"), JSON.stringify(deployed_address, null, 4))
