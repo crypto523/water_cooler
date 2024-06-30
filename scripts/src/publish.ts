@@ -13,7 +13,7 @@ const path_to_contracts = path.join(path_to_scripts, "../../contracts/sources")
 console.log("Building move code...")
 
 const { modules, dependencies } = JSON.parse(execSync(
-    `${process.env.CLI_PATH!} move build --dump-bytecode-as-base64 --path ${process.env.PACKAGE_PATH!}`,
+    `/home/mentalist/.cargo/bin/sui move build --dump-bytecode-as-base64 --path ${path_to_contracts}`,
     { encoding: "utf-8" }
 ))
 
@@ -111,10 +111,10 @@ if (!cooler_factory_cap_id) {
     process.exit(1)
 }
 
-deployed_address.cooler_factory.CoolerFactory=  cooler_factory_cap_id;
+deployed_address.cooler_factory.FactoryOwnerCap=  cooler_factory_cap_id;
 
 // Get Water_Cooler_Policy
-const policy = `0x2::transfer_policy::TransferPolicy<${deployed_address.packageId}::water_cooler::MizuNFT>`
+const policy = `0x2::transfer_policy::TransferPolicy<${deployed_address.packageId}::mizu_nft::MizuNFT>`
 
 const policy_id = find_one_by_type(objectChanges, policy)
 if (!policy_id) {
@@ -125,7 +125,7 @@ if (!policy_id) {
 deployed_address.water_cooler.policy = policy_id;
 
 // Get Water_Cooler_Policy_Cap
-const policy_cap = `0x2::transfer_policy::TransferPolicyCap<${deployed_address.packageId}::water_cooler::MizuNFT>`
+const policy_cap = `0x2::transfer_policy::TransferPolicyCap<${deployed_address.packageId}::mizu_nft::MizuNFT>`
 
 const policy_cap_id = find_one_by_type(objectChanges, policy_cap)
 if (!policy_cap_id) {
@@ -133,19 +133,19 @@ if (!policy_cap_id) {
     process.exit(1)
 }
 
-deployed_address.water_cooler.policy = policy_id;
+deployed_address.water_cooler.policy_cap = policy_cap_id;
 
 // Get imagePublisher share object 
 
-const image_publisher = `0x2::package::Publisher<${deployed_address.packageId}::water_cooler>`
+const water_cooler_publisher = `0x2::package::Publisher`
 
-const image_publisher_id = find_one_by_type(objectChanges, image_publisher)
+const water_cooler_publisher_id = find_one_by_type(objectChanges, water_cooler_publisher)
 
-if (!image_publisher_id) {
-    console.log("Error: Could not find Admin object ")
+if (!water_cooler_publisher_id) {
+    console.log("Error: Could not find water_cooler_publisher")
     process.exit(1)
 }
 
-deployed_address.image.image_publisher = image_publisher_id;
+deployed_address.water_cooler.water_cooler_publisher = water_cooler_publisher_id;
 
 writeFileSync(path.join(path_to_scripts, "../deployed_objects.json"), JSON.stringify(deployed_address, null, 4))

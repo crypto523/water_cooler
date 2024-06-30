@@ -8,9 +8,8 @@ module galliun::water_cooler {
         display,
         kiosk,
         table_vec::{Self, TableVec},
-        transfer_policy,
+        transfer_policy
     };
-    // use galliun::mizu_nft::{Self, MizuNFT};
     use galliun::{
         mizu_nft::{Self, MizuNFT},
         registry::{Self, Registry},

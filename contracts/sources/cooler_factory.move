@@ -87,5 +87,4 @@ module galliun::cooler_factory {
     public fun init_for_cooler(ctx: &mut TxContext) {
         init(ctx);
     }
-
 }

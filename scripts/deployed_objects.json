@@ -1,0 +1,21 @@
+{
+    "packageId": "0xe898172d28d6abe15e013ecc7dd21621c90e5738b78672c7431974c75bbae3b3",
+    "cooler_factory": {
+        "CoolerFactory": "0x3b70190fd1dffa89b04b4c1072306c7c1bf99fd7be7742a3cf0d569e0521a4cc",
+        "FactoryOwnerCap": "0xdb984860fe9a8917aabca50f66c48ce8957144e6d8687f0eae9cd72817761234"
+    },
+    "image": {
+        "image_publisher": ""
+    },
+    "mint": {
+        "mint_publisher": ""
+    },
+    "register": {
+        "register_publisher": ""
+    },
+    "water_cooler": {
+        "water_cooler_publisher": "0x09c6a8de50b3173b67d63afd9d3723d96eccfe692053afb22ab59d56fd698e3d",
+        "policy_cap": "0xc484a3c4c394569f3f7816eaa9605ff8920c53610b1b95cfa270228d3846081c",
+        "policy": "0xf7422a1b4653ea3059ed116ea56811e980b35a9e3be2ccb0c4b3a9503ef5ebb5"
+    }
+}
