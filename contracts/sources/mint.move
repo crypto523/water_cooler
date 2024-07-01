@@ -79,11 +79,13 @@ module galliun::mint {
 
     public struct WhitelistTicket has key {
         id: UID,
+        warehouseId: ID,
         phase: u8,
     }
 
     public struct OriginalGangsterTicket has key {
         id: UID,
+        warehouseId: ID,
         phase: u8,
     }
 
@@ -166,11 +168,12 @@ module galliun::mint {
         payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
-        let WhitelistTicket { id, phase } = ticket;
+        let WhitelistTicket { id, warehouseId, phase } = ticket;
         id.delete();
 
         assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
         assert!(phase == settings.phase, EInvalidTicketForMintPhase);
+        assert!(warehouseId == object::id(warehouse), EInvalidTicketForMintPhase);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
         mint_internal(warehouse, payment, ctx);
@@ -183,11 +186,12 @@ module galliun::mint {
         payment: Coin<SUI>,        
         ctx: &mut TxContext,
     ) {
-        let OriginalGangsterTicket { id, phase } = ticket;
+        let OriginalGangsterTicket { id, warehouseId, phase } = ticket;
         id.delete();
 
         assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
         assert!(phase == settings.phase, EInvalidTicketForMintPhase);
+        assert!(warehouseId == object::id(warehouse), EInvalidTicketForMintPhase);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
         mint_internal(warehouse, payment, ctx);
@@ -285,7 +289,7 @@ module galliun::mint {
         settings: &mut MintSettings,        
         status: u8,
     ) {
-        assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
+        assert!(object::id(settings) == cap.`for_settings`, ENotOwner);
         assert!(settings.status == MINT_STATE_INACTIVE || settings.status == MINT_STATE_ACTIVE, EInvalidStatusNumber);
         settings.status = status;
     }
@@ -295,10 +299,31 @@ module galliun::mint {
         settings: &mut MintSettings,
         phase: u8,
     ) {
-        assert!(object::id(settings) == cap.`for_settings`, ENotOwner);        
+        assert!(object::id(settings) == cap.`for_settings`, ENotOwner);
         assert!(phase >= 1 && phase <= 3, EInvalidPhaseNumber);
         settings.phase = phase;
     }
+
+    public fun create_og_ticket(_: &MintAdminCap, warehouse: &MintWarehouse,  ctx: &mut TxContext) {
+        let og_ticket =  OriginalGangsterTicket {
+            id: object::new(ctx),
+            warehouseId: object::id(warehouse),
+            phase: 1,
+        };
+
+        transfer::transfer(og_ticket, ctx.sender());
+    }
+
+    public fun create_wl_ticket(_: &MintAdminCap, warehouse: &MintWarehouse, ctx: &mut TxContext) {
+        let whitelist_ticket =  WhitelistTicket {
+            id: object::new(ctx),
+            warehouseId: object::id(warehouse),
+            phase: 2,
+        };
+
+        transfer::transfer(whitelist_ticket, ctx.sender());
+    }
+
     // FIXME: we should discuss 
     public fun reveal_mint(
         _cap: &MintAdminCap,
@@ -376,13 +401,6 @@ module galliun::mint {
         );
 
         (mint_settings, mint_warehouse)
-
-        // // This might need to be moved to a seperate function
-        // // that will be called by the owner of the WaterCooler
-        // transfer::share_object(mint_settings);
-        // // This might need to be moved to a seperate function
-        // // that will be called by the owner of the WaterCooler
-        // transfer::share_object(mint_warehouse);
     }
     
     #[allow(lint(share_owned))]
@@ -393,24 +411,6 @@ module galliun::mint {
     #[allow(lint(share_owned))]
     public(package) fun transfer_mint_warehouse(self: MintWarehouse) {
         transfer::share_object(self);
-    }
-
-    public(package) fun create_og_distributer(ctx: &mut TxContext) {
-        let og_ticket =  OriginalGangsterTicket {
-            id: object::new(ctx),
-            phase: 1,
-        };
-
-        transfer::transfer(og_ticket, ctx.sender());
-    }
-
-    public(package) fun create_wl_distributer(ctx: &mut TxContext) {
-        let whitelist_ticket =  WhitelistTicket {
-            id: object::new(ctx),
-            phase: 2,
-        };
-
-        transfer::transfer(whitelist_ticket, ctx.sender());
     }
 
     // === Private Functions ===
