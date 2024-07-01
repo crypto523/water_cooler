@@ -54,7 +54,9 @@ const supply = 25;
             MintWarehouse: "",
             MintAdminCap: "",
             collection: "",
-            registry: ""
+            registry: "",
+            mizu_kiosk: "",
+            mizu_nft: ""
         }
     };
 
