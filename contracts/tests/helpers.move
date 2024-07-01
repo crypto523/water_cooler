@@ -41,13 +41,17 @@ module galliun::helpers {
         image_url: String,
         size: u64,
         addr: address,
+        mint_setting_id: ID,
+         mint_warehouse_id: ID,
     ) {
         water_cooler::create_water_cooler(
-            name, 
-            description, 
-            image_url, 
-            size, 
-            addr, 
+            name,
+            description,
+            image_url,
+            size,
+            addr,
+            mint_setting_id,
+            mint_warehouse_id,
             ts::ctx(ts)
         );
     }
