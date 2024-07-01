@@ -106,7 +106,7 @@ const supply = 25;
 
     // get MintAdminCap object 
     const MintAdminCap = `${packageId}::mint::MintAdminCap`;
-    const MintAdminCap_id = find_one_by_type(objectChanges, MintWarehouse);
+    const MintAdminCap_id = find_one_by_type(objectChanges, MintAdminCap);
     
     if (!MintAdminCap_id) {
         console.log("Error: Could not find MintAdminCap object");
