@@ -28,6 +28,7 @@ module galliun::mizu_nft {
         kiosk_id: ID,
         // ID of the KioskOwnerCap owned by the NFT.
         kiosk_owner_cap_id: ID,
+        water_cooler_id: ID
     }
 
     // === Public view functions ===
@@ -56,6 +57,7 @@ module galliun::mizu_nft {
         minted_by: Option<address>,
         kiosk_id: ID,
         kiosk_owner_cap_id: ID,
+        water_cooler_id: ID,
         ctx: &mut TxContext,
     ): MizuNFT {
         MizuNFT {
@@ -69,6 +71,7 @@ module galliun::mizu_nft {
             minted_by,
             kiosk_id,
             kiosk_owner_cap_id,
+            water_cooler_id
         }
     }
 
