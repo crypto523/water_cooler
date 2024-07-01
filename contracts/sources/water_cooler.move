@@ -166,6 +166,7 @@ module galliun::water_cooler {
                 option::none(), // minted_by
                 object::id(&kiosk),
                 object::id(&kiosk_owner_cap),
+                object::id(self),
                 ctx,
             );
 
