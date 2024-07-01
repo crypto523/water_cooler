@@ -46,6 +46,10 @@ module galliun::water_cooler {
         // between the Registry and the WaterCooler which need to share the 
         // supply of NFTs in the collection
         collection_id: ID,
+        // This is the ID of the mint settings that manages the minting process for the NFTs
+        setting_id: ID,
+        // This is the ID of the mint wearhouse that will store the NFTs before mint
+        wearhouse_id: ID,
         is_initialized: bool,
         // balance for creator
         balance: Balance<SUI>,
@@ -88,7 +92,9 @@ module galliun::water_cooler {
         description: String, 
         image_url: String, 
         supply: u64, 
-        treasury: address, 
+        treasury: address,
+        setting_id: ID,
+        wearhouse_id: ID,
         ctx: &mut TxContext
     ) {
 
@@ -106,6 +112,8 @@ module galliun::water_cooler {
                 treasury,
                 registry_id: object::id(&registry),
                 collection_id: object::id(&collection),
+                setting_id,
+                wearhouse_id,
                 is_initialized: false,
                 balance: balance::zero(),
             }

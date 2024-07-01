@@ -347,7 +347,7 @@ module galliun::mint {
 
     // === Package functions ===
 
-    public(package) fun create_mint_distributer(ctx: &mut TxContext) {
+    public(package) fun create_mint_distributer(ctx: &mut TxContext): (MintSettings, MintWarehouse) {
         // This might need to be moved to a seperate function
         // that will be called by the owner of the WaterCooler
         let mint_settings = MintSettings {
@@ -366,18 +366,33 @@ module galliun::mint {
         };
 
         // Here we transfer the mint admin cap to the person that bought the WaterCooler
-        transfer::transfer(MintAdminCap{
-             id: object::new(ctx),
-            `for_settings`: object::id(&mint_settings),
-            `for_warehouse`: object::id(&mint_warehouse)},
-             ctx.sender());
+        transfer::transfer(
+            MintAdminCap {
+                id: object::new(ctx),
+                `for_settings`: object::id(&mint_settings),
+                `for_warehouse`: object::id(&mint_warehouse)
+            },
+             ctx.sender()
+        );
 
-        // This might need to be moved to a seperate function
-        // that will be called by the owner of the WaterCooler
-        transfer::share_object(mint_settings);
-        // This might need to be moved to a seperate function
-        // that will be called by the owner of the WaterCooler
-        transfer::share_object(mint_warehouse);
+        (mint_settings, mint_warehouse)
+
+        // // This might need to be moved to a seperate function
+        // // that will be called by the owner of the WaterCooler
+        // transfer::share_object(mint_settings);
+        // // This might need to be moved to a seperate function
+        // // that will be called by the owner of the WaterCooler
+        // transfer::share_object(mint_warehouse);
+    }
+    
+    #[allow(lint(share_owned))]
+    public(package) fun transfer_mint_setting(self: MintSettings) {
+        transfer::share_object(self);
+    }
+
+    #[allow(lint(share_owned))]
+    public(package) fun transfer_mint_warehouse(self: MintWarehouse) {
+        transfer::share_object(self);
     }
 
     public(package) fun create_og_distributer(ctx: &mut TxContext) {
