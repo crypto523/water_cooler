@@ -49,9 +49,16 @@ const supply = 25;
     let userObjects = {
         user_objects: {
             water_cooler: "",
+            water_cooler_cap: "",
+            MintSettings: "",
+            MintWarehouse: "",
+            MintAdminCap: "",
+            collection: "",
+            registry: ""
         }
     };
 
+    // get watercooler share object 
     const water_cooler = `${packageId}::water_cooler::WaterCooler`;
     const water_cooler_id = find_one_by_type(objectChanges, water_cooler);
 
@@ -61,6 +68,72 @@ const supply = 25;
     }
 
     userObjects.user_objects.water_cooler = water_cooler_id;
+
+    // get watercoolercap object 
+    const water_cooler_cap = `${packageId}::water_cooler::WaterCoolerAdminCap`;
+    const water_cooler_cap_id = find_one_by_type(objectChanges, water_cooler_cap);
+
+    if (!water_cooler_cap_id) {
+        console.log("Error: Could not find WaterCoolercap object");
+        process.exit(1);
+    }
+
+    userObjects.user_objects.water_cooler_cap = water_cooler_cap_id;
+
+    // get MintSettings object 
+    const mintsettings = `${packageId}::mint::MintSettings`;
+    const mintsettings_id = find_one_by_type(objectChanges, mintsettings);
+
+    if (!mintsettings_id) {
+        console.log("Error: Could not find MintSettings object");
+        process.exit(1);
+    }
+
+    userObjects.user_objects.MintSettings = mintsettings_id;
+
+    // get MintWarehouse object 
+    const MintWarehouse = `${packageId}::mint::MintWarehouse`;
+    const MintWarehouse_id = find_one_by_type(objectChanges, MintWarehouse);
+    
+    if (!MintWarehouse_id) {
+        console.log("Error: Could not find MintWarehouse object");
+        process.exit(1);
+    }
+    
+    userObjects.user_objects.MintWarehouse = MintWarehouse_id;
+
+    // get MintAdminCap object 
+    const MintAdminCap = `${packageId}::mint::MintAdminCap`;
+    const MintAdminCap_id = find_one_by_type(objectChanges, MintWarehouse);
+    
+    if (!MintAdminCap_id) {
+        console.log("Error: Could not find MintAdminCap object");
+        process.exit(1);
+    }
+    
+    userObjects.user_objects.MintAdminCap = MintAdminCap_id;
+
+    // get Collection object 
+    const collection = `${packageId}::collection::Collection`;
+    const collection_id = find_one_by_type(objectChanges, collection);
+    
+    if (!collection_id) {
+        console.log("Error: Could not find Collection object");
+        process.exit(1);
+    }
+    
+    userObjects.user_objects.collection = collection_id;
+
+    // get registry object 
+    const registry = `${packageId}::registry::Registry`;
+    const registry_id = find_one_by_type(objectChanges, registry);
+    
+    if (!registry_id) {
+        console.log("Error: Could not find registry object");
+        process.exit(1);
+    }
+    
+    userObjects.user_objects.registry = registry_id;
 
     // Write updated user objects to user_objects.json
     fs.writeFileSync(userFilePath, JSON.stringify(userObjects, null, 2), 'utf8');

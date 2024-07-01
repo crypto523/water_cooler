@@ -1,5 +1,11 @@
 {
   "user_objects": {
-    "water_cooler": "0x7409d7030c1c3ad076b56e25092b0a837efffe8e8498c44fe06c093f4883506c"
+    "water_cooler": "0xc65a0c839ab0c5f929db564bd9d75f292d7b11ff5a3be00337d675d6fbe38ba3",
+    "water_cooler_cap": "0x4c08549247e52d5dd276451a0bcb753f10c1bd7d3d8f3ffcff33f369ea227899",
+    "MintSettings": "0x4e6f2589f81214642c1fde452ab2027bf542f1d476cea4560261e30eb39a1d8b",
+    "MintWarehouse": "0xd07944f9a71b353d881a5f4ec15705ad35385efb35ffee1a9a25eccf09906c8b",
+    "MintAdminCap": "0xd07944f9a71b353d881a5f4ec15705ad35385efb35ffee1a9a25eccf09906c8b",
+    "collection": "0x7efa9dfb988767fb099ccd338ada062c94a848d3df2fe4416610ea7516603626",
+    "registry": "0xb2b5ce3944b3900ff770c93357156c3aad4124d58108b78fe4af6a78a2cee328"
   }
 }
