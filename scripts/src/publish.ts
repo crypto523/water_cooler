@@ -88,7 +88,6 @@ export const deployed_address = {
         policy_cap: "",
         policy: ""
     },
-
 }
 
 // Get listed_types shareobjects

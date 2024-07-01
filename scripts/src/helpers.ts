@@ -18,6 +18,11 @@ const keypair = Ed25519Keypair.fromSecretKey(fromB64(privkey).slice(1))
 return keypair
 }
 
+export const user_keypair = () => {
+    const keypair = Ed25519Keypair.fromSecretKey(fromB64("AI6BnB7opxTcSNtC6N3o4Imr5gB8E9bSbFRT1JfzioR6").slice(1))
+    return keypair
+}
+
 export const client = new SuiClient({ url: getFullnodeUrl('testnet') });
 
 export const parse_amount = (amount: string) => {
