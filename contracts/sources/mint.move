@@ -326,8 +326,7 @@ module galliun::mint {
 
         transfer::transfer(whitelist_ticket, ctx.sender());
     }
-
-    // FIXME: we should discuss 
+    
     public fun reveal_mint(
         cap: &MintCap,
         mint: &mut Mint,
