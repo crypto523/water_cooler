@@ -10,8 +10,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@mysten/sui.js": "^0.54.1",
-    "dotconfig": "^0.0.1-security",
+    "@mysten/sui": "^1.2.0",
     "dotenv": "^16.4.5"
   }
 }

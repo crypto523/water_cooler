@@ -1,9 +1,9 @@
-import { TransactionBlock } from '@mysten/sui.js/transactions';
-import { client, user_keypair, find_one_by_type } from './helpers.js';
+import { Transaction } from '@mysten/sui/transactions';
+import { client, getKeypair, find_one_by_type } from './helpers.js';
 import data from '../deployed_objects.json';
 import user_data from '../user_objects.json';
 
-const keypair = user_keypair();
+const keypair = getKeypair();
 
 const packageId = data.packageId;
 const mintcap = user_data.user_objects.MintAdminCap;
@@ -11,7 +11,7 @@ const mintsettings = user_data.user_objects.MintSettings;
 
 (async () => {
     try {
-        const txb = new TransactionBlock();
+        const txb = new Transaction();
         const price = 100000000;
         const status = 1;
         const phase = 3;
@@ -23,7 +23,7 @@ const mintsettings = user_data.user_objects.MintSettings;
             arguments: [
                 txb.object(mintcap),
                 txb.object(mintsettings),
-                txb.pure(price)
+                txb.pure(price as any)
             ],
         });
 
@@ -32,7 +32,7 @@ const mintsettings = user_data.user_objects.MintSettings;
             arguments: [
                 txb.object(mintcap),
                 txb.object(mintsettings),
-                txb.pure(status)
+                txb.pure(status as any)
             ],
         });
 
@@ -41,13 +41,13 @@ const mintsettings = user_data.user_objects.MintSettings;
             arguments: [
                 txb.object(mintcap),
                 txb.object(mintsettings),
-                txb.pure(phase)
+                txb.pure(phase as any)
             ],
         });
 
-        const { objectChanges } = await client.signAndExecuteTransactionBlock({
+        const { objectChanges } = await client.signAndExecuteTransaction({
             signer: keypair,
-            transactionBlock: txb,
+            transaction: txb,
             options: { showObjectChanges: true }
         });
 

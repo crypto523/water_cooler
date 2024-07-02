@@ -1,13 +1,13 @@
 {
   "user_objects": {
-    "water_cooler": "0x7a84e2c14bca535d61710cde9135b009c036750d51a99d611483bf9ee02b749f",
-    "water_cooler_cap": "0xb6905708218f6aa204cfcc0184fe72491f43938a40a75f08c57785042b7132c4",
-    "MintSettings": "0xfbd2956edc2506a8c03f5d631b8830f42a0204ea4e343b4758ecdf7d4d0328c8",
-    "MintWarehouse": "0x82f1a14d4a86b09fe6a29b055613631ef24c17780da657420e74e776baf806a9",
-    "MintAdminCap": "0x8cad8fd7ed012369e49e5d941f8a87f275e9ff58b7ec0f46f445d3aaa59ee572",
-    "collection": "0x3204181768da9356a05f000f9495786a65ff2ec3870f56bcc4a1383629750cde",
-    "registry": "0x0103e82b3516571cf5e052648f3e9c619306af5142377154d37e109d39f223eb",
-    "mizu_kiosk": "0x08773d0e00d60223d5b1ffed8e5cc212a3a15ef0b232c3f633718723204f1d74",
-    "mizu_nft": "0x121fa71b0da95f7dcd6347d06c27361cd97f1cbfc6cb86190863cf8d48f2e3ba"
+    "water_cooler": "0xf9002063d1441ee2d6871e406da93a9262962d7040e094879ed9e7a9f68bf8f8",
+    "water_cooler_cap": "0x61a43707bf55fea3894c1df4889901ac62fbfd610e30732182afe4c81f540c45",
+    "MintSettings": "0x3abcaa1bfcc06301ff8a7088969173c23ef8a298b3dc6cb2e9d1c3990a7f9a6e",
+    "MintWarehouse": "0xeff3a5dc85ec19825a287f1ee0369a21faacb7708a0bca710b587812e8972c6c",
+    "MintAdminCap": "0x65796c5949a1cd31d5751fca4f913b3149ba83ef6ee92b7a5dc96eacaab4b7d9",
+    "collection": "0x256f61aa646882a7bcfe44bd9acd2b9e1343b6ea744302665ca5a36681e29e95",
+    "registry": "0x2470d07937ec448c432f9b8876194c2b0d08c077c6da4dfeb571cb3f49ae1e1a",
+    "mizu_kiosk": "",
+    "mizu_nft": ""
   }
 }

@@ -1,11 +1,11 @@
-import { TransactionBlock } from '@mysten/sui.js/transactions';
-import { client, user_keypair, find_one_by_type } from './helpers.js';
+import { Transaction } from '@mysten/sui/transactions';
+import { client, getKeypair, find_one_by_type } from './helpers.js';
 import data from '../deployed_objects.json';
 import user_data from '../user_objects.json';
 import fs from 'fs';
 import path, { dirname } from "path";
 
-const keypair = user_keypair();
+const keypair = getKeypair();
 
 const packageId = data.packageId;
 const water_cooler = user_data.user_objects.water_cooler;
@@ -14,7 +14,7 @@ const registry = user_data.user_objects.registry;
 const collection = user_data.user_objects.collection;
 
 (async () => {
-    const txb = new TransactionBlock;
+    const txb = new Transaction;
 
     console.log("User1 initialize_water_cooler ");
 
@@ -28,9 +28,9 @@ const collection = user_data.user_objects.collection;
         ],
     });
 
-    const { objectChanges } = await client.signAndExecuteTransactionBlock({
+    const { objectChanges } = await client.signAndExecuteTransaction({
         signer: keypair,
-        transactionBlock: txb,
+        transaction: txb,
         options: { showObjectChanges: true }
     });
 

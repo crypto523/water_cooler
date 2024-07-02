@@ -1,11 +1,12 @@
-import { TransactionBlock } from '@mysten/sui.js/transactions';
-import { client, keyPair, parse_amount, find_one_by_type } from './helpers.js';
+import 'dotenv/config';
+import { Transaction } from '@mysten/sui/transactions';
+import { client, getKeypair, parse_amount, find_one_by_type } from './helpers.js';
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { writeFileSync } from "fs";
 
 const { execSync } = require('child_process');
-const keypair =  keyPair();
+const keypair = getKeypair();
 
 const path_to_scripts = dirname(fileURLToPath(import.meta.url))
 const path_to_contracts = path.join(path_to_scripts, "../../contracts/sources")
@@ -13,14 +14,14 @@ const path_to_contracts = path.join(path_to_scripts, "../../contracts/sources")
 console.log("Building move code...")
 
 const { modules, dependencies } = JSON.parse(execSync(
-    `/home/mentalist/.cargo/bin/sui move build --dump-bytecode-as-base64 --path ${path_to_contracts}`,
+    `~/.cargo/bin/sui move build --dump-bytecode-as-base64 --path ${path_to_contracts}`,
     { encoding: "utf-8" }
 ))
 
 console.log("Deploying contracts...");
 console.log(`Deploying from ${keypair.toSuiAddress()}`)
 
-const tx = new TransactionBlock();
+const tx = new Transaction();
 
 const [upgradeCap] = tx.publish({
 	modules,
@@ -29,8 +30,8 @@ const [upgradeCap] = tx.publish({
 
 tx.transferObjects([upgradeCap], keypair.getPublicKey().toSuiAddress());
 
-const { objectChanges, balanceChanges } = await client.signAndExecuteTransactionBlock({
-    signer: keypair, transactionBlock: tx, options: {
+const { objectChanges, balanceChanges } = await client.signAndExecuteTransaction({
+    signer: keypair, transaction: tx, options: {
         showBalanceChanges: true,
         showEffects: true,
         showEvents: true,
@@ -52,7 +53,7 @@ if (!objectChanges) {
 console.log(objectChanges)
 console.log(`Spent ${Math.abs(parse_amount(balanceChanges[0].amount))} on deploy`);
 
-const published_change = objectChanges.find(change => change.type == "published")
+const published_change = objectChanges.find(change => change.type == "published");
 if (published_change?.type !== "published") {
     console.log("Error: Did not find correct published change")
     process.exit(1)

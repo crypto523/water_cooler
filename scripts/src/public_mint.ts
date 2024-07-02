@@ -1,9 +1,9 @@
-import { TransactionBlock } from '@mysten/sui.js/transactions';
-import { client, keyPair, find_one_by_type } from './helpers.js';
+import { Transaction } from '@mysten/sui/transactions';
+import { client, getKeypair, find_one_by_type } from './helpers.js';
 import data from '../deployed_objects.json';
 import user_data from '../user_objects.json';
 
-const keypair = keyPair();
+const keypair = getKeypair();
 
 const packageId = data.packageId;
 const mintsettings = user_data.user_objects.MintSettings;
@@ -11,7 +11,7 @@ const mintwarehouse = user_data.user_objects.MintWarehouse;
 
 (async () => {
     try {
-        const txb = new TransactionBlock();
+        const txb = new Transaction();
         const [coin] = txb.splitCoins(txb.gas, [100000000]);
 
         console.log("Admin calls public_mint ");
@@ -25,9 +25,9 @@ const mintwarehouse = user_data.user_objects.MintWarehouse;
             ],
         });
 
-        const { objectChanges } = await client.signAndExecuteTransactionBlock({
+        const { objectChanges } = await client.signAndExecuteTransaction({
             signer: keypair,
-            transactionBlock: txb,
+            transaction: txb,
             options: { showObjectChanges: true }
         });
 

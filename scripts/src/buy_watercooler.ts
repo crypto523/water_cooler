@@ -1,10 +1,10 @@
-import { TransactionBlock } from '@mysten/sui.js/transactions';
-import { client, user_keypair, find_one_by_type } from './helpers.js';
+import { Transaction } from '@mysten/sui/transactions';
+import { client, getKeypair, find_one_by_type } from './helpers.js';
 import data from '../deployed_objects.json';
 import fs from 'fs';
 import path, { dirname } from "path";
 
-const keypair = user_keypair();
+const keypair = getKeypair();
 
 const packageId = data.packageId;
 const cooler_factory = data.cooler_factory.CoolerFactory;
@@ -14,7 +14,7 @@ const img_url: String = "asd";
 const supply = 25;
 
 (async () => {
-    const txb = new TransactionBlock;
+    const txb = new Transaction;
     const [coin] = txb.splitCoins(txb.gas, [100000000]);
 
     console.log("User1 buy water_cooler");
@@ -24,17 +24,17 @@ const supply = 25;
         arguments: [
             txb.object(cooler_factory),
             txb.object(coin),
-            txb.pure(name),
-            txb.pure(description),
-            txb.pure(img_url),
-            txb.pure(supply),
-            txb.pure("0xa7f5dc1b23c3b8999f209186c0b4943587123b9293d84aea75a034dc2fb0d3d0")
+            txb.pure(name as any),
+            txb.pure(description as any),
+            txb.pure(img_url as any),
+            txb.pure(supply as any),
+            txb.pure("0xa7f5dc1b23c3b8999f209186c0b4943587123b9293d84aea75a034dc2fb0d3d0" as any)
         ],
     });
 
-    const { objectChanges } = await client.signAndExecuteTransactionBlock({
+    const { objectChanges } = await client.signAndExecuteTransaction({
         signer: keypair,
-        transactionBlock: txb,
+        transaction: txb,
         options: { showObjectChanges: true }
     });
 
@@ -141,5 +141,4 @@ const supply = 25;
     fs.writeFileSync(userFilePath, JSON.stringify(userObjects, null, 2), 'utf8');
 
     console.log('Updated user_objects.json successfully');
-
 })()
