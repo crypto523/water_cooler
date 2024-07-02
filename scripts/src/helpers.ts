@@ -17,6 +17,16 @@ const keypair = Ed25519Keypair.fromSecretKey(fromB64(privkey).slice(1))
 return keypair
 }
 
+export const user1_keypair = () => {
+    const privkey = "AI6BnB7opxTcSNtC6N3o4Imr5gB8E9bSbFRT1JfzioR6"
+if (!privkey) {
+    console.log("Error: DEPLOYER_B64_PRIVKEY not set as env variable.")
+    process.exit(1)
+}
+const keypair = Ed25519Keypair.fromSecretKey(fromB64(privkey).slice(1))
+return keypair
+}
+
 export const client = new SuiClient({ url: getFullnodeUrl('testnet') });
 
 export const parse_amount = (amount: string) => {

@@ -1,7 +1,7 @@
 import { Transaction } from '@mysten/sui/transactions';
-import { client, getKeypair } from './helpers.js';
-import data from '../deployed_objects.json';
-import user_data from '../user_objects.json';
+import { client, getKeypair } from '../helpers.js';
+import data from '../../deployed_objects.json';
+import user_data from '../../user_objects.json';
 
 const keypair = getKeypair();
 

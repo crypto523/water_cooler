@@ -1,0 +1,13 @@
+{
+  "user_objects": {
+    "water_cooler": "0xd98ec54f22290d527690fbc725180f28fd1dcbac62b1d114c2e2e7e219e8f8eb",
+    "water_cooler_cap": "0xe70b37e5803308dddb9598e8629736195f121da7186f80c5e5022e5c694326b2",
+    "MintSettings": "0x94aa0f1fff220d21e12b01b28470710dc855d4611b5e15eb912d841e44a02142",
+    "MintWarehouse": "0x0eb92a5536ad687a024c863100954896e760d38614cf010a356fae20e742ce74",
+    "MintAdminCap": "0xbdc245ee64dc41d2c94adeaca104df1f3ee8c3885a8b340aa40002c6d10ad492",
+    "collection": "0x1b04ce9caf5dbaefa667aac4f0fa3da77434746a294ebb10b30763d81f8caaf3",
+    "registry": "0x551cf188c80f96ae974b3359f05dc1d4bab5b4947b176ad6c14ea34bc8ae9adf",
+    "mizu_kiosk": "",
+    "mizu_nft": ""
+  }
+}

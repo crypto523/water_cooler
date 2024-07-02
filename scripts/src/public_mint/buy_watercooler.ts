@@ -1,10 +1,10 @@
 import { Transaction } from '@mysten/sui/transactions';
-import { client, getKeypair, find_one_by_type } from './helpers.js';
-import data from '../deployed_objects.json';
+import { client, user1_keypair, find_one_by_type } from '../helpers.js';
+import data from '../../deployed_objects.json';
 import fs from 'fs';
 import path from "path";
 
-const keypair = getKeypair();
+const keypair = user1_keypair();
 
 const packageId = data.packageId;
 const cooler_factory = data.cooler_factory.CoolerFactory;
