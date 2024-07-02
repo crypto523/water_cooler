@@ -1,5 +1,5 @@
 import { Transaction } from '@mysten/sui/transactions';
-import { client, getKeypair, find_one_by_type } from './helpers.js';
+import { client, getKeypair } from './helpers.js';
 import data from '../deployed_objects.json';
 import user_data from '../user_objects.json';
 

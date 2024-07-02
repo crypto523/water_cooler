@@ -13,25 +13,32 @@ const path_to_contracts = path.join(path_to_scripts, "../../contracts/sources")
 
 console.log("Building move code...")
 
-const { modules, dependencies } = JSON.parse(execSync(
-    `~/.cargo/bin/sui move build --dump-bytecode-as-base64 --path ${path_to_contracts}`,
-    { encoding: "utf-8" }
-))
+const { modules, dependencies } = JSON.parse(
+    execSync(
+        `~/.cargo/bin/sui move build --dump-bytecode-as-base64 --path ${path_to_contracts}`,
+        { encoding: "utf-8" }
+    )
+)
 
 console.log("Deploying contracts...");
 console.log(`Deploying from ${keypair.toSuiAddress()}`)
 
 const tx = new Transaction();
 
+// Publish package to chain
 const [upgradeCap] = tx.publish({
 	modules,
 	dependencies,
 });
 
+// Transfer upgradeCap to publishing address
 tx.transferObjects([upgradeCap], keypair.getPublicKey().toSuiAddress());
 
+// Execute transaction
 const { objectChanges, balanceChanges } = await client.signAndExecuteTransaction({
-    signer: keypair, transaction: tx, options: {
+    signer: keypair, 
+    transaction: tx,
+    options: {
         showBalanceChanges: true,
         showEffects: true,
         showEvents: true,
@@ -60,30 +67,21 @@ if (published_change?.type !== "published") {
 }
 
 // get package id and shareobject in json format 
-
-// get package_id
-const package_id = published_change.packageId
-
 export const deployed_address = {
     packageId: published_change.packageId,
-    
     cooler_factory: {
         CoolerFactory :"",
         FactoryOwnerCap :""
     },
-
     image: {
         image_publisher: ""
     },
-
     mint: {
         mint_publisher: ""
     },
-
     register: {
         register_publisher: ""
     },
-
     water_cooler: {
         water_cooler_publisher: "",
         policy_cap: "",

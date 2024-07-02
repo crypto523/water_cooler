@@ -2,7 +2,7 @@ import { Transaction } from '@mysten/sui/transactions';
 import { client, getKeypair, find_one_by_type } from './helpers.js';
 import data from '../deployed_objects.json';
 import fs from 'fs';
-import path, { dirname } from "path";
+import path from "path";
 
 const keypair = getKeypair();
 

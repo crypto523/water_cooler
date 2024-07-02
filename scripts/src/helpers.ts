@@ -1,6 +1,5 @@
 import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
-import { fromB64 } from "@mysten/sui/utils";
 import type { SuiObjectChange } from "@mysten/sui/client";
 
 export interface IObjectInfo {
