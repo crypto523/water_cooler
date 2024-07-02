@@ -108,6 +108,9 @@ module galliun::mint {
     // Mint Admin cap this can be used to make changes to the mint setting and warehouse
     public struct MintAdminCap has key { id: UID, `for_settings`: ID, `for_warehouse`: ID}
 
+    public struct MintCap has key { id: UID, `for`: ID}
+
+
     // === Init Function ===
 
     fun init(
@@ -326,12 +329,13 @@ module galliun::mint {
 
     // FIXME: we should discuss 
     public fun reveal_mint(
-        _cap: &MintAdminCap,
+        cap: &MintCap,
         mint: &mut Mint,
         attributes: Attributes,
         image: Image,
         image_url: String,
     ) {
+        assert!(object::id(mint) == cap.`for`, ENotOwner);
         let nft = option::borrow_mut(&mut mint.nft);
 
         mizu_nft::set_attributes(nft, attributes);
@@ -432,6 +436,11 @@ module galliun::mint {
             claim_expiration_epoch: ctx.epoch() + EPOCHS_TO_CLAIM_MINT,
         };
 
+        let cap = MintCap {
+            id: object::new(ctx),
+            `for`: object::id(&mint)
+        };
+
         event::emit(
             MintEvent {
                 mint_id: object::id(&mint),
@@ -444,7 +453,7 @@ module galliun::mint {
         mint.nft.fill(nft);
         let nft_mut = mint.nft.borrow_mut();
         nft_mut.set_minted_by_address(ctx.sender());
-
+        transfer::transfer(cap, ctx.sender());
         transfer::share_object(mint);
     }
 
