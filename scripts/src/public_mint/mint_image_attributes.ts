@@ -81,7 +81,7 @@ let userObjects = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         console.log("Error: Could not find Attributes object");
         process.exit(1);
     }
-    userObjects.user_objects.attribute = attribute_id;
+    userObjects.user_objects.attributes = attribute_id;
 
     // Get Image object
     const image_object = `${packageId}::image::Image`;

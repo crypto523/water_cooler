@@ -8,7 +8,7 @@ const keypair = user1_keypair();
 const packageId = data.packageId;
 const mint_cap = user_data.user_objects.mint_cap;
 const mint = user_data.user_objects.mint;
-const attributes = user_data.user_objects.attribute;
+const attributes = user_data.user_objects.attributes;
 const image = user_data.user_objects.image;
 
 (async () => {

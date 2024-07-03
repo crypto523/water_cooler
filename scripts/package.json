@@ -21,6 +21,8 @@
     "add_mint_warehouse": "bun ./src/public_mint/add_mint_warehouse.ts",
     "set_mintsettings": "bun ./src/public_mint/set_mintsettings.ts",
     "public_mint": "bun ./src/public_mint/public_mint.ts",
-    "public_mint_all": "npm-run-all -s publish buy_water_cooler init_water_cooler add_mint_warehouse set_mintsettings public_mint"
+    "mint_image_att": "bun ./src/public_mint/mint_image_attributes.ts",
+    "reveal_mint": "bun ./src/public_mint/reveal_mint.ts",
+    "public_mint_all": "npm-run-all -s buy_water_cooler init_water_cooler add_mint_warehouse set_mintsettings public_mint mint_image_att reveal_mint"
   }
 }
