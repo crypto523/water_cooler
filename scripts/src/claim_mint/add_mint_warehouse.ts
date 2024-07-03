@@ -1,7 +1,7 @@
 import { Transaction } from '@mysten/sui/transactions';
 import { client, user1_keypair } from '../helpers.js';
 import data from '../../deployed_objects.json';
-import user_data from './user_objects.json';
+import user_data from '../user_objects.json';
 
 const keypair = user1_keypair();
 

@@ -1,7 +1,7 @@
 import { Transaction } from '@mysten/sui/transactions';
 import { client, user1_keypair, find_one_by_type } from '../helpers.js';
 import data from '../../deployed_objects.json';
-import user_data from './user_objects.json';
+import user_data from '../user_objects.json';
 import fs from 'fs';
 import path from "path";
 
