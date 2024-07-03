@@ -16,7 +16,7 @@ module galliun::test_claim_mint {
         mizu_nft::{MizuNFT},
         cooler_factory::{Self, CoolerFactory},
         mint::{Self, Mint, MintCap, MintAdminCap, MintSettings, MintWarehouse, OriginalGangsterTicket},
-        attributes::{Self, Attributes},
+        attributes::{Self, Attributes, CreateAttributesCap},
         collection::{Collection},
         registry::{Registry},
         image::{Self, Image}
@@ -159,6 +159,7 @@ module galliun::test_claim_mint {
         // user needs to create Attributes and set the reveal_mint function
         ts::next_tx(scenario, TEST_ADDRESS1);
         {
+            let attributes_cap = ts::take_from_sender<CreateAttributesCap>(scenario);
             let mut key_vector = vector::empty<String>();
             let key1 = string::utf8(b"key1");
             let key2 = string::utf8(b"key2");
@@ -172,6 +173,7 @@ module galliun::test_claim_mint {
             values_vector.push_back(value2);
 
             let attributes = attributes::new(
+                attributes_cap,
                 key_vector,
                 values_vector,
                 ts::ctx(scenario)
