@@ -7,13 +7,13 @@
     "MintAdminCap": "0x43bc7464c25b663b8c30577dadcf3f4c91ae5393195cc096bfe07dd4e263369d",
     "collection": "0x63f8f97c070abe236a94dfe0e56c2df06b9b498feba2e8408bf1b3bd01543303",
     "registry": "0x0f59418fe0aa5b8ed60c1c08399cf346295e610b3ec2056ef1cf15e74d994426",
-    "mizu_kiosk": "",
-    "mizu_nft": "",
+    "mizu_kiosk": "0x0228aab2cfee8572d6bf189e511aa24e9a07af11ec8e7152bbf94fb5413149d1",
+    "mizu_nft": "0x0980d5f691f49c8307e6495905a767a7dcf16281ff80cdf17f99de0ccced19f5",
     "mint": "",
     "mint_cap": "",
     "attributes_cap": "",
     "image_cap": "",
-    "WhitelistTicket": "",
+    "WhitelistTicket": "0x3fc8dbcce96693088da350c2e993c41194feed8ba5c17465c41fd8698d15b087",
     "attributes": "",
     "image": ""
   }
