@@ -12,7 +12,7 @@ const attributes_cap = user_data.user_objects.attributes_cap;
 const image_cap = user_data.user_objects.image_cap;
 
 // Define the file path for the user objects JSON
-const filePath = path.join(__dirname, '../user_objects.json');
+const filePath = path.join(__dirname, './user_objects.json');
 
 // Load the user objects JSON file
 let userObjects = JSON.parse(fs.readFileSync(filePath, 'utf8'));

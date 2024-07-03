@@ -40,7 +40,7 @@ const mintwarehouse = user_data.user_objects.MintWarehouse;
 
     console.log(objectChanges);
 
-    const filePath = path.join(__dirname, '../user_objects.json');
+    const filePath = path.join(__dirname, './user_objects.json');
     const userObjects = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
     // Get Mint object

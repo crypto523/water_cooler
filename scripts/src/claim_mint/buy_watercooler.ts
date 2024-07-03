@@ -45,7 +45,7 @@ const supply = 25;
     console.log(objectChanges);
 
     // Get water_cooler object
-    const userFilePath = path.join(__dirname, '../user_objects.json');
+    const userFilePath = path.join(__dirname, './user_objects.json');
     let userObjects = {
         user_objects: {
             water_cooler: "",
