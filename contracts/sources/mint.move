@@ -16,7 +16,7 @@ module galliun::mint {
         attributes::{Self, Attributes},
         water_cooler::WaterCooler,
         mizu_nft::{Self, MizuNFT},
-        image::Image,
+        image::{Self, Image},
     };
 
     // === Errors ===
@@ -436,6 +436,7 @@ module galliun::mint {
         };
 
         let attributes_cap = attributes::issue_create_attributes_cap(0, ctx);
+        let image_cap = image::issue_create_image_cap(0, object::id(&mint), ctx);
 
         let cap = MintCap {
             id: object::new(ctx),
@@ -454,8 +455,10 @@ module galliun::mint {
         mint.nft.fill(nft);
         let nft_mut = mint.nft.borrow_mut();
         nft_mut.set_minted_by_address(ctx.sender());
+        
         transfer::transfer(cap, ctx.sender());
         transfer::public_transfer(attributes_cap, ctx.sender());
+        transfer::public_transfer(image_cap, ctx.sender());
         transfer::share_object(mint);
     }
 
