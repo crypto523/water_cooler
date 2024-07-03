@@ -14,7 +14,7 @@ const mintsettings = user_data.user_objects.MintSettings;
         const txb = new Transaction();
         const price = 100000000;
         const status = 1;
-        const phase = 3;
+        const phase = 1;
 
         console.log("User1 set_mintsettings ");
 
