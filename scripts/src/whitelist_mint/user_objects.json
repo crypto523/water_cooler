@@ -1,0 +1,20 @@
+{
+  "user_objects": {
+    "water_cooler": "0x0940fc168dc8cd2443324f7250f76c362fe00c3bd43eedecc42a106657d00169",
+    "water_cooler_cap": "0xd113440df2f9a0d2ab1a77e8f7ecb26d66e2a030ff677c910a601593eee132e3",
+    "MintSettings": "0xd63a581e04abdee9920cf7df9618e83633152093219ecabfd2fe2410d5172372",
+    "MintWarehouse": "0xc26e7ba70d1c2c2b6ee549dc208924c5709d16f19c4ac6cb99ee3f58a8e15dcf",
+    "MintAdminCap": "0x43bc7464c25b663b8c30577dadcf3f4c91ae5393195cc096bfe07dd4e263369d",
+    "collection": "0x63f8f97c070abe236a94dfe0e56c2df06b9b498feba2e8408bf1b3bd01543303",
+    "registry": "0x0f59418fe0aa5b8ed60c1c08399cf346295e610b3ec2056ef1cf15e74d994426",
+    "mizu_kiosk": "",
+    "mizu_nft": "",
+    "mint": "",
+    "mint_cap": "",
+    "attributes_cap": "",
+    "image_cap": "",
+    "WhitelistTicket": "",
+    "attributes": "",
+    "image": ""
+  }
+}
