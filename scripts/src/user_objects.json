@@ -1,15 +1,19 @@
 {
   "user_objects": {
-    "water_cooler": "0xddd1484bda9c51615cc1de6ee51abccd5e25bd0ce9650169c15c3730efcb600e",
-    "water_cooler_cap": "0x6008cb79fa33ad079b5cbb393ec6515f6cfd93e29ad2ad3399a3cb8db739fd57",
-    "MintSettings": "0xc920dac21e05188596ab60e4a762471247d3859ae5175d08d53c4f21579ced97",
-    "MintWarehouse": "0xefa06d3d4f757a28e982f2db68c21996ae2730eeed96cd77c3bc57cbf1666363",
-    "MintAdminCap": "0xa84dc66e698de0d3b45a58dc3acc4f7f098c53beb3a79ef5f87096efa91f831b",
-    "collection": "0xe8c89ed844850468eda044ba20565b2fc4d349b287359f3000ad9c71db6534e2",
-    "registry": "0xe25668b7765c307d0dfe2f1491e92c7640fb10a614c329b26e76d95ca2fd7a24",
-    "mizu_kiosk": "0x0f165877d7161c992a300936ec7a98f9e4740b87c4d2a56438616ee3687f5878",
-    "mizu_nft": "0x001fcc2fed0ce13251b5ccc37eee0243c5d77a78d313213b2c70ea478957bb1a",
-    "mint": "0x991e286744b1c0e0506a1af591ed596a76d4cddc77c558383b1922fcf5e99cc6",
-    "mint_cap": "0xf6d123b1088e678e546bb51bc294dfa21c890085c1e33f935a34a5d03ab9dca7"
+    "water_cooler": "0x2c8d5fff6f3c12a29bbe326b5eed32045007dc68c112475834d68b8e5e8d870d",
+    "water_cooler_cap": "0xa10c884e2db9622611b0afe3a6f12768b929e9d005a3602eee751939fbfe5e13",
+    "MintSettings": "0x8560b9f967b1360f7230e98d1b0cac45f4c6a2e6ea66a400c09f6871db7a5fd9",
+    "MintWarehouse": "0x5dd6861afc196358a6620713ab79f27a636d59dbea256b5d1cddffdbba692d1f",
+    "MintAdminCap": "0x0696d2fe3413b1d80b4dad53bb5b58ae90c420b22d41cb6033cd9c34b50e5739",
+    "collection": "0x634e1269d8b6ee8a4e5f0acfcc28a585eb3328ee8734f3f7e3e60985e1dd3043",
+    "registry": "0x0946af8fb3363203a179006e09d1f520682590623ded3ee588d5cf5782dc22f6",
+    "mizu_kiosk": "0x1161784be5ba50513a04e83e70d8da9dd47fc3327898f43423644f1f2ae08e48",
+    "mizu_nft": "0x00b9223bd388da60f37586bf29e9c183722ced280656c05556657117d634c90b",
+    "mint": "0x3643ead81b7ccb034a2c18e17cab654474610f6b2ed6795356c7dda558aa5687",
+    "mint_cap": "0x9cdb222dfbfdd33609183fa38231002f94cdaf7b6b51c9356bf276a9ae358192",
+    "attributes_cap": "0xf8f08569b818c5bc2303b58cff8d72280561fed098a5242c89e6bca9014ca49f",
+    "image_cap": "0xbdf10d40d9e6e49ca4f502fa6cd0779a2cb2dd710e4ca3ad38b6f8edf1a6a44a",
+    "attributes": "",
+    "image": ""
   }
 }

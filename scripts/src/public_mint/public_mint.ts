@@ -63,6 +63,26 @@ const mintwarehouse = user_data.user_objects.MintWarehouse;
     }
     userObjects.user_objects.mint_cap = mint_cap_id;
 
+    // Get AttributesCap object
+    const attributes_cap = `${packageId}::attributes::CreateAttributesCap`;
+    const attributes_cap_id = find_one_by_type(objectChanges, attributes_cap);
+
+    if (!mint_cap_id) {
+        console.log("Error: Could not find attributes_cap object");
+        process.exit(1);
+    }
+    userObjects.user_objects.attributes_cap = attributes_cap_id;
+
+    // Get image_cap object
+    const image_cap = `${packageId}::image::CreateImageCap`;
+    const image_cap_id = find_one_by_type(objectChanges, image_cap);
+
+    if (!mint_cap_id) {
+        console.log("Error: Could not find image_cap object");
+        process.exit(1);
+    }
+    userObjects.user_objects.image_cap = image_cap_id;
+
     fs.writeFileSync(filePath, JSON.stringify(userObjects, null, 2), 'utf8');
 
     console.log('Updated user_objects.json successfully');

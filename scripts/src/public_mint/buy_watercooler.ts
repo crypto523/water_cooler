@@ -58,7 +58,11 @@ const supply = 25;
             mizu_kiosk: "",
             mizu_nft: "",
             mint: "",
-            mint_cap: ""
+            mint_cap: "",
+            attributes_cap: "",
+            image_cap: "",
+            attributes: "",
+            image: ""
         }
     };
 
