@@ -13,7 +13,7 @@ module galliun::mint {
         transfer_policy::{TransferPolicy},
     };
     use galliun::{
-        attributes::Attributes,
+        attributes::{Self, Attributes},
         water_cooler::WaterCooler,
         mizu_nft::{Self, MizuNFT},
         image::Image,
@@ -435,6 +435,8 @@ module galliun::mint {
             claim_expiration_epoch: ctx.epoch() + EPOCHS_TO_CLAIM_MINT,
         };
 
+        let attributes_cap = attributes::issue_create_attributes_cap(0, ctx);
+
         let cap = MintCap {
             id: object::new(ctx),
             `for`: object::id(&mint)
@@ -453,6 +455,7 @@ module galliun::mint {
         let nft_mut = mint.nft.borrow_mut();
         nft_mut.set_minted_by_address(ctx.sender());
         transfer::transfer(cap, ctx.sender());
+        transfer::public_transfer(attributes_cap, ctx.sender());
         transfer::share_object(mint);
     }
 
