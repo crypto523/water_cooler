@@ -1,19 +1,20 @@
 {
   "user_objects": {
-    "water_cooler": "0x2c8d5fff6f3c12a29bbe326b5eed32045007dc68c112475834d68b8e5e8d870d",
-    "water_cooler_cap": "0xa10c884e2db9622611b0afe3a6f12768b929e9d005a3602eee751939fbfe5e13",
-    "MintSettings": "0x8560b9f967b1360f7230e98d1b0cac45f4c6a2e6ea66a400c09f6871db7a5fd9",
-    "MintWarehouse": "0x5dd6861afc196358a6620713ab79f27a636d59dbea256b5d1cddffdbba692d1f",
-    "MintAdminCap": "0x0696d2fe3413b1d80b4dad53bb5b58ae90c420b22d41cb6033cd9c34b50e5739",
-    "collection": "0x634e1269d8b6ee8a4e5f0acfcc28a585eb3328ee8734f3f7e3e60985e1dd3043",
-    "registry": "0x0946af8fb3363203a179006e09d1f520682590623ded3ee588d5cf5782dc22f6",
-    "mizu_kiosk": "0x1161784be5ba50513a04e83e70d8da9dd47fc3327898f43423644f1f2ae08e48",
-    "mizu_nft": "0x00b9223bd388da60f37586bf29e9c183722ced280656c05556657117d634c90b",
-    "mint": "0x3643ead81b7ccb034a2c18e17cab654474610f6b2ed6795356c7dda558aa5687",
-    "mint_cap": "0x9cdb222dfbfdd33609183fa38231002f94cdaf7b6b51c9356bf276a9ae358192",
-    "attributes_cap": "0xf8f08569b818c5bc2303b58cff8d72280561fed098a5242c89e6bca9014ca49f",
-    "image_cap": "0xbdf10d40d9e6e49ca4f502fa6cd0779a2cb2dd710e4ca3ad38b6f8edf1a6a44a",
+    "water_cooler": "0x1a4614915d5f2a07f25a95a4246d86038fff77de3a375145e5808afbae7726b3",
+    "water_cooler_cap": "0x556f25b6f13b07cb0a66d0765ab86a047ae3129209af57965f0381f811c5f14e",
+    "MintSettings": "0x71cd48a3d4d3ad0d3163ab3eabf30e78035b97cbf846715f5e156ab2e58fc76f",
+    "MintWarehouse": "0x035caeaab4359d40e389fd2cbc43d73c79fcc21d2fc0ad6d8bb2c4e15612a338",
+    "MintAdminCap": "0x3dca94cf9c6ef39aff5a0629c8e5f793932852ea9b112198edc7521d25e712c4",
+    "collection": "0x05f0f87e29909752c172878a211780c1a016e033290788e7aee1f0f870bcfb91",
+    "registry": "0xb91c48ff7f32c1c348068e81c77a1b1ab71cb421e4d5206c07b5cc2a393cde49",
+    "mizu_kiosk": "0x00a9fe3e29ce022578f5c94348c487a0a230adf9c9f0efd8a16abdbd4e9711e8",
+    "mizu_nft": "0x058eacd892c3ce0d983643599ad4a7aba83ac877f1a0206432ac19a9bb836799",
+    "mint": "0xf483b6ca362efeebb5c15e199d11cc2e0f318455da60cb812a10cc5405400472",
+    "mint_cap": "0xff08ad3c0415220886115696562eacba94f2a3e9976519167daf88f5f8f2ab76",
+    "attributes_cap": "0xedd9c58db6d566a9310fed34f4db74d7b485942b73d19a5fc3c09b98473944bf",
+    "image_cap": "0x479f0be1ca34d08c37ac480cfd26ea109822a8ad34c80ddf679cd7b1e3218208",
     "attributes": "",
-    "image": ""
+    "image": "0x499292eb60fac4a52170f18075c064be591ab80231c90e389c083270dfd411d6",
+    "attribute": "0xafdd8c12060da177e18fc0faa8adb46fe3f371603a5619c024059c6dddeb1c5d"
   }
 }
