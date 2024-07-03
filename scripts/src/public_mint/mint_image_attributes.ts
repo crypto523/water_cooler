@@ -8,8 +8,6 @@ import path from 'path';
 const keypair = user1_keypair();
 
 const packageId = data.packageId;
-const mint_cap = user_data.user_objects.mint_cap;
-const mint = user_data.user_objects.mint;
 const attributes_cap = user_data.user_objects.attributes_cap;
 const image_cap = user_data.user_objects.image_cap;
 

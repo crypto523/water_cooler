@@ -11,10 +11,6 @@ const mint = user_data.user_objects.mint;
 const attributes = user_data.user_objects.attribute;
 const image = user_data.user_objects.image;
 
-function stringToUint8Array(str: string): Uint8Array {
-    return new TextEncoder().encode(str);
-}
-
 (async () => {
     const txb = new Transaction();
 
