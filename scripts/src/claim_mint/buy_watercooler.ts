@@ -61,6 +61,7 @@ const supply = 25;
             mint_cap: "",
             attributes_cap: "",
             image_cap: "",
+            OriginalGangsterTicket: "",
             attributes: "",
             image: ""
         }

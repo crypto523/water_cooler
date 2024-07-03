@@ -1,18 +1,19 @@
 {
   "user_objects": {
-    "water_cooler": "0xe13baf4c2021436fd640aee9929d97fb62c0c3601d804fced35f0d274ca87ed5",
-    "water_cooler_cap": "0x0a78403ad8d96f6a28171a75e2c1ba9766a78ae69b755fd0e3f3e748d5dcc8f9",
-    "MintSettings": "0x537a5749ca7846f035514b6353e9552cc3967a40504c77da18b053bd18fcb897",
-    "MintWarehouse": "0xeadd737ebb41217806fa447ce417bc8c1936a38370c53caad9646c4f6b7bdc3a",
-    "MintAdminCap": "0x1664d3d2e6da251a674d1dc17de5b39d028b4dccb0b5f07bf11a6a2b139fb631",
-    "collection": "0xf917617d7ecb4081f0fcce604568d797064eacaad41fad4fa3a58a95e0f007f2",
-    "registry": "0x04f20fbbbf0734d428a20288d59fb9e07e23b5825766fcda5b9352fdb53f4613",
-    "mizu_kiosk": "",
-    "mizu_nft": "",
+    "water_cooler": "0x4749e08c0d56825c159e3f8a1b39b7475885e2661715ecf6cee37fe705ecf43f",
+    "water_cooler_cap": "0xb5e5c962e056ca0c0997db2da62a30d4d502982aa3c8722fdfa09bea3ff3f19b",
+    "MintSettings": "0x6caf640f82886f0b5edebad6840f197856d6d71754f2d5aa8adeceab1638de59",
+    "MintWarehouse": "0x3bc8dcc1fbb1f62295f678b1a74b7081513c9cc44111d9b88e5f480b87a5aef5",
+    "MintAdminCap": "0x82b69f66bbabca4c3bbdf99abdfa3bc4c4d66c4b7ac3e05cd84f1968ad3b3492",
+    "collection": "0xb3c7f2c2fd0a05239977a0749dc4145bd6c885d0c6b85b0ac2c512f5f3693df4",
+    "registry": "0x563a44cc3ba36b166cbf3a0883b6fe5e6cffb4e16d90d0d416300d8e4ffab115",
+    "mizu_kiosk": "0x12dc26d14787604aa57480c9745cf9c71cf02160256e21867effabfe668977fe",
+    "mizu_nft": "0x19c4aa989579fe68a4fb3821d38451d3027917b2a3010665e17cec35efeef0b3",
     "mint": "",
     "mint_cap": "",
     "attributes_cap": "",
     "image_cap": "",
+    "OriginalGangsterTicket": "0xfcaaf584a6d8115adbe673efa6b3abae2bfe538d2b0bebb8ce72b94ffaf0004d",
     "attributes": "",
     "image": ""
   }
