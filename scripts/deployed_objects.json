@@ -1,8 +1,8 @@
 {
-    "packageId": "0xe551a2c78241a47d51f9d1e0950180c661b81121cfecf939905d15693976c154",
+    "packageId": "0x73a97100c9c5cb769dbd2e7642474e5d5cf5773f6630a6a1c862cb7a276ed5bd",
     "cooler_factory": {
-        "CoolerFactory": "0x3b104c9caf75f5720f6456acaf7950a1387fdc1ebb5eaa6ce4628a4c0036a78d",
-        "FactoryOwnerCap": "0x5c9b5d4084851e434765fc50e2786b1dfc77920991798ec01a022f5ce29662e2"
+        "CoolerFactory": "0xf3fc263a0b56a2c88bad32bd357c0fcf488ec50d8006b9c2fc86f4475d56eb47",
+        "FactoryOwnerCap": "0xba4d7718541d7da476091d882a9c56fcc8de8da29353c51f79333590e7b24ea8"
     },
     "image": {
         "image_publisher": ""
@@ -14,8 +14,8 @@
         "register_publisher": ""
     },
     "water_cooler": {
-        "water_cooler_publisher": "0x181530c4c60adce66dee9096e5ded79069a6c80f2523f4a2ab275f235df9aec5",
-        "policy_cap": "0x7305645d1c7932791c3b9a246160c362531f714cbab372b5d9cbe079b45df86e",
-        "policy": "0x14e49242f9385e3726bd23549dbcad36f083d953bcde81b97fe11ac6bab97ebf"
+        "water_cooler_publisher": "0x6707b0b1e81781de455a48469b076a4912bc2cf6ea691e9850e159809521827c",
+        "policy_cap": "0xc49f205d5e09f3059b1b42a7e5a2d42b733077f60eea2d1b12741a3ef1e5e7f9",
+        "policy": "0x30efa3a52724f330d6b441af5a64651ec9adb8755984104a0e68cde9275b3f59"
     }
 }
