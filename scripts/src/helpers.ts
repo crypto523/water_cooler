@@ -2,13 +2,18 @@ import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import type { SuiObjectChange } from "@mysten/sui/client";
 import { fromB64 } from "@mysten/sui/utils";
+import dotenv from 'dotenv';
+
 export interface IObjectInfo {
     type: string | undefined;
     id: string | undefined;
 }
 
+dotenv.config();
+
 export const admin_keypair = () => {
     const privkey = process.env.PRIVATE_KEY
+    console.log(privkey)
 if (!privkey) {
     console.log("Error: DEPLOYER_B64_PRIVKEY not set as env variable.")
     process.exit(1)

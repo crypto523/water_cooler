@@ -1,13 +1,15 @@
 {
   "user_objects": {
-    "water_cooler": "0xd98ec54f22290d527690fbc725180f28fd1dcbac62b1d114c2e2e7e219e8f8eb",
-    "water_cooler_cap": "0xe70b37e5803308dddb9598e8629736195f121da7186f80c5e5022e5c694326b2",
-    "MintSettings": "0x94aa0f1fff220d21e12b01b28470710dc855d4611b5e15eb912d841e44a02142",
-    "MintWarehouse": "0x0eb92a5536ad687a024c863100954896e760d38614cf010a356fae20e742ce74",
-    "MintAdminCap": "0xbdc245ee64dc41d2c94adeaca104df1f3ee8c3885a8b340aa40002c6d10ad492",
-    "collection": "0x1b04ce9caf5dbaefa667aac4f0fa3da77434746a294ebb10b30763d81f8caaf3",
-    "registry": "0x551cf188c80f96ae974b3359f05dc1d4bab5b4947b176ad6c14ea34bc8ae9adf",
-    "mizu_kiosk": "",
-    "mizu_nft": ""
+    "water_cooler": "0xddd1484bda9c51615cc1de6ee51abccd5e25bd0ce9650169c15c3730efcb600e",
+    "water_cooler_cap": "0x6008cb79fa33ad079b5cbb393ec6515f6cfd93e29ad2ad3399a3cb8db739fd57",
+    "MintSettings": "0xc920dac21e05188596ab60e4a762471247d3859ae5175d08d53c4f21579ced97",
+    "MintWarehouse": "0xefa06d3d4f757a28e982f2db68c21996ae2730eeed96cd77c3bc57cbf1666363",
+    "MintAdminCap": "0xa84dc66e698de0d3b45a58dc3acc4f7f098c53beb3a79ef5f87096efa91f831b",
+    "collection": "0xe8c89ed844850468eda044ba20565b2fc4d349b287359f3000ad9c71db6534e2",
+    "registry": "0xe25668b7765c307d0dfe2f1491e92c7640fb10a614c329b26e76d95ca2fd7a24",
+    "mizu_kiosk": "0x0f165877d7161c992a300936ec7a98f9e4740b87c4d2a56438616ee3687f5878",
+    "mizu_nft": "0x001fcc2fed0ce13251b5ccc37eee0243c5d77a78d313213b2c70ea478957bb1a",
+    "mint": "0x991e286744b1c0e0506a1af591ed596a76d4cddc77c558383b1922fcf5e99cc6",
+    "mint_cap": "0xf6d123b1088e678e546bb51bc294dfa21c890085c1e33f935a34a5d03ab9dca7"
   }
 }

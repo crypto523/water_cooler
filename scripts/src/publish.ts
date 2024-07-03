@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import { Transaction } from '@mysten/sui/transactions';
 import { client, admin_keypair, parse_amount, find_one_by_type } from './helpers.js';
 import path, { dirname } from 'path';

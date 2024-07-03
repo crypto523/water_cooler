@@ -1,9 +1,9 @@
 import { Transaction } from '@mysten/sui/transactions';
-import { client, getKeypair } from './helpers.js';
-import data from '../deployed_objects.json';
+import { client, user1_keypair } from '../helpers.js';
+import data from '../../deployed_objects.json';
 import user_data from '../user_objects.json';
 
-const keypair = getKeypair();
+const keypair = user1_keypair();
 
 const packageId = data.packageId;
 const water_cooler = user_data.user_objects.water_cooler;
