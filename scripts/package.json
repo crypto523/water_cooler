@@ -34,7 +34,16 @@
     "mint_image_attributes": "bun ./src/claim_mint/mint_image_attributes.ts",
     "reveal_mint2": "bun ./src/claim_mint/reveal_mint.ts",
     "claim_mint": "bun ./src/claim_mint/claim_mint.ts",
+
+    "buy_watercooler": "bun ./src/whitelist_mint/buy_watercooler.ts",
+    "init_water_cooler3": "bun ./src/whitelist_mint/init_water_cooler.ts",
+    "add_mint_warehouse3": "bun ./src/whitelist_mint/add_mint_warehouse.ts",
+    "set_mintsettings3": "bun ./src/whitelist_mint/set_mintsettings.ts",
+    "create_whitelist_ticket": "bun ./src/whitelist_mint/create_whitelist_ticket.ts",
+    "whitelist_mint": "bun ./src/whitelist_mint/whitelist_mint.ts",
+
     "public_mint_all": "npm-run-all -s buy_water_cooler init_water_cooler add_mint_warehouse set_mintsettings public_mint mint_image_att reveal_mint",
-    "claim_mint_all": "npm-run-all -s buy_water_cooler2 init_water_cooler2 add_to_mint_warehouse set_mintsettings2 create_og_ticket og_mint mint_image_attributes reveal_mint2 claim_mint"
+    "claim_mint_all": "npm-run-all -s buy_water_cooler2 init_water_cooler2 add_to_mint_warehouse set_mintsettings2 create_og_ticket og_mint mint_image_attributes reveal_mint2 claim_mint",
+    "whitelist_mint_all": "npm-run-all -s buy_watercooler init_water_cooler3 add_mint_warehouse3 set_mintsettings3 create_whitelist_ticket whitelist_mint"
   }
 }
