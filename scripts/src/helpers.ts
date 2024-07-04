@@ -18,8 +18,7 @@ if (!privkey) {
     console.log("Error: DEPLOYER_B64_PRIVKEY not set as env variable.")
     process.exit(1)
 }
-// const keypair = Ed25519Keypair.fromSecretKey(fromB64(privkey).slice(1))
-const keypair = Ed25519Keypair.deriveKeypair(process.env.SEED_PHRASE as string);
+const keypair = Ed25519Keypair.fromSecretKey(fromB64(privkey).slice(1))
 return keypair
 }
 

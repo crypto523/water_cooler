@@ -93,6 +93,6 @@ module galliun::mizu_nft {
     }
     
     public(package) fun set_image_url(self: &mut MizuNFT, image_url: String) {
-        option::fill(&mut self.image_url, image_url);
+        option::swap_or_fill(&mut self.image_url, image_url);
     }
 }

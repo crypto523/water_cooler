@@ -11,6 +11,7 @@ const cooler_factory = data.cooler_factory.CoolerFactory;
 const name: String = "anıl";
 const description: String = "asd";
 const img_url: String = "asd";
+const placeholder_image_url: String = "asd";
 const supply = 25;
 
 (async () => {
@@ -27,6 +28,7 @@ const supply = 25;
             txb.pure(name as any),
             txb.pure(description as any),
             txb.pure(img_url as any),
+            txb.pure(placeholder_image_url as any),
             txb.pure(supply as any),
             txb.pure("0xa7f5dc1b23c3b8999f209186c0b4943587123b9293d84aea75a034dc2fb0d3d0" as any)
         ],

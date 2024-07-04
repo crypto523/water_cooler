@@ -50,6 +50,7 @@ module galliun::cooler_factory {
         name: String, 
         description: String, 
         image_url: String,
+        placeholder_image_url: String,
         supply: u64, 
         treasury: address, 
         ctx: &mut TxContext
@@ -65,7 +66,7 @@ module galliun::cooler_factory {
         let mint_warehouse_id = object::id(&mint_warehouse);
 
         // Create a WaterCooler and give it to the buyer
-        water_cooler::create_water_cooler(name, description, image_url, supply, treasury, mint_setting_id, mint_warehouse_id, ctx);
+        water_cooler::create_water_cooler(name, description, image_url, placeholder_image_url, supply, treasury, mint_setting_id, mint_warehouse_id, ctx);
 
         mint::transfer_mint_setting(mint_settings);
         mint::transfer_mint_warehouse(mint_warehouse);

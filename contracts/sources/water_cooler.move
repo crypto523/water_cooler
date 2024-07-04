@@ -33,6 +33,8 @@ module galliun::water_cooler {
         description: String,
         // We concatinate this url with the number of the NFT in order to find it on chain
         image_url: String,
+        // This is the image that will be displayed on your NFT until they are revealed
+        placeholder_image_url: String,
         // This is the address to where the royalty and mint fee will be sent
         treasury: address,
         // This table will keep track of all the created NFTs
@@ -87,10 +89,11 @@ module galliun::water_cooler {
 
     // The function that allow the Cooler Factory to create coolers and give them to creators
     public(package) fun create_water_cooler(
-        name: String, 
-        description: String, 
-        image_url: String, 
-        supply: u64, 
+        name: String,
+        description: String,
+        image_url: String,
+        placeholder_image_url: String,
+        supply: u64,
         treasury: address,
         setting_id: ID,
         wearhouse_id: ID,
@@ -106,6 +109,7 @@ module galliun::water_cooler {
                 name,
                 description,
                 image_url,
+                placeholder_image_url,
                 supply,
                 nfts: table_vec::empty(ctx),
                 treasury,
@@ -159,7 +163,7 @@ module galliun::water_cooler {
                 number,
                 self.name,
                 self.description,
-                option::none(), // image_url
+                option::some(self.placeholder_image_url), // image_url
                 option::none(), // attributes
                 option::none(), // image
                 option::none(), // minted_by

@@ -38,6 +38,7 @@ module galliun::test_whitelist_mint {
             let name = b"watercoolername".to_string();
             let description = b"some desc".to_string();
             let image_url = b"https://media.nfts.photos/nft.jpg".to_string();
+            let placeholder_image_url = b"https://media.nfts.photos/nft.jpg".to_string();
             let supply = 150;
 
             cooler_factory::buy_water_cooler(
@@ -46,6 +47,7 @@ module galliun::test_whitelist_mint {
                 name,
                 description,
                 image_url,
+                placeholder_image_url,
                 supply,
                 TEST_ADDRESS1,
                 ts::ctx(scenario)
