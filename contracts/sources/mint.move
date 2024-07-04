@@ -418,6 +418,7 @@ module galliun::mint {
 
     // === Private Functions ===
 
+    #[allow(lint(self_transfer))]
     fun mint_internal(
         warehouse: &mut MintWarehouse,
         payment: Coin<SUI>,
