@@ -18,12 +18,13 @@ if (!privkey) {
     console.log("Error: DEPLOYER_B64_PRIVKEY not set as env variable.")
     process.exit(1)
 }
-const keypair = Ed25519Keypair.fromSecretKey(fromB64(privkey).slice(1))
+// const keypair = Ed25519Keypair.fromSecretKey(fromB64(privkey).slice(1))
+const keypair = Ed25519Keypair.deriveKeypair(process.env.SEED_PHRASE as string);
 return keypair
 }
 
 export const user1_keypair = () => {
-    const privkey = "AI6BnB7opxTcSNtC6N3o4Imr5gB8E9bSbFRT1JfzioR6"
+    const privkey = process.env.PRIVATE_KEY_USER_1
 if (!privkey) {
     console.log("Error: DEPLOYER_B64_PRIVKEY not set as env variable.")
     process.exit(1)

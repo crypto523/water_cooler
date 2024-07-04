@@ -1,19 +1,19 @@
 {
   "user_objects": {
-    "water_cooler": "0xcefd051222e73baaa1b0dd7e63535926632d0b48eaa3bc771184893784609003",
-    "water_cooler_cap": "0xa85040096f349954d61a474f23f758d5b7710f01cca574dc1493677132d11a70",
-    "MintSettings": "0x7f4155633be502aed3252d6a0498cbc1fa28053cd65ea4d111baedd20631394c",
-    "MintWarehouse": "0xa8a63511501ea6da04c0f2b286e1b654a902ee4dc62649cc5cd38748e19edea4",
-    "MintAdminCap": "0x7aacfadb0f57d04a25f3efdfb9f302bad9038cf90d6e04489a9bd09226fde1d1",
-    "collection": "0xdf719d8f03ea8e3c29a3baaf610a638b20c86d5eac2f71ad3f3ad4bc0a53ea0a",
-    "registry": "0x20053a5a766b2925a55a2ed3733d7d3ed68ea6f4a8f17e0a518c0429192a7888",
-    "mizu_kiosk": "0x0f8898b4d4d4423aae10c76a6622a5a8d2628d5a86542b694826533afd2113e8",
-    "mizu_nft": "0x05d66b1e963f5676b4bf39b32fe432d6d6a8a2cbf7ae316b604b42dd9da07b09",
-    "mint": "0x7c9fe4bf69d450a1ed4ba2d9fdd7fa49af7cb18cc16c7c336c26235cc94231c5",
-    "mint_cap": "0xb5bee223ccb26246b2c2b4ea87051ed3ce925faf2932379a116c66c75175aac5",
-    "attributes_cap": "0x008cd30c9feb5aa8a6aa9b21eab9a1ab298cb68aad98f7308dd5005308ae06cb",
-    "image_cap": "0xa01c8fb38e47a7d1d2131aa5c4c0d9419b2fc35dfa34c7cf2baf669953c67308",
-    "attributes": "0x2109ae1cda66f434ff3c6ed2661751c43701fd103febbcfb4e53a44268b8430f",
-    "image": "0x780272c6558a4a2dc1e8b9be2589cc9fecd3e6655bb8eccc581e9009bdf9f891"
+    "water_cooler": "0x04128bc34aa7375a0d9ca46fd88c85b37ff7d0b7b64f2ec1759ce8b2eec3048e",
+    "water_cooler_cap": "0xa5a9b853bc11a326f5264bf1a59d0d16a933dbe1cbc300f2ecd7c7a7d08fbbc3",
+    "MintSettings": "0xf495759cf9cafe63a5d9d9133b60fd4f0eaf88667822c28c17576e45b82a63dc",
+    "MintWarehouse": "0xbcf338e0aad731f98abbe0fbb90697626929321f288ac83559de236ce70b676d",
+    "MintAdminCap": "0xc4860c5d939d17ec172d9ed3da49edbde7cdd89c6b9afec162c9fdada888bd59",
+    "collection": "0xd516878a65f8f141d3eadd8805696171de2823438ae6cac347472d0976f933ed",
+    "registry": "0xb914a78428c8a0106cd17dfd415ec9a6b900c427e960374625245c3aeddffaa3",
+    "mizu_kiosk": "0x095edbdf6b0eeaee6c1e74cd741d733f19a6e57c2bccf9cc8a81e9aeb7cff6e2",
+    "mizu_nft": "0x04d8fa8a7af8e5cb126132aa67fd8a3dfacefc3fe0fc404e13b0ca6bc428f0e4",
+    "mint": "0x16794e91a00dcb0309525da9f5e432f4176730de4c7bc45ff45859156400b3bc",
+    "mint_cap": "0x57e0fbb5f768d2db49cdcc59dc393d314a17c5c1c2de46fab4fd7d69b4093aac",
+    "attributes_cap": "0x666fe21b09054e8eb3f23a4b9bff34270893fab559c3a31a965b68e2592fdb4e",
+    "image_cap": "0xfa4c507e45a99c1e0b173936452901eea077adf965c71fdac5d062ac79e3fab0",
+    "attributes": "0xe9a9ea87d9c379f678a803c45811a0bf520c96f652ccf0ef201345007392f23b",
+    "image": "0x4b03d351894928780af9cf03c5eab0b3eac465bdd74bf2fd7f8c18fc4b6f8310"
   }
 }
