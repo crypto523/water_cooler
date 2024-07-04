@@ -1,10 +1,10 @@
 import { Transaction } from '@mysten/sui/transactions';
-import { client, getKeypair, find_one_by_type } from './helpers.js';
-import data from '../deployed_objects.json';
+import { client, user1_keypair, find_one_by_type } from '../helpers.js';
+import data from '../../deployed_objects.json';
 import fs from 'fs';
 import path from "path";
 
-const keypair = getKeypair();
+const keypair = user1_keypair();
 
 const packageId = data.packageId;
 const cooler_factory = data.cooler_factory.CoolerFactory;
@@ -45,7 +45,7 @@ const supply = 25;
     console.log(objectChanges);
 
     // Get water_cooler object
-    const userFilePath = path.join(__dirname, '../user_objects.json');
+    const userFilePath = path.join(__dirname, './user_objects.json');
     let userObjects = {
         user_objects: {
             water_cooler: "",
@@ -56,7 +56,13 @@ const supply = 25;
             collection: "",
             registry: "",
             mizu_kiosk: "",
-            mizu_nft: ""
+            mizu_nft: "",
+            mint: "",
+            mint_cap: "",
+            attributes_cap: "",
+            image_cap: "",
+            attributes: "",
+            image: ""
         }
     };
 

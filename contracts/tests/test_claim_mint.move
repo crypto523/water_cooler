@@ -15,8 +15,8 @@ module galliun::test_claim_mint {
         water_cooler::{Self, WaterCooler, WaterCoolerAdminCap},
         mizu_nft::{MizuNFT},
         cooler_factory::{Self, CoolerFactory},
-        mint::{Self, Mint, MintAdminCap, MintSettings, MintWarehouse, OriginalGangsterTicket},
-        attributes::{Self, Attributes},
+        mint::{Self, Mint, MintCap, MintAdminCap, MintSettings, MintWarehouse, OriginalGangsterTicket},
+        attributes::{Self, Attributes, CreateAttributesCap},
         collection::{Collection},
         registry::{Registry},
         image::{Self, Image}
@@ -159,6 +159,7 @@ module galliun::test_claim_mint {
         // user needs to create Attributes and set the reveal_mint function
         ts::next_tx(scenario, TEST_ADDRESS1);
         {
+            let attributes_cap = ts::take_from_sender<CreateAttributesCap>(scenario);
             let mut key_vector = vector::empty<String>();
             let key1 = string::utf8(b"key1");
             let key2 = string::utf8(b"key2");
@@ -172,6 +173,7 @@ module galliun::test_claim_mint {
             values_vector.push_back(value2);
 
             let attributes = attributes::new(
+                attributes_cap,
                 key_vector,
                 values_vector,
                 ts::ctx(scenario)
@@ -207,7 +209,7 @@ module galliun::test_claim_mint {
         // set the reveal_mint
         ts::next_tx(scenario, TEST_ADDRESS1);
         {
-            let mint_cap = ts::take_from_sender<MintAdminCap>(scenario);
+            let mint_cap = ts::take_from_sender<MintCap>(scenario);
             let mut mint_ = ts::take_shared<Mint>(scenario);
             let attributes = ts::take_from_sender<Attributes>(scenario);
             let image_ = string::utf8(b"image");

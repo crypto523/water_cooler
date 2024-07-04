@@ -7,14 +7,17 @@ module galliun::test_public_mint {
         sui::SUI,
         test_utils::{assert_eq},
     };
+    use std::string::{Self, String};
     use galliun::{
         helpers::{init_test_helper},
         water_cooler::{Self, WaterCooler, WaterCoolerAdminCap},
         mizu_nft::{MizuNFT},
         cooler_factory::{Self, CoolerFactory},
-        mint::{Self, MintAdminCap, MintSettings, MintWarehouse},
+        mint::{Self, Mint, MintCap, MintAdminCap, MintSettings, MintWarehouse},
         collection::{Collection},
         registry::{Registry},
+        attributes::{Self, Attributes, CreateAttributesCap},
+        image::{Self, Image, CreateImageCap}
     };
 
     // === Constants ===
@@ -136,6 +139,68 @@ module galliun::test_public_mint {
             
             ts::return_shared(mint_warehouse);
             ts::return_shared(mint_settings);
+        };
+        // we should create Attributes and Image objects 
+        ts::next_tx(scenario, TEST_ADDRESS1);
+        {
+            // create attributes 
+            let attributes_cap = ts::take_from_sender<CreateAttributesCap>(scenario);
+            let mut key_vector = vector::empty<String>();
+            let key1 = string::utf8(b"key1");
+            let key2 = string::utf8(b"key2");
+            key_vector.push_back(key1);
+            key_vector.push_back(key2);
+
+            let mut values_vector = vector::empty<String>();
+            let value1 = string::utf8(b"value1");
+            let value2 = string::utf8(b"value2");
+            values_vector.push_back(value1);
+            values_vector.push_back(value2);
+
+            let attributes = attributes::new(
+                attributes_cap,
+                key_vector,
+                values_vector,
+                ts::ctx(scenario)
+            );
+            // create image object 
+            let image_ = string::utf8(b"image");
+            let mut image_chunk_hashes = vector::empty<String>();
+            let value1 = string::utf8(b"value1");
+            let value2 = string::utf8(b"value2");
+
+            image_chunk_hashes.push_back(value1);
+            image_chunk_hashes.push_back(value2);
+
+
+            let image_cap = ts::take_from_sender<CreateImageCap>(scenario);
+            image::create_image(
+                image_cap,
+                image_,
+                image_chunk_hashes,
+                ts::ctx(scenario)
+            );
+            transfer::public_transfer(attributes, TEST_ADDRESS1);
+        };
+        // we can call reveal_mint
+        ts::next_tx(scenario, TEST_ADDRESS1);
+        {
+            let mint_cap = ts::take_from_sender<MintCap>(scenario);
+            let mut mint = ts::take_shared<Mint>(scenario);
+            let attributes = ts::take_from_sender<Attributes>(scenario);
+            let image = ts::take_from_sender<Image>(scenario);
+            let image_url = b"https://media.nfts.photos/nft.jpg".to_string();
+
+            mint::reveal_mint(
+                &mint_cap,
+                &mut mint,
+                attributes,
+                image,
+                image_url
+            );
+    
+            ts::return_to_sender(scenario, mint_cap);
+            ts::return_shared(mint);
         };
         ts::end(scenario_test);
     }

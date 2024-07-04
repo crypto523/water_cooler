@@ -1,5 +1,10 @@
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 
+
+public_mint/user_objects.json
+claim_mint/user_objects.json
+whitelist_mint/user_objects.json
+
 # Logs
 
 logs

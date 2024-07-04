@@ -1,20 +1,36 @@
 import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import type { SuiObjectChange } from "@mysten/sui/client";
+import { fromB64 } from "@mysten/sui/utils";
+import dotenv from 'dotenv';
 
 export interface IObjectInfo {
     type: string | undefined;
     id: string | undefined;
 }
 
-export const getKeypair = () => {
-    const seedPhrase = process.env.SEED_PHRASE as string;
-    if (!seedPhrase || seedPhrase == "") {
-        console.log("Error: SEED_PHRASE not set as env variable.");
-        process.exit(1);
-    }
-    const keypair = Ed25519Keypair.deriveKeypair(process.env.SEED_PHRASE as string);
-    return keypair;
+dotenv.config();
+
+export const admin_keypair = () => {
+    const privkey = process.env.PRIVATE_KEY
+    console.log(privkey)
+if (!privkey) {
+    console.log("Error: DEPLOYER_B64_PRIVKEY not set as env variable.")
+    process.exit(1)
+}
+// const keypair = Ed25519Keypair.fromSecretKey(fromB64(privkey).slice(1))
+const keypair = Ed25519Keypair.deriveKeypair(process.env.SEED_PHRASE as string);
+return keypair
+}
+
+export const user1_keypair = () => {
+    const privkey = process.env.PRIVATE_KEY_USER_1
+if (!privkey) {
+    console.log("Error: DEPLOYER_B64_PRIVKEY not set as env variable.")
+    process.exit(1)
+}
+const keypair = Ed25519Keypair.fromSecretKey(fromB64(privkey).slice(1))
+return keypair
 }
 
 export const client = new SuiClient({ url: getFullnodeUrl('testnet') });
