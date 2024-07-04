@@ -22,6 +22,7 @@ const warehouse = user_data.user_objects.MintWarehouse;
             arguments: [
                 txb.object(mintcap),
                 txb.object(warehouse),
+                txb.object(keypair.toSuiAddress()),
             ],
         });
 

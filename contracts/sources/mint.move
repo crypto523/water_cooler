@@ -307,24 +307,24 @@ module galliun::mint {
         settings.phase = phase;
     }
 
-    public fun create_og_ticket(_: &MintAdminCap, warehouse: &MintWarehouse,  ctx: &mut TxContext) {
+    public fun create_og_ticket(_: &MintAdminCap, warehouse: &MintWarehouse, owner: address, ctx: &mut TxContext) {
         let og_ticket =  OriginalGangsterTicket {
             id: object::new(ctx),
             warehouseId: object::id(warehouse),
             phase: 1,
         };
 
-        transfer::transfer(og_ticket, ctx.sender());
+        transfer::transfer(og_ticket, owner);
     }
 
-    public fun create_wl_ticket(_: &MintAdminCap, warehouse: &MintWarehouse, ctx: &mut TxContext) {
+    public fun create_wl_ticket(_: &MintAdminCap, warehouse: &MintWarehouse, owner: address, ctx: &mut TxContext) {
         let whitelist_ticket =  WhitelistTicket {
             id: object::new(ctx),
             warehouseId: object::id(warehouse),
             phase: 2,
         };
 
-        transfer::transfer(whitelist_ticket, ctx.sender());
+        transfer::transfer(whitelist_ticket, owner);
     }
     
     public fun reveal_mint(

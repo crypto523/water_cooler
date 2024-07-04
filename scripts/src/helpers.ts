@@ -24,12 +24,12 @@ return keypair
 
 export const user1_keypair = () => {
     const privkey = process.env.PRIVATE_KEY_USER_1
-if (!privkey) {
-    console.log("Error: DEPLOYER_B64_PRIVKEY not set as env variable.")
-    process.exit(1)
-}
-const keypair = Ed25519Keypair.fromSecretKey(fromB64(privkey).slice(1))
-return keypair
+    if (!privkey) {
+        console.log("Error: DEPLOYER_B64_PRIVKEY not set as env variable.")
+        process.exit(1)
+    }
+    const keypair = Ed25519Keypair.fromSecretKey(fromB64(privkey).slice(1))
+    return keypair
 }
 
 export const client = new SuiClient({ url: getFullnodeUrl('testnet') });

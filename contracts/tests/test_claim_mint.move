@@ -139,7 +139,7 @@ module galliun::test_claim_mint {
         {
             let mint_cap = ts::take_from_sender<MintAdminCap>(scenario);
             let mint_warehouse = ts::take_shared<MintWarehouse>(scenario);
-            mint::create_og_ticket(&mint_cap, &mint_warehouse, ts::ctx(scenario));
+            mint::create_og_ticket(&mint_cap, &mint_warehouse, TEST_ADDRESS1, ts::ctx(scenario));
             ts::return_to_sender(scenario, mint_cap);
             ts::return_shared(mint_warehouse);
         };
