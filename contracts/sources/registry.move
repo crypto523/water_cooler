@@ -28,6 +28,7 @@ module galliun::registry {
         description: String,
         image_url: String,
         nft_ids: vector<ID>,
+        kiosk_ids: vector<ID>,
         num_to_nft: Table<u16, ID>,
         nft_to_num: Table<ID, u16>,
         is_initialized: bool,
@@ -76,6 +77,7 @@ module galliun::registry {
         Registry {
             id: object::new(ctx),
             nft_ids: vector::empty(),
+            kiosk_ids: vector::empty(),
             num_to_nft: table::new(ctx),
             nft_to_num: table::new(ctx),
             name,
@@ -110,9 +112,23 @@ module galliun::registry {
         id: ID,
     ): u16 {
         assert!(registry.is_frozen == true, ERegistryNotFrozen);
-        assert!(registry.nft_ids.contains(&id) == true, ERegistryNotFromThisCollection);
+        assert!(registry.kiosk_ids.contains(&id) == true, ERegistryNotFromThisCollection);
 
         registry.nft_to_num[id]
+    }
+    
+    public fun is_kiosk_registered(
+        registry: &Registry,
+        id: ID,
+    ): bool {
+        registry.kiosk_ids.contains(&id)
+    }
+    
+    public fun is_nft_registered(
+        registry: &Registry,
+        id: ID,
+    ): bool {
+        registry.nft_ids.contains(&id)
     }
 
     // === Package Functions ===
@@ -120,6 +136,7 @@ module galliun::registry {
     public(package) fun add(
         number: u16,
         nft_id: ID,
+        kiosk_id: ID,
         registry: &mut Registry,
         collection: &Collection,
     ) {
@@ -127,6 +144,7 @@ module galliun::registry {
         registry.num_to_nft.add(number, nft_id);
         registry.nft_to_num.add(nft_id, number);
         registry.nft_ids.push_back(nft_id);
+        registry.kiosk_ids.push_back(kiosk_id);
 
         if ((registry.num_to_nft.length() as u16) == collection::supply(collection) as u16) {
             registry.is_initialized = true;

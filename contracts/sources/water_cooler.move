@@ -173,7 +173,7 @@ module galliun::water_cooler {
                 ctx,
             );
 
-            registry::add(number as u16, object::id(&nft), registry, collection);
+            registry::add(number as u16, object::id(&nft), object::id(&kiosk), registry, collection);
 
             // Set the Kiosk's 'owner' field to the address of the MizuNFT.
             kiosk::set_owner_custom(&mut kiosk, &kiosk_owner_cap, object::id_address(&nft));
