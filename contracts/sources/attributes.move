@@ -43,6 +43,17 @@ module galliun::attributes {
             fields: vec_map::from_keys_values(keys, values),
         }
     }
+    
+    public(package) fun admin_new(
+        keys: vector<String>,
+        values: vector<String>,
+        ctx: &mut TxContext,
+    ): Attributes {
+        Attributes {
+            id: object::new(ctx),
+            fields: vec_map::from_keys_values(keys, values),
+        }
+    }
 
     public(package) fun issue_create_attributes_cap(
         number: u16,

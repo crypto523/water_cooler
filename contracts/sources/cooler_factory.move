@@ -22,6 +22,7 @@ module galliun::cooler_factory {
         fee: u64,
         treasury: address,
         balance: Balance<SUI>,
+        counter: u256
     }
 
     public struct FactoryOwnerCap has key, store { id: UID }
@@ -40,6 +41,7 @@ module galliun::cooler_factory {
                 fee: 100_000_000,
                 treasury: @galliun_treasury,
                 balance: balance::zero(),
+                counter: 0
             }
         );
     }
@@ -73,6 +75,8 @@ module galliun::cooler_factory {
 
         // Put fee into factory balance
         self.balance.join(payment.into_balance());
+
+        self.counter = self.counter +1;
     }
 
     

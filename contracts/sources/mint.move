@@ -17,6 +17,7 @@ module galliun::mint {
         water_cooler::WaterCooler,
         mizu_nft::{Self, MizuNFT},
         image::{Self, Image},
+        registry::{Registry}
     };
 
     // === Errors ===
@@ -34,6 +35,7 @@ module galliun::mint {
     const EMizuNFTNotRevealed: u64 = 10;
     const EWarehouseIsEmpty: u64 = 11;
     const EWrongPhase: u64 = 12;
+    const ENFTNotFromCollection: u64 = 13;
 
     // === Constants ===
 
@@ -254,6 +256,25 @@ module galliun::mint {
         };
     }
 
+    public fun admin_reveal_nft(
+        _: &MintAdminCap,
+        registry: &Registry,
+        nft: &mut MizuNFT,
+        keys: vector<String>,
+        values: vector<String>,
+        // _image: Image,
+        image_url: String,
+        ctx: &mut TxContext
+    ) {
+        assert!(registry.is_nft_registered(object::id(nft)), ENFTNotFromCollection);
+
+        let attributes = attributes::admin_new(keys, values, ctx);
+
+        mizu_nft::set_attributes(nft, attributes);
+        // mizu_nft::set_image(nft, image);
+        mizu_nft::set_image_url(nft, image_url);
+    }
+
 
     /// Destroy an empty mint warehouse when it's no longer needed.
     public fun destroy_mint_warehouse(
@@ -307,7 +328,12 @@ module galliun::mint {
         settings.phase = phase;
     }
 
-    public fun create_og_ticket(_: &MintAdminCap, warehouse: &MintWarehouse, owner: address, ctx: &mut TxContext) {
+    public fun create_og_ticket(
+        _: &MintAdminCap,
+        warehouse: &MintWarehouse,
+        owner: address,
+        ctx: &mut TxContext
+    ) {
         let og_ticket =  OriginalGangsterTicket {
             id: object::new(ctx),
             warehouseId: object::id(warehouse),

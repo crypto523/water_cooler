@@ -102,7 +102,7 @@ module galliun::registry {
         number: u16,
     ): ID {
         assert!(number >= 1 && number <= collection::supply(collection), EInvalidnftNumber);
-        assert!(registry.is_frozen == true, ERegistryNotFrozen);
+        // assert!(registry.is_frozen == true, ERegistryNotFrozen);
 
         registry.num_to_nft[number]
     }
@@ -111,7 +111,7 @@ module galliun::registry {
         registry: &Registry,
         id: ID,
     ): u16 {
-        assert!(registry.is_frozen == true, ERegistryNotFrozen);
+        // assert!(registry.is_frozen == true, ERegistryNotFrozen);
         assert!(registry.kiosk_ids.contains(&id) == true, ERegistryNotFromThisCollection);
 
         registry.nft_to_num[id]
