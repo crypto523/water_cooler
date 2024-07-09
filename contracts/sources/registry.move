@@ -43,7 +43,7 @@ module galliun::registry {
     const EInvalidnftNumber: u64 = 1;
     const ERegistryNotIntialized: u64 = 2;
     const ERegistryAlreadyFrozen: u64 = 3;
-    const ERegistryNotFrozen: u64 = 4;
+    // const ERegistryNotFrozen: u64 = 4;
     const ERegistryNotFromThisCollection: u64 = 5;
 
     // === Init Function ===
