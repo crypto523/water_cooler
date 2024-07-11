@@ -6,7 +6,7 @@ module galliun::mint {
         coin::Coin,
         display::{Self, Display},
         event,
-        kiosk::{Kiosk, KioskOwnerCap},
+        kiosk::{Self, Kiosk, KioskOwnerCap},
         package::{Self},
         sui::{SUI},
         table_vec::{Self, TableVec},
@@ -32,7 +32,7 @@ module galliun::mint {
     const EMintWarehouseAlreadyInitialized: u64 = 7;
     const EMintWarehouseNotEmpty: u64 = 8;
     const EMintWarehouseNotInitialized: u64 = 9;
-    const EMizuNFTNotRevealed: u64 = 10;
+    // const EMizuNFTNotRevealed: u64 = 10;
     const EWarehouseIsEmpty: u64 = 11;
     const EWrongPhase: u64 = 12;
     const ENFTNotFromCollection: u64 = 13;
@@ -47,7 +47,7 @@ module galliun::mint {
 
     public struct MINT has drop {}
 
-    public struct Mint has key {
+    public struct Mint has key, store {
         id: UID,
         number: u64,    
         nft: Option<MizuNFT>,
@@ -152,7 +152,49 @@ module galliun::mint {
 
     // === Public-Mutative Functions ===
 
-    public fun public_mint(
+
+
+
+
+
+
+
+    public entry fun public_mint_test(
+        waterCooler: &WaterCooler,
+        warehouse: &mut MintWarehouse,
+        settings: &MintSettings,
+        // kiosk: &mut Kiosk,
+        // kiosk_owner_cap: KioskOwnerCap,
+        // policy: &TransferPolicy<MizuNFT>,
+        payment: Coin<SUI>,        
+        ctx: &mut TxContext,
+    ) {
+        assert!(warehouse.nfts.length() > 0, EWarehouseIsEmpty);
+        assert!(settings.phase == 3, EWrongPhase);
+        assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
+        assert!(payment.value() == settings.price, EInvalidPaymentAmount);
+
+        mint_internal_test(waterCooler, warehouse, payment, ctx);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public entry fun public_mint(
         warehouse: &mut MintWarehouse,
         settings: &MintSettings,
         payment: Coin<SUI>,        
@@ -210,7 +252,7 @@ module galliun::mint {
         policy: &TransferPolicy<MizuNFT>,
         ctx: &TxContext,
     ) {
-        assert!(mint.is_revealed == true, EMizuNFTNotRevealed);
+        // assert!(mint.is_revealed == true, EMizuNFTNotRevealed);
 
         // Extract MizuNFT and payment from Mint.
         let nft = mint.nft.extract();
@@ -443,6 +485,64 @@ module galliun::mint {
     }
 
     // === Private Functions ===
+
+
+
+
+
+
+
+
+
+
+
+    #[allow(lint(self_transfer))]
+    fun mint_internal_test(
+        waterCooler: &WaterCooler,
+        warehouse: &mut MintWarehouse,
+        // policy: &TransferPolicy<MizuNFT>,
+        // kiosk: &mut Kiosk,
+        // kiosk_owner_cap: KioskOwnerCap,
+        payment: Coin<SUI>,
+        ctx: &mut TxContext,
+    ) {
+        let mut nft = warehouse.nfts.pop_back();
+
+        let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
+
+        kiosk::set_owner_custom(&mut kiosk, &kiosk_owner_cap, object::id_address(&nft));
+
+        transfer::public_transfer(kiosk_owner_cap, object::id_to_address(&object::id(&nft)));
+        transfer::public_share_object(kiosk);
+
+
+        waterCooler.send_fees(payment);
+
+        transfer::public_transfer(nft, ctx.sender());
+        
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     #[allow(lint(self_transfer))]
     fun mint_internal(
