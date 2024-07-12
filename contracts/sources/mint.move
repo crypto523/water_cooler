@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Studio Mirai, Ltd.
+ * SPDX-License-Identifier: MIT
+ */
+
+
 module galliun::mint {
     // === Imports ===
 
