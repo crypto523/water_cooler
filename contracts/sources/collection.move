@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Studio Mirai, Ltd.
+ * SPDX-License-Identifier: MIT
+ */
+
+
 // This object holds the supply of NFTs in a collection
 // It was created for the purpose of avoiding a cercular dependency 
 // between the Registry and the WaterCooler which need to share the 
