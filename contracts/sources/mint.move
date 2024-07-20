@@ -174,7 +174,8 @@ module galliun::mint {
         assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
-        mint_internal_test(waterCooler, warehouse, payment, ctx);
+        // mint_internal_test(waterCooler, warehouse, payment, ctx);
+        mint_internal_test_updated(waterCooler, warehouse, payment, ctx);
     }
 
 
@@ -490,6 +491,35 @@ module galliun::mint {
 
 
 
+
+
+
+
+    #[allow(lint(self_transfer))]
+    public fun mint_internal_test_updated(
+        waterCooler: &WaterCooler,
+        warehouse: &mut MintWarehouse,
+        payment: Coin<SUI>,
+        ctx: &mut TxContext,
+    ) {
+        // Safely unwrap the NFT from the warehouse
+        let mut nft = warehouse.nfts.pop_back();
+
+        // Create a new kiosk and its owner capability
+        let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
+
+        // Place the NFT in the kiosk
+        kiosk::place(&mut kiosk, &kiosk_owner_cap, nft);
+
+        // Transfer the kiosk owner capability to the sender
+        transfer::public_transfer(kiosk_owner_cap, ctx.sender());
+
+        // Share the kiosk object publicly
+        transfer::public_share_object(kiosk);
+
+        // Send the payment to the water cooler
+        waterCooler.send_fees(payment);
+    }
 
 
 
