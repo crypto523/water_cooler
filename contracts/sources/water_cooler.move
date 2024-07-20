@@ -6,7 +6,6 @@ module galliun::water_cooler {
         sui::SUI,
         coin::{Self, Coin},
         display,
-        kiosk,
         table_vec::{Self, TableVec},
         transfer_policy
     };

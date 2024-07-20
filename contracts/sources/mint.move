@@ -5,8 +5,7 @@ module galliun::mint {
     use sui::{
         coin::Coin,
         display::{Self, Display},
-        event,
-        kiosk::{Self, Kiosk, KioskOwnerCap},
+        kiosk::{Self},
         package::{Self},
         sui::{SUI},
         table_vec::{Self, TableVec},
@@ -16,7 +15,7 @@ module galliun::mint {
         attributes::{Self, Attributes},
         water_cooler::WaterCooler,
         mizu_nft::{Self, MizuNFT},
-        image::{Self, Image},
+        image::{Image},
         registry::{Registry}
     };
 
@@ -39,23 +38,12 @@ module galliun::mint {
 
     // === Constants ===
 
-    const EPOCHS_TO_CLAIM_MINT: u64 = 30;
     const MINT_STATE_INACTIVE: u8 = 0;
     const MINT_STATE_ACTIVE: u8 = 1;
 
     // === Structs ===
 
     public struct MINT has drop {}
-
-    public struct Mint has key, store {
-        id: UID,
-        number: u64,    
-        nft: Option<MizuNFT>,
-        payment: Option<Coin<SUI>>,
-        is_revealed: bool,
-        minted_by: address,
-        claim_expiration_epoch: u64,
-    }
 
 
     public struct MintSettings has key {
@@ -92,20 +80,6 @@ module galliun::mint {
     }
 
     // === Events ===
-    
-    public struct MintClaimedEvent has copy, drop {
-        nft_id: ID,
-        nft_number: u64,
-        claimed_by: address,
-        kiosk_id: ID,
-    }
-
-    public struct MintEvent has copy, drop {
-        mint_id: ID,
-        nft_id: ID,
-        nft_number: u64,
-        minted_by: address,
-    }
 
     // Mint Admin cap this can be used to make changes to the mint setting and warehouse
     public struct MintAdminCap has key { id: UID, `for_settings`: ID, `for_warehouse`: ID}
@@ -146,26 +120,14 @@ module galliun::mint {
         self.nfts.length()
     }
 
-    public fun get_mint_reveal(self: &Mint) : bool {
-        self.is_revealed
-    }
-
     // === Public-Mutative Functions ===
 
 
-
-
-
-
-
-
-    public entry fun public_mint_test(
+    public entry fun public_mint(
         waterCooler: &WaterCooler,
         warehouse: &mut MintWarehouse,
         settings: &MintSettings,
-        // kiosk: &mut Kiosk,
-        // kiosk_owner_cap: KioskOwnerCap,
-        // policy: &TransferPolicy<MizuNFT>,
+        policy: &TransferPolicy<MizuNFT>,
         payment: Coin<SUI>,        
         ctx: &mut TxContext,
     ) {
@@ -174,45 +136,15 @@ module galliun::mint {
         assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
-        // mint_internal_test(waterCooler, warehouse, payment, ctx);
-        mint_internal_test_updated(waterCooler, warehouse, payment, ctx);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public entry fun public_mint(
-        warehouse: &mut MintWarehouse,
-        settings: &MintSettings,
-        payment: Coin<SUI>,        
-        ctx: &mut TxContext,
-    ) {
-        assert!(warehouse.nfts.length() > 0, EWarehouseIsEmpty);
-        assert!(settings.phase == 3, EWrongPhase);
-        assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
-        assert!(payment.value() == settings.price, EInvalidPaymentAmount);
-
-        mint_internal(warehouse, payment, ctx);
+        mint_internal(waterCooler, warehouse, policy, payment, ctx);
     }
 
     public fun whitelist_mint(
         ticket: WhitelistTicket,
+        waterCooler: &WaterCooler,
         warehouse: &mut MintWarehouse,
         settings: &MintSettings,
+        policy: &TransferPolicy<MizuNFT>,
         payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
@@ -224,14 +156,17 @@ module galliun::mint {
         assert!(warehouseId == object::id(warehouse), EInvalidTicketForMintPhase);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
-        mint_internal(warehouse, payment, ctx);
+
+        mint_internal(waterCooler, warehouse, policy, payment, ctx);
     }
 
     public fun og_mint(
         ticket: OriginalGangsterTicket,
+        waterCooler: &WaterCooler,
         warehouse: &mut MintWarehouse,
         settings: &MintSettings,
-        payment: Coin<SUI>,        
+        policy: &TransferPolicy<MizuNFT>,
+        payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
         let OriginalGangsterTicket { id, warehouseId, phase } = ticket;
@@ -242,38 +177,7 @@ module galliun::mint {
         assert!(warehouseId == object::id(warehouse), EInvalidTicketForMintPhase);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
-        mint_internal(warehouse, payment, ctx);
-    }
-
-    public fun claim_mint(
-        water_cooler: &mut WaterCooler,
-        mut mint: Mint,
-        kiosk: &mut Kiosk,
-        kiosk_owner_cap: &KioskOwnerCap,
-        policy: &TransferPolicy<MizuNFT>,
-        ctx: &TxContext,
-    ) {
-        // assert!(mint.is_revealed == true, EMizuNFTNotRevealed);
-
-        // Extract MizuNFT and payment from Mint.
-        let nft = mint.nft.extract();
-        let payment = mint.payment.extract();
-
-        event::emit(
-            MintClaimedEvent {
-                nft_id: object::id(&nft),
-                nft_number: nft.number(),
-                claimed_by: ctx.sender(),
-                kiosk_id: object::id(kiosk),
-            }
-        );
-
-        // Lock MizuNFT into buyer's kiosk.
-        kiosk.lock(kiosk_owner_cap, policy, nft);
-        // collect payment
-        water_cooler.add_balance(payment);
-        // Destroy the mint.
-        destroy_mint_internal(mint);
+        mint_internal(waterCooler, warehouse, policy,  payment, ctx);
     }
 
     // === Admin functions ===
@@ -395,23 +299,6 @@ module galliun::mint {
 
         transfer::transfer(whitelist_ticket, owner);
     }
-    
-    public fun reveal_mint(
-        cap: &MintCap,
-        mint: &mut Mint,
-        attributes: Attributes,
-        image: Image,
-        image_url: String,
-    ) {
-        assert!(object::id(mint) == cap.`for`, ENotOwner);
-        let nft = option::borrow_mut(&mut mint.nft);
-
-        mizu_nft::set_attributes(nft, attributes);
-        mizu_nft::set_image(nft, image);
-        mizu_nft::set_image_url(nft, image_url);
-
-        mint.is_revealed = true;
-    }
 
     // Modify wl & og tickets display
     public fun set_wl_ticket_display_name(
@@ -487,18 +374,11 @@ module galliun::mint {
 
     // === Private Functions ===
 
-
-
-
-
-
-
-
-
     #[allow(lint(self_transfer))]
-    public fun mint_internal_test_updated(
+    public fun mint_internal(
         waterCooler: &WaterCooler,
         warehouse: &mut MintWarehouse,
+        _policy: &TransferPolicy<MizuNFT>,
         payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
@@ -511,6 +391,10 @@ module galliun::mint {
         // Place the NFT in the kiosk
         kiosk::place(&mut kiosk, &kiosk_owner_cap, nft);
 
+        // Lock MizuNFT into buyer's kiosk.
+        // TO DO: Lock NFT in kiosk using NFT policy
+        // kiosk::lock(&mut kiosk, &mut kiosk_owner_cap, policy, nft);
+
         // Transfer the kiosk owner capability to the sender
         transfer::public_transfer(kiosk_owner_cap, ctx.sender());
 
@@ -522,128 +406,15 @@ module galliun::mint {
     }
 
 
-
-
-
-
-    #[allow(lint(self_transfer))]
-    fun mint_internal_test(
-        waterCooler: &WaterCooler,
-        warehouse: &mut MintWarehouse,
-        // policy: &TransferPolicy<MizuNFT>,
-        // kiosk: &mut Kiosk,
-        // kiosk_owner_cap: KioskOwnerCap,
-        payment: Coin<SUI>,
-        ctx: &mut TxContext,
-    ) {
-        let mut nft = warehouse.nfts.pop_back();
-
-        let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
-
-        kiosk::set_owner_custom(&mut kiosk, &kiosk_owner_cap, object::id_address(&nft));
-
-        transfer::public_transfer(kiosk_owner_cap, object::id_to_address(&object::id(&nft)));
-        transfer::public_share_object(kiosk);
-
-
-        waterCooler.send_fees(payment);
-
-        transfer::public_transfer(nft, ctx.sender());
-        
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    #[allow(lint(self_transfer))]
-    fun mint_internal(
-        warehouse: &mut MintWarehouse,
-        payment: Coin<SUI>,
-        ctx: &mut TxContext,
-    ) {
-        let nft = warehouse.nfts.pop_back();
-
-        let mut mint = Mint {
-            id: object::new(ctx),
-            number: nft.number(),
-            nft: option::none(),
-            payment: option::some(payment),
-            is_revealed: false,
-            minted_by: ctx.sender(),
-            claim_expiration_epoch: ctx.epoch() + EPOCHS_TO_CLAIM_MINT,
-        };
-
-        let attributes_cap = attributes::issue_create_attributes_cap(0, ctx);
-        let image_cap = image::issue_create_image_cap(0, object::id(&mint), ctx);
-
-        let cap = MintCap {
-            id: object::new(ctx),
-            `for`: object::id(&mint)
-        };
-
-        event::emit(
-            MintEvent {
-                mint_id: object::id(&mint),
-                nft_id: object::id(&nft),
-                nft_number: nft.number(),
-                minted_by: ctx.sender(),
-            }
-        );
-
-        mint.nft.fill(nft);
-        let nft_mut = mint.nft.borrow_mut();
-        nft_mut.set_minted_by_address(ctx.sender());
-        
-        transfer::transfer(cap, ctx.sender());
-        transfer::public_transfer(attributes_cap, ctx.sender());
-        transfer::public_transfer(image_cap, ctx.sender());
-        transfer::share_object(mint);
-    }
-
-    fun destroy_mint_internal(mint: Mint) {
-        let Mint {
-            id,
-            number: _,
-            nft,
-            payment,
-            is_revealed: _,
-            minted_by: _,
-            claim_expiration_epoch: _,
-        } = mint;
-        
-        option::destroy_none(nft);
-        option::destroy_none(payment);
-        object::delete(id);
-    }
-
     // === Test Functions ===
     #[test_only]
     public fun init_for_mint(ctx: &mut TxContext) {
         init(MINT {}, ctx);
     }
 
-    #[test_only]
-    public fun get_nft_id(self: &Mint) : ID {
-       let nft = self.nft.borrow();
-       object::id(nft)
-    }
+    // #[test_only]
+    // public fun get_nft_id(self: &Mint) : ID {
+    //    let nft = self.nft.borrow();
+    //    object::id(nft)
+    // }
 }
