@@ -157,7 +157,7 @@ module galliun::water_cooler {
         // Pre-fill the water cooler with the kiosk NFTs to the size of the NFT collection
         // ! using LIFO here because TableVec
         while (number != 0) {
-            let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
+            // let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
 
             let nft: MizuNFT = mizu_nft::new(
                 number,
@@ -167,19 +167,21 @@ module galliun::water_cooler {
                 option::none(), // attributes
                 option::none(), // image
                 option::none(), // minted_by
-                object::id(&kiosk),
-                object::id(&kiosk_owner_cap),
-                object::id(self),
+                // object::id(&kiosk),
+                // object::id(&kiosk_owner_cap),
+                object::id(self), //water_cooler_id
+                object::id(self), //water_cooler_id
+                object::id(self), //water_cooler_id
                 ctx,
             );
 
-            registry::add(number as u16, object::id(&nft), object::id(&kiosk), registry, collection);
+            registry::add_new(number as u16, object::id(&nft), registry, collection);
 
             // Set the Kiosk's 'owner' field to the address of the MizuNFT.
-            kiosk::set_owner_custom(&mut kiosk, &kiosk_owner_cap, object::id_address(&nft));
+            // kiosk::set_owner_custom(&mut kiosk, &kiosk_owner_cap, object::id_address(&nft));
 
-            transfer::public_transfer(kiosk_owner_cap, object::id_to_address(&object::id(&nft)));
-            transfer::public_share_object(kiosk);
+            // transfer::public_transfer(kiosk_owner_cap, object::id_to_address(&object::id(&nft)));
+            // transfer::public_share_object(kiosk);
 
             // Add MizuNFT to factory.
             self.nfts.push_back(object::id(&nft));
@@ -203,6 +205,13 @@ module galliun::water_cooler {
         let value = self.balance.value();
         let coin = coin::take(&mut self.balance, value, ctx);
         transfer::public_transfer(coin, self.treasury);
+    }
+    
+    public(package) fun send_fees(
+        self: &WaterCooler,
+        coins: Coin<SUI>
+    ) {
+        transfer::public_transfer(coins, self.treasury);
     }
 
     public fun set_treasury(_: &WaterCoolerAdminCap, self: &mut WaterCooler, treasury: address) {

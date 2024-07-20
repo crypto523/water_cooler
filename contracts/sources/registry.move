@@ -155,6 +155,22 @@ module galliun::registry {
             registry.is_initialized = true;
         };
     }
+    
+    public(package) fun add_new(
+        number: u16,
+        nft_id: ID,
+        registry: &mut Registry,
+        collection: &Collection,
+    ) {
+
+        registry.num_to_nft.add(number, nft_id);
+        registry.nft_to_num.add(nft_id, number);
+        registry.nft_ids.push_back(nft_id);
+
+        if ((registry.num_to_nft.length() as u16) == collection::supply(collection) as u16) {
+            registry.is_initialized = true;
+        };
+    }
 
     public(package) fun is_frozen(
         registry: &Registry,

@@ -5,6 +5,8 @@ import user_data from './user_objects.json';
 import { KioskClient, Network, KioskTransaction } from '@mysten/kiosk';
 import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 
+
+
 const keypair = user1_keypair();
 
 const packageId = data.packageId;
@@ -17,12 +19,13 @@ let policy = data.water_cooler.policy;
         const suiClient = new SuiClient({ url: getFullnodeUrl('testnet') });
 
         const kioskClient = new KioskClient({
-            client: suiClient,
+            client: suiClient as any,
             network: Network.TESTNET,
         });
+        
         const txb = new Transaction();
 
-        const kioskTx = new KioskTransaction({ transaction: txb, kioskClient });
+        const kioskTx = new KioskTransaction({ transaction: txb as any, kioskClient });
 
         console.log("User1 claims mint")
 
@@ -33,8 +36,8 @@ let policy = data.water_cooler.policy;
             arguments: [
                 txb.object(watercooler),
                 txb.object(mint),
-                txb.object(kioskTx.getKiosk()),
-                txb.object(kioskTx.getKioskCap()),
+                txb.object(kioskTx.getKiosk() as any),
+                txb.object(kioskTx.getKioskCap() as any),
                 txb.object(policy),
             ],
         });
