@@ -134,10 +134,6 @@ module galliun::water_cooler {
     ) {
         self.balance.join(coin.into_balance());
     }
-    
-    public fun supply(self: &WaterCooler): u64 {
-        self.supply
-    }
 
     // === Admin Functions ===
 
@@ -239,6 +235,14 @@ module galliun::water_cooler {
 
     public fun treasury(self: &WaterCooler): address {
         self.treasury
+    }
+
+    public fun supply(self: &WaterCooler): u64 {
+        self.supply
+    }
+    
+    public fun placeholder_image(self: &WaterCooler): String {
+        self.placeholder_image_url
     }
 
     // === Test Functions ===

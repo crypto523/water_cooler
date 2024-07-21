@@ -47,7 +47,7 @@ module galliun::image {
         description: vector<u8>, 
         data: vector<u8>, 
         ctx: &mut TxContext
-    ): Image {
+    ) {
         let image = Image {
             id: object::new(ctx),
             name,
@@ -55,7 +55,6 @@ module galliun::image {
             data,
         };
         transfer::public_transfer(image, ctx.sender());
-        image
     }
 
     /// Function to get image metadata

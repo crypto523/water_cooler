@@ -1,7 +1,7 @@
 module galliun::mint {
     // === Imports ===
 
-    use std::string::String;
+    use std::string::{Self, String};
     use sui::{
         coin::Coin,
         display::{Self, Display},
@@ -12,8 +12,8 @@ module galliun::mint {
         transfer_policy::{TransferPolicy},
     };
     use galliun::{
-        attributes::{Self, Attributes},
-        water_cooler::WaterCooler,
+        attributes::{Self},
+        water_cooler::{Self, WaterCooler},
         mizu_nft::{Self, MizuNFT},
         image::{Image},
         registry::{Registry}
@@ -69,13 +69,17 @@ module galliun::mint {
 
     public struct WhitelistTicket has key {
         id: UID,
-        warehouseId: ID,
+        name: String,
+        waterCoolerId: ID,
+        image_url: String,
         phase: u8,
     }
 
     public struct OriginalGangsterTicket has key {
         id: UID,
-        warehouseId: ID,
+        name: String,
+        waterCoolerId: ID,
+        image_url: String,
         phase: u8,
     }
 
@@ -95,22 +99,23 @@ module galliun::mint {
     ) {
         let publisher = package::claim(otw, ctx);
 
+
         let mut wl_ticket_display = display::new<WhitelistTicket>(&publisher, ctx);
-        wl_ticket_display.add(b"name".to_string(), b"name".to_string());
-        wl_ticket_display.add(b"description".to_string(), b"description".to_string());
-        wl_ticket_display.add(b"number".to_string(), b"{number}".to_string());
-        wl_ticket_display.add(b"image_url".to_string(), b"image_url".to_string());
-        wl_ticket_display.update_version();
+        display::add(&mut wl_ticket_display, string::utf8(b"name"), string::utf8(b"{name} WL Ticket"));
+        display::add(&mut wl_ticket_display, string::utf8(b"description"), string::utf8(b"{description}"));
+        display::add(&mut wl_ticket_display, string::utf8(b"image_url"), string::utf8(b"{image_url}"));
+        display::update_version(&mut wl_ticket_display);
+
         transfer::public_transfer(wl_ticket_display, ctx.sender());
 
         let mut og_ticket_display = display::new<OriginalGangsterTicket>(&publisher, ctx);
-        og_ticket_display.add(b"name".to_string(), b"name".to_string());
-        og_ticket_display.add(b"description".to_string(), b"description".to_string());
-        og_ticket_display.add(b"number".to_string(), b"{number}".to_string());
-        og_ticket_display.add(b"image_url".to_string(), b"image_url".to_string());
-        og_ticket_display.update_version();
-        transfer::public_transfer(og_ticket_display, ctx.sender());
+        display::add(&mut og_ticket_display, string::utf8(b"name"), string::utf8(b"{name} OG Ticket"));
+        display::add(&mut og_ticket_display, string::utf8(b"description"), string::utf8(b"{description}"));
+        display::add(&mut og_ticket_display, string::utf8(b"image_url"), string::utf8(b"{image_url}"));
+        display::update_version(&mut og_ticket_display);
 
+
+        transfer::public_transfer(og_ticket_display, ctx.sender());
         transfer::public_transfer(publisher, ctx.sender());
     }
 
@@ -148,12 +153,12 @@ module galliun::mint {
         payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
-        let WhitelistTicket { id, warehouseId, phase } = ticket;
+        let WhitelistTicket { id, name, image_url, waterCoolerId, phase } = ticket;
         id.delete();
 
         assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
         assert!(phase == settings.phase, EInvalidTicketForMintPhase);
-        assert!(warehouseId == object::id(warehouse), EInvalidTicketForMintPhase);
+        assert!(waterCoolerId == object::id(waterCooler), EInvalidTicketForMintPhase);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
 
@@ -169,12 +174,12 @@ module galliun::mint {
         payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
-        let OriginalGangsterTicket { id, warehouseId, phase } = ticket;
+        let OriginalGangsterTicket { id, name, image_url, waterCoolerId, phase } = ticket;
         id.delete();
 
         assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
         assert!(phase == settings.phase, EInvalidTicketForMintPhase);
-        assert!(warehouseId == object::id(warehouse), EInvalidTicketForMintPhase);
+        assert!(waterCoolerId == object::id(waterCooler), EInvalidTicketForMintPhase);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
         mint_internal(waterCooler, warehouse, policy,  payment, ctx);
@@ -277,56 +282,36 @@ module galliun::mint {
 
     public fun create_og_ticket(
         _: &MintAdminCap,
-        warehouse: &MintWarehouse,
+        waterCooler: &WaterCooler,
         owner: address,
         ctx: &mut TxContext
     ) {
         let og_ticket =  OriginalGangsterTicket {
             id: object::new(ctx),
-            warehouseId: object::id(warehouse),
-            phase: 1,
+            name: water_cooler::name(waterCooler),
+            waterCoolerId: object::id(waterCooler),
+            image_url: water_cooler::placeholder_image(waterCooler),
+            phase: 1
         };
 
         transfer::transfer(og_ticket, owner);
     }
 
-    public fun create_wl_ticket(_: &MintAdminCap, warehouse: &MintWarehouse, owner: address, ctx: &mut TxContext) {
+    public fun create_wl_ticket(
+        _: &MintAdminCap,
+        waterCooler: &WaterCooler,
+        owner: address,
+        ctx: &mut TxContext
+    ) {
         let whitelist_ticket =  WhitelistTicket {
             id: object::new(ctx),
-            warehouseId: object::id(warehouse),
-            phase: 2,
+            name: water_cooler::name(waterCooler),
+            waterCoolerId: object::id(waterCooler),
+            image_url: water_cooler::placeholder_image(waterCooler),
+            phase: 2
         };
 
         transfer::transfer(whitelist_ticket, owner);
-    }
-
-    // Modify wl & og tickets display
-    public fun set_wl_ticket_display_name(
-        wl_ticket_display: &mut Display<WhitelistTicket>, 
-        new_name: String
-    ) {
-        wl_ticket_display.edit(b"name".to_string(), new_name);
-    }
-
-    public fun set_wl_ticket_display_image(
-        wl_ticket_display: &mut Display<WhitelistTicket>, 
-        new_image: String
-    ) {
-        wl_ticket_display.edit(b"image_url".to_string(), new_image);
-    }
-
-    public fun set_og_ticket_display_name(
-        wl_ticket_display: &mut Display<OriginalGangsterTicket>, 
-        new_name: String
-    ) {
-        wl_ticket_display.edit(b"name".to_string(), new_name);
-    }
-
-    public fun set_og_ticket_display_image(
-        wl_ticket_display: &mut Display<OriginalGangsterTicket>, 
-        new_image: String
-    ) {
-        wl_ticket_display.edit(b"image_url".to_string(), new_image);
     }
 
     // === Package functions ===
