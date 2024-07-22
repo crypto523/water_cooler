@@ -12,11 +12,11 @@ module galliun::orchestrator {
         transfer_policy::{TransferPolicy},
     };
     use galliun::{
-        attributes::{Self},
+        // attributes::{Self},
         water_cooler::{Self, WaterCooler},
-        capsule::{Self, Capsule},
+        capsule::{Capsule},
         // image::{Image},
-        registry::{Registry}
+        // registry::{Registry}
     };
 
     // === Errors ===
@@ -34,7 +34,7 @@ module galliun::orchestrator {
     // const EMizuNFTNotRevealed: u64 = 10;
     const EWarehouseIsEmpty: u64 = 11;
     const EWrongPhase: u64 = 12;
-    const ENFTNotFromCollection: u64 = 13;
+    // const ENFTNotFromCollection: u64 = 13;
     const ESettingsDoesNotMatchCooler: u64 = 14;
     const EWearhouseDoesNotMatchCooler: u64 = 15;
     const ENFTNotAllReaveled: u64 = 16;
