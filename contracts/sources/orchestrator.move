@@ -37,6 +37,7 @@ module galliun::orchestrator {
     const ENFTNotFromCollection: u64 = 13;
     const ESettingsDoesNotMatchCooler: u64 = 14;
     const EWearhouseDoesNotMatchCooler: u64 = 15;
+    const ENFTNotAllReaveled: u64 = 16;
 
     // === Constants ===
 
@@ -216,10 +217,11 @@ module galliun::orchestrator {
     /// Add MizuNFTs to the mint warehouse.
     public fun stock_warehouse(
         cap: &OrchAdminCap,
-        water_cooler: &WaterCooler,
+        waterCooler: &WaterCooler,
         mut nfts: vector<Capsule>,
         warehouse: &mut Warehouse,
     ) {
+        assert!(waterCooler.get_is_revealed(), ENFTNotAllReaveled);        
         assert!(object::id(warehouse) == cap.`for_warehouse`, ENotOwner);        
         assert!(warehouse.is_initialized == false, EMintWarehouseAlreadyInitialized);
 
@@ -229,30 +231,10 @@ module galliun::orchestrator {
         };
         nfts.destroy_empty();
 
-        if (warehouse.nfts.length() as u64 == water_cooler.supply()) {
+        if (warehouse.nfts.length() as u64 == waterCooler.supply()) {
             warehouse.is_initialized = true;
         };
     }
-
-    public fun admin_reveal_nft(
-        _: &OrchAdminCap,
-        registry: &Registry,
-        nft: &mut Capsule,
-        keys: vector<String>,
-        values: vector<String>,
-        // _image: Image,
-        image_url: String,
-        ctx: &mut TxContext
-    ) {
-        assert!(registry.is_nft_registered(object::id(nft)), ENFTNotFromCollection);
-
-        let attributes = attributes::admin_new(keys, values, ctx);
-
-        capsule::set_attributes(nft, attributes);
-        // capsule::set_image(nft, image);
-        capsule::set_image_url(nft, image_url);
-    }
-
 
     /// Destroy an empty mint warehouse when it's no longer needed.
     public fun destroy_mint_warehouse(
