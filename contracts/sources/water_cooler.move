@@ -46,10 +46,10 @@ module galliun::water_cooler {
         // between the Registry and the WaterCooler which need to share the 
         // supply of NFTs in the collection
         collection_id: ID,
-        // This is the ID of the mint settings that manages the minting process for the NFTs
-        setting_id: ID,
-        // This is the ID of the mint wearhouse that will store the NFTs before mint
-        wearhouse_id: ID,
+        // // This is the ID of the mint settings that manages the minting process for the NFTs
+        // setting_id: ID,
+        // // This is the ID of the mint wearhouse that will store the NFTs before mint
+        // wearhouse_id: ID,
         is_initialized: bool,
         // balance for creator
         balance: Balance<SUI>,
@@ -94,16 +94,15 @@ module galliun::water_cooler {
         placeholder_image_url: String,
         supply: u64,
         treasury: address,
-        setting_id: ID,
-        wearhouse_id: ID,
+        // setting_id: ID,
+        // wearhouse_id: ID,
         ctx: &mut TxContext
-    ) {
+    ): ID {
 
         let collection = collection::new(supply as u16, ctx);
         let registry = registry::create_registry(name, description, image_url, ctx);
 
-        transfer::share_object(
-            WaterCooler {
+        let waterCooler = WaterCooler {
                 id: object::new(ctx),
                 name,
                 description,
@@ -114,18 +113,32 @@ module galliun::water_cooler {
                 treasury,
                 registry_id: object::id(&registry),
                 collection_id: object::id(&collection),
-                setting_id,
-                wearhouse_id,
+                // setting_id,
+                // wearhouse_id,
                 is_initialized: false,
                 balance: balance::zero(),
-            }
-        );
+            };
+
+        let waterCoolerId = object::id(&waterCooler);
+
+        transfer::share_object(waterCooler);
 
         collection::transfer_collection(collection, ctx);
         registry::transfer_registry(registry, ctx);
         
 
         transfer::transfer(WaterCoolerAdminCap { id: object::new(ctx) }, ctx.sender());
+        
+        waterCoolerId
+    }
+
+
+
+    public(package) fun send_fees(
+        self: &WaterCooler,
+        coins: Coin<SUI>
+    ) {
+        transfer::public_transfer(coins, self.treasury);
     }
 
     public(package) fun add_balance(
@@ -192,6 +205,11 @@ module galliun::water_cooler {
         };
     }
     
+    public fun set_treasury(_: &WaterCoolerAdminCap, self: &mut WaterCooler, treasury: address) {
+        self.treasury = treasury;
+    }
+
+        
     public entry fun claim_balance(
         _: &WaterCoolerAdminCap,
         self: &mut WaterCooler,
@@ -201,18 +219,6 @@ module galliun::water_cooler {
         let coin = coin::take(&mut self.balance, value, ctx);
         transfer::public_transfer(coin, self.treasury);
     }
-    
-    public(package) fun send_fees(
-        self: &WaterCooler,
-        coins: Coin<SUI>
-    ) {
-        transfer::public_transfer(coins, self.treasury);
-    }
-
-    public fun set_treasury(_: &WaterCoolerAdminCap, self: &mut WaterCooler, treasury: address) {
-        self.treasury = treasury;
-    }
-
 
 
     // === Public view functions ===
