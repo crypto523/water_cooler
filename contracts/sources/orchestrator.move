@@ -14,7 +14,7 @@ module galliun::orchestrator {
     use galliun::{
         attributes::{Self},
         water_cooler::{Self, WaterCooler},
-        mizu_nft::{Self, MizuNFT},
+        capsule::{Self, Capsule},
         // image::{Image},
         registry::{Registry}
     };
@@ -79,7 +79,7 @@ module galliun::orchestrator {
         // between the Setting in the Mint module and the Water Cooler
         // in the watercooler modules
         waterCoolerId: ID,
-        nfts: TableVec<MizuNFT>,
+        nfts: TableVec<Capsule>,
         is_initialized: bool,
     }
 
@@ -148,7 +148,7 @@ module galliun::orchestrator {
         waterCooler: &WaterCooler,
         warehouse: &mut Warehouse,
         settings: &Settings,
-        policy: &TransferPolicy<MizuNFT>,
+        policy: &TransferPolicy<Capsule>,
         payment: Coin<SUI>,        
         ctx: &mut TxContext,
     ) {
@@ -159,7 +159,7 @@ module galliun::orchestrator {
         assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
-        mint_internal(waterCooler, warehouse, policy, payment, ctx);
+        mint_capsule(waterCooler, warehouse, policy, payment, ctx);
     }
 
     #[allow(unused_variable)]
@@ -168,7 +168,7 @@ module galliun::orchestrator {
         waterCooler: &WaterCooler,
         warehouse: &mut Warehouse,
         settings: &Settings,
-        policy: &TransferPolicy<MizuNFT>,
+        policy: &TransferPolicy<Capsule>,
         payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
@@ -183,7 +183,7 @@ module galliun::orchestrator {
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
 
-        mint_internal(waterCooler, warehouse, policy, payment, ctx);
+        mint_capsule(waterCooler, warehouse, policy, payment, ctx);
         id.delete();
     }
 
@@ -193,7 +193,7 @@ module galliun::orchestrator {
         waterCooler: &WaterCooler,
         warehouse: &mut Warehouse,
         settings: &Settings,
-        policy: &TransferPolicy<MizuNFT>,
+        policy: &TransferPolicy<Capsule>,
         payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
@@ -207,7 +207,7 @@ module galliun::orchestrator {
         assert!(waterCoolerId == object::id(waterCooler), EInvalidTicketForMintPhase);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
-        mint_internal(waterCooler, warehouse, policy,  payment, ctx);
+        mint_capsule(waterCooler, warehouse, policy,  payment, ctx);
         id.delete();
     }
 
@@ -217,7 +217,7 @@ module galliun::orchestrator {
     public fun stock_warehouse(
         cap: &OrchAdminCap,
         water_cooler: &WaterCooler,
-        mut nfts: vector<MizuNFT>,
+        mut nfts: vector<Capsule>,
         warehouse: &mut Warehouse,
     ) {
         assert!(object::id(warehouse) == cap.`for_warehouse`, ENotOwner);        
@@ -237,7 +237,7 @@ module galliun::orchestrator {
     public fun admin_reveal_nft(
         _: &OrchAdminCap,
         registry: &Registry,
-        nft: &mut MizuNFT,
+        nft: &mut Capsule,
         keys: vector<String>,
         values: vector<String>,
         // _image: Image,
@@ -248,9 +248,9 @@ module galliun::orchestrator {
 
         let attributes = attributes::admin_new(keys, values, ctx);
 
-        mizu_nft::set_attributes(nft, attributes);
-        // mizu_nft::set_image(nft, image);
-        mizu_nft::set_image_url(nft, image_url);
+        capsule::set_attributes(nft, attributes);
+        // capsule::set_image(nft, image);
+        capsule::set_image_url(nft, image_url);
     }
 
 
@@ -389,10 +389,10 @@ module galliun::orchestrator {
     // === Private Functions ===
 
     #[allow(lint(self_transfer, share_owned))]
-    public fun mint_internal(
+    public fun mint_capsule(
         waterCooler: &WaterCooler,
         warehouse: &mut Warehouse,
-        _policy: &TransferPolicy<MizuNFT>,
+        _policy: &TransferPolicy<Capsule>,
         payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
@@ -405,7 +405,7 @@ module galliun::orchestrator {
         // Place the NFT in the kiosk
         kiosk::place(&mut kiosk, &kiosk_owner_cap, nft);
 
-        // Lock MizuNFT into buyer's kiosk.
+        // Lock Capsule into buyer's kiosk.
         // TO DO: Lock NFT in kiosk using NFT policy
         // kiosk::lock(&mut kiosk, &mut kiosk_owner_cap, policy, nft);
 

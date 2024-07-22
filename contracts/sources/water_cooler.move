@@ -10,7 +10,7 @@ module galliun::water_cooler {
         transfer_policy
     };
     use galliun::{
-        mizu_nft::{Self, MizuNFT},
+        capsule::{Self, Capsule},
         registry::{Self, Registry},
         collection::{Self, Collection},
     };
@@ -65,7 +65,7 @@ module galliun::water_cooler {
         // Claim the Publisher object.
         let publisher = sui::package::claim(otw, ctx);
 
-        let mut display = display::new<MizuNFT>(&publisher, ctx);
+        let mut display = display::new<Capsule>(&publisher, ctx);
         display::add(&mut display, string::utf8(b"name"), string::utf8(b"{collection_name} #{number}"));
         display::add(&mut display, string::utf8(b"description"), string::utf8(b"{description}"));
         display::add(&mut display, string::utf8(b"image_url"), string::utf8(b"{image_url}"));
@@ -75,7 +75,7 @@ module galliun::water_cooler {
         display::add(&mut display, string::utf8(b"kiosk_owner_cap_id"), string::utf8(b"{kiosk_owner_cap_id}"));
         display::update_version(&mut display);
 
-        let (policy, policy_cap) = transfer_policy::new<MizuNFT>(&publisher, ctx);
+        let (policy, policy_cap) = transfer_policy::new<Capsule>(&publisher, ctx);
         
         transfer::public_transfer(publisher, ctx.sender());
         transfer::public_transfer(policy_cap,ctx.sender());
@@ -167,31 +167,26 @@ module galliun::water_cooler {
         while (number != 0) {
             // let (mut kiosk, kiosk_owner_cap) = kiosk::new(ctx);
 
-            let nft: MizuNFT = mizu_nft::new(
+            let nft: Capsule = capsule::new(
                 number,
                 self.name,
                 self.description,
                 option::some(self.placeholder_image_url), // image_url
                 option::none(), // attributes
                 option::none(), // image
-                option::none(), // minted_by
-                // object::id(&kiosk),
-                // object::id(&kiosk_owner_cap),
-                object::id(self), //water_cooler_id
-                object::id(self), //water_cooler_id
                 object::id(self), //water_cooler_id
                 ctx,
             );
 
             registry::add_new(number as u16, object::id(&nft), registry, collection);
 
-            // Set the Kiosk's 'owner' field to the address of the MizuNFT.
+            // Set the Kiosk's 'owner' field to the address of the Capsule.
             // kiosk::set_owner_custom(&mut kiosk, &kiosk_owner_cap, object::id_address(&nft));
 
             // transfer::public_transfer(kiosk_owner_cap, object::id_to_address(&object::id(&nft)));
             // transfer::public_share_object(kiosk);
 
-            // Add MizuNFT to factory.
+            // Add Capsule to factory.
             self.nfts.push_back(object::id(&nft));
 
             transfer::public_transfer(nft, ctx.sender());
