@@ -151,6 +151,20 @@ module galliun::water_cooler {
     ): bool {
         self.is_revealed
     }
+    
+    public(package) fun check_registry(
+        self: &WaterCooler,
+        registry: &Registry,
+    ): bool {
+        self.registry_id == object::id(registry)
+    }
+    
+    public(package) fun check_collection(
+        self: &WaterCooler,
+        collection: &Collection,
+    ): bool {
+        self.collection_id == object::id(collection)
+    }
 
     public(package) fun add_balance(
         self: &mut WaterCooler,
@@ -173,7 +187,7 @@ module galliun::water_cooler {
         assert!(self.is_initialized == false, EWaterCoolerAlreadyInitialized);
 
         let mut number = collection::supply(collection) as u64;
-        // Pre-fill the water cooler with the kiosk NFTs to the size of the NFT collection
+        // Pre-fill the water cooler with the NFTs to the size of the NFT collection
         // ! using LIFO here because TableVec
         while (number != 0) {
 
@@ -216,8 +230,8 @@ module galliun::water_cooler {
         image_url: String,
         ctx: &mut TxContext
     ) {
-        // assert!(registry.waterCoolerId == object::id(waterCooler), ERegistryDoesNotMatchCooler);
-        // assert!(collection.waterCoolerId == object::id(waterCooler), ECollectionDoesNotMatchCooler);
+        assert!(self.registry_id == object::id(registry), ERegistryDoesNotMatchCooler);
+        assert!(self.collection_id == object::id(collection), ECollectionDoesNotMatchCooler);
         let nft_id = object::id(nft);
         assert!(registry.is_nft_registered(nft_id), ENFTNotFromCollection);
         assert!(!self.revealed_nfts.contains(&nft_id), ENFTAlreadyRevealed);
@@ -229,6 +243,52 @@ module galliun::water_cooler {
         capsule::set_image_url(nft, image_url);
 
         self.revealed_nfts.push_back(nft_id);
+
+        if (self.revealed_nfts.length() == collection::supply(collection) as u64) {
+            self.is_revealed = true;
+        };
+    }
+    
+    public fun reveal_all_nfts(
+        _: &WaterCoolerAdminCap,
+        self: &mut WaterCooler,
+        registry: &Registry,
+        collection: &Collection,
+        mut nfts: vector<Capsule>,
+        mut keys: vector<vector<String>>,
+        mut values: vector<vector<String>>,
+        // _image: Image,
+        image_url: String,
+        ctx: &mut TxContext
+    ) {
+        assert!(self.registry_id == object::id(registry), ERegistryDoesNotMatchCooler);
+        assert!(self.collection_id == object::id(collection), ECollectionDoesNotMatchCooler);
+         let mut number = collection::supply(collection) as u64;
+            // Pre-fill the water cooler with the NFTs to the size of the NFT collection
+            // ! using LIFO here because TableVec
+        while (number != 0) {
+            let mut nft = nfts.borrow_mut(number);
+            let nft_id = object::id(nft);
+            assert!(registry.is_nft_registered(nft_id), ENFTNotFromCollection);
+            assert!(!self.revealed_nfts.contains(&nft_id), ENFTAlreadyRevealed);
+
+            let mut attr_keys = keys.pop_back();
+            let attr_values = values.pop_back();
+
+            let attributes = attributes::admin_new(
+                attr_keys,
+                attr_values,
+                ctx
+            );
+
+            capsule::set_attributes(nft, attributes);
+            // capsule::set_image(nft, image);
+            capsule::set_image_url(nft, image_url);
+
+            self.revealed_nfts.push_back(nft_id);
+
+            number = number - 1;
+        };
 
         if (self.revealed_nfts.length() == collection::supply(collection) as u64) {
             self.is_revealed = true;

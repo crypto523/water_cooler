@@ -226,8 +226,8 @@ module galliun::orchestrator {
         assert!(warehouse.is_initialized == false, EMintWarehouseAlreadyInitialized);
 
         while (!nfts.is_empty()) {
-            let pfp = nfts.pop_back();
-            warehouse.nfts.push_back(pfp);
+            let nft = nfts.pop_back();
+            warehouse.nfts.push_back(nft);
         };
         nfts.destroy_empty();
 
