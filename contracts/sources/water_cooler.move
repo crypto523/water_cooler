@@ -263,10 +263,9 @@ module galliun::water_cooler {
     ) {
         assert!(self.registry_id == object::id(registry), ERegistryDoesNotMatchCooler);
         assert!(self.collection_id == object::id(collection), ECollectionDoesNotMatchCooler);
-         let mut number = collection::supply(collection) as u64;
-            // Pre-fill the water cooler with the NFTs to the size of the NFT collection
-            // ! using LIFO here because TableVec
-        while (number != 0) {
+        let mut number = collection::supply(collection) as u64 - self.revealed_nfts.length(); 
+
+        while (!keys.is_empty()) {
             let mut nft = nfts.borrow_mut(number);
             let nft_id = object::id(nft);
             assert!(registry.is_nft_registered(nft_id), ENFTNotFromCollection);
