@@ -15,18 +15,12 @@ module galliun::registry {
     };
     use galliun::collection::{Self, Collection};
 
-    // === Friends ===
-
-    /* friend galliun::factory; */
-
     public struct REGISTRY has drop {}
 
     /// Stores an NFT number: to ID mapping.
     ///
-    /// This object is used to maintain a stable mapping between a NFT's
-    /// number: and its object ID. When the contract is deployed, `is_initialized` is set to false.
-    /// Once all NFTs have been registered, `is_initialized` will be set to
-    /// true. At this point, the registry should be transformed into an immutable object.
+    /// This object is used to keep a mapping between a NFT's and it's number and object ID
+    /// When all the NFTs are register, `is_ready` will be set to true.
     public struct Registry has key {
         id: UID,
         name: String,
@@ -36,8 +30,7 @@ module galliun::registry {
         kiosk_ids: vector<ID>,
         num_to_nft: Table<u16, ID>,
         nft_to_num: Table<ID, u16>,
-        is_initialized: bool,
-        is_frozen: bool,
+        is_ready: bool
     }
 
     // Admin cap of this registry can be used to make changes to the Registry
@@ -46,10 +39,7 @@ module galliun::registry {
     // === Constants ===
 
     const EInvalidnftNumber: u64 = 1;
-    const ERegistryNotIntialized: u64 = 2;
-    const ERegistryAlreadyFrozen: u64 = 3;
-    // const ERegistryNotFrozen: u64 = 4;
-    const ERegistryNotFromThisCollection: u64 = 5;
+    const ERegistryNotFromThisCollection: u64 = 2;
 
     // === Init Function ===
 
@@ -64,8 +54,7 @@ module galliun::registry {
         registry_display.add(b"name".to_string(), b"NFT Registry".to_string());
         registry_display.add(b"description".to_string(), b"The registry for your NFT collection.".to_string());
         registry_display.add(b"image_url".to_string(), b"{image_url}".to_string());
-        registry_display.add(b"is_initialized".to_string(), b"{is_initialized}".to_string());
-        registry_display.add(b"is_frozen".to_string(), b"{is_frozen}".to_string());
+        registry_display.add(b"is_ready".to_string(), b"{is_ready}".to_string());
 
         transfer::public_transfer(registry_display, ctx.sender());
         transfer::public_transfer(publisher, ctx.sender());
@@ -88,8 +77,7 @@ module galliun::registry {
             name,
             description,
             image_url,
-            is_initialized: false,
-            is_frozen: false,
+            is_ready: false
         }
     }
 
@@ -102,38 +90,36 @@ module galliun::registry {
     }
 
     public fun nft_id_from_number(
-        registry: &Registry,
+        self: &Registry,
         collection: &Collection,
         number: u16,
     ): ID {
         assert!(number >= 1 && number <= collection::supply(collection), EInvalidnftNumber);
-        // assert!(registry.is_frozen == true, ERegistryNotFrozen);
 
-        registry.num_to_nft[number]
+        self.num_to_nft[number]
     }
     
     public fun nft_number_from_id(
-        registry: &Registry,
+        self: &Registry,
         id: ID,
     ): u16 {
-        // assert!(registry.is_frozen == true, ERegistryNotFrozen);
-        assert!(registry.kiosk_ids.contains(&id) == true, ERegistryNotFromThisCollection);
+        assert!(self.kiosk_ids.contains(&id) == true, ERegistryNotFromThisCollection);
 
-        registry.nft_to_num[id]
+        self.nft_to_num[id]
     }
     
     public fun is_kiosk_registered(
-        registry: &Registry,
+        self: &Registry,
         id: ID,
     ): bool {
-        registry.kiosk_ids.contains(&id)
+        self.kiosk_ids.contains(&id)
     }
     
     public fun is_nft_registered(
-        registry: &Registry,
+        self: &Registry,
         id: ID,
     ): bool {
-        registry.nft_ids.contains(&id)
+        self.nft_ids.contains(&id)
     }
 
     // === Package Functions ===
@@ -142,59 +128,43 @@ module galliun::registry {
         number: u16,
         nft_id: ID,
         kiosk_id: ID,
-        registry: &mut Registry,
+        self: &mut Registry,
         collection: &Collection,
     ) {
 
-        registry.num_to_nft.add(number, nft_id);
-        registry.nft_to_num.add(nft_id, number);
-        registry.nft_ids.push_back(nft_id);
-        registry.kiosk_ids.push_back(kiosk_id);
+        self.num_to_nft.add(number, nft_id);
+        self.nft_to_num.add(nft_id, number);
+        self.nft_ids.push_back(nft_id);
+        self.kiosk_ids.push_back(kiosk_id);
 
-        if ((registry.num_to_nft.length() as u16) == collection::supply(collection) as u16) {
-            registry.is_initialized = true;
+        if ((self.num_to_nft.length() as u16) == collection::supply(collection) as u16) {
+            self.is_ready = true;
         };
     }
     
     public(package) fun add_new(
         number: u16,
         nft_id: ID,
-        registry: &mut Registry,
+        self: &mut Registry,
         collection: &Collection,
     ) {
 
-        registry.num_to_nft.add(number, nft_id);
-        registry.nft_to_num.add(nft_id, number);
-        registry.nft_ids.push_back(nft_id);
+        self.num_to_nft.add(number, nft_id);
+        self.nft_to_num.add(nft_id, number);
+        self.nft_ids.push_back(nft_id);
 
-        if ((registry.num_to_nft.length() as u16) == collection::supply(collection) as u16) {
-            registry.is_initialized = true;
+        if ((self.num_to_nft.length() as u16) == collection::supply(collection) as u16) {
+            self.is_ready = true;
         };
     }
 
-    public(package) fun is_frozen(
-        registry: &Registry,
+    public(package) fun is_ready(
+        self: &Registry,
     ): bool {
-        registry.is_frozen
-    }
-
-    public(package) fun is_initialized(
-        registry: &Registry,
-    ): bool {
-        registry.is_initialized
+        self.is_ready
     }
 
     // === Admin Functions ===
 
-    #[lint_allow(freeze_wrapped)]
-    public fun admin_freeze_registry(
-        _cap: &RegistryAdminCap,
-        mut registry: Registry,
-        _ctx: &TxContext,
-    ) {
-        assert!(registry.is_frozen == false, ERegistryAlreadyFrozen);
-        assert!(registry.is_initialized == true, ERegistryNotIntialized);
-        registry.is_frozen = true;
-        transfer::freeze_object(registry);
-    }
+    
 }

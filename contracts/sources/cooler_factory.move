@@ -4,11 +4,10 @@ module galliun::cooler_factory {
     use std::string::{String};
     use sui::{
         sui::SUI,
-        coin::{Self, Coin},
-        balance::{Self, Balance},
+        coin::{Coin}
     };
     use galliun::water_cooler::{Self};
-    use galliun::mint::{Self};
+    use galliun::orchestrator::{Self};
 
     // === Errors ===
 
@@ -20,8 +19,8 @@ module galliun::cooler_factory {
     public struct CoolerFactory has key {
         id: UID,
         fee: u64,
+        mint_fee: u64,
         treasury: address,
-        balance: Balance<SUI>,
         counter: u256
     }
 
@@ -39,8 +38,8 @@ module galliun::cooler_factory {
             CoolerFactory {
                 id: object::new(ctx),
                 fee: 100_000_000,
+                mint_fee: 100_000,
                 treasury: @galliun_treasury,
-                balance: balance::zero(),
                 counter: 0
             }
         );
@@ -59,42 +58,51 @@ module galliun::cooler_factory {
     ) {
         assert!(payment.value() == self.fee, EInsufficientBalance);
 
+        // Create a WaterCooler and give it to the buyer
+        let waterCoolerID = water_cooler::create_water_cooler(
+            name,
+            description,
+            image_url,
+            placeholder_image_url,
+            supply,
+            treasury,
+            // mint_setting_id,
+            // mint_warehouse_id,
+            ctx
+            );
+
         // Create a Mint distributer and give it to the buyer. 
         // We do this here to avoid create a dependency circle 
         // with the Mint and water_cooler modules
-        let (mint_settings, mint_warehouse) = mint::create_mint_distributer(ctx);
+        let (settings, warehouse) = orchestrator::create_mint_distributer(waterCoolerID, ctx);
 
-        let mint_setting_id = object::id(&mint_settings);
-        let mint_warehouse_id = object::id(&mint_warehouse);
-
-        // Create a WaterCooler and give it to the buyer
-        water_cooler::create_water_cooler(name, description, image_url, placeholder_image_url, supply, treasury, mint_setting_id, mint_warehouse_id, ctx);
-
-        mint::transfer_mint_setting(mint_settings);
-        mint::transfer_mint_warehouse(mint_warehouse);
-
-        // Put fee into factory balance
-        self.balance.join(payment.into_balance());
+        orchestrator::transfer_setting(settings);
+        orchestrator::transfer_warehouse(warehouse);
 
         self.counter = self.counter +1;
+
+        // Transfer fees to treasury
+        self.send_fees(payment);
     }
 
     
     public entry fun update_fee(_: &FactoryOwnerCap, self: &mut CoolerFactory, fee: u64) {
         self.fee = fee;
     }
-    
-    public fun claim_fee(_: &FactoryOwnerCap, self: &mut CoolerFactory, ctx: &mut TxContext) {
-        let value = self.balance.value();
-        let coin = coin::take(&mut self.balance, value, ctx);
-        transfer::public_transfer(coin, self.treasury);
-    }
-
-    public fun get_balance(self: &CoolerFactory) : u64 {
-        self.balance.value()
-    }
+   
     public fun get_fee(self: &CoolerFactory) : u64 {
         self.fee
+    }
+    
+    public fun get_mint_fee(self: &CoolerFactory) : u64 {
+        self.mint_fee
+    }
+
+    public(package) fun send_fees(
+        self: &CoolerFactory,
+        coins: Coin<SUI>
+    ) {
+        transfer::public_transfer(coins, self.treasury);
     }
 
     // === Test Functions ===
