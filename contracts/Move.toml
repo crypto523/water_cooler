@@ -8,4 +8,4 @@ Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-fram
 
 [addresses]
 galliun = "0x0"
-galliun_treasury = "0xD"
+galliun_treasury = "0x77eead203c719f47ff050c9ab38e9f94c9629eb45e5c6b858b5c1e38dff6a0a1"

@@ -3,3 +3,4 @@ build
 .temp
 publish.json
 Move.lock
+.env

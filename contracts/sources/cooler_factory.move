@@ -21,7 +21,7 @@ module galliun::cooler_factory {
         fee: u64,
         mint_fee: u64,
         treasury: address,
-        counter: u256
+        cooler_list: vector<ID>
     }
 
     public struct FactoryOwnerCap has key, store { id: UID }
@@ -40,7 +40,7 @@ module galliun::cooler_factory {
                 fee: 100_000_000,
                 mint_fee: 100_000,
                 treasury: @galliun_treasury,
-                counter: 0
+                cooler_list: vector::empty()
             }
         );
     }
@@ -79,7 +79,7 @@ module galliun::cooler_factory {
         orchestrator::transfer_setting(settings);
         orchestrator::transfer_warehouse(warehouse);
 
-        self.counter = self.counter +1;
+        self.cooler_list.push_back(waterCoolerID);
 
         // Transfer fees to treasury
         self.send_fees(payment);

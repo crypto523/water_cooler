@@ -3,6 +3,12 @@
  * SPDX-License-Identifier: MIT
  */
 
+/*
+ * This code has been modified and is maintained by Galliun
+ * Copyright (c) 2024 Galliun, Limited.
+ * SPDX-License-Identifier: MIT
+ */
+
 module galliun::attributes {
     // === Imports ===
 

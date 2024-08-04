@@ -3,7 +3,8 @@ module galliun::orchestrator {
 
     use std::string::{Self, String};
     use sui::{
-        coin::Coin,
+        // coin::Coin,
+        coin::{Self, Coin},
         display::{Self},
         kiosk::{Self},
         package::{Self},
@@ -13,6 +14,7 @@ module galliun::orchestrator {
     };
     use galliun::{
         // attributes::{Self},
+        factory_settings::{FactorySetings},
         water_cooler::{Self, WaterCooler},
         capsule::{Capsule},
         // image::{Image},
@@ -147,6 +149,7 @@ module galliun::orchestrator {
 
     public entry fun public_mint(
         waterCooler: &WaterCooler,
+        factorySettings: &FactorySetings,
         warehouse: &mut Warehouse,
         settings: &Settings,
         policy: &TransferPolicy<Capsule>,
@@ -160,12 +163,13 @@ module galliun::orchestrator {
         assert!(settings.status == MINT_STATE_ACTIVE, EMintNotLive);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
-        mint_capsule(waterCooler, warehouse, policy, payment, ctx);
+        mint_capsule(factorySettings, waterCooler, warehouse, policy, payment, ctx);
     }
 
     #[allow(unused_variable)]
     public fun whitelist_mint(
         ticket: WhitelistTicket,
+        factorySettings: &FactorySetings,
         waterCooler: &WaterCooler,
         warehouse: &mut Warehouse,
         settings: &Settings,
@@ -184,13 +188,14 @@ module galliun::orchestrator {
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
 
-        mint_capsule(waterCooler, warehouse, policy, payment, ctx);
+        mint_capsule(factorySettings, waterCooler, warehouse, policy, payment, ctx);
         id.delete();
     }
 
     #[allow(unused_variable)]
     public fun og_mint(
         ticket: OriginalGangsterTicket,
+        factorySettings: &FactorySetings,
         waterCooler: &WaterCooler,
         warehouse: &mut Warehouse,
         settings: &Settings,
@@ -208,7 +213,7 @@ module galliun::orchestrator {
         assert!(waterCoolerId == object::id(waterCooler), EInvalidTicketForMintPhase);
         assert!(payment.value() == settings.price, EInvalidPaymentAmount);
 
-        mint_capsule(waterCooler, warehouse, policy,  payment, ctx);
+        mint_capsule(factorySettings, waterCooler, warehouse, policy, payment, ctx);
         id.delete();
     }
 
@@ -372,10 +377,11 @@ module galliun::orchestrator {
 
     #[allow(lint(self_transfer, share_owned))]
     public fun mint_capsule(
+        factorySettings: &FactorySetings,
         waterCooler: &WaterCooler,
         warehouse: &mut Warehouse,
         _policy: &TransferPolicy<Capsule>,
-        payment: Coin<SUI>,
+        mut payment: Coin<SUI>,
         ctx: &mut TxContext,
     ) {
         // Safely unwrap the NFT from the warehouse
@@ -396,6 +402,14 @@ module galliun::orchestrator {
 
         // Share the kiosk object publicly
         transfer::public_share_object(kiosk);
+
+        let coin_balance = payment.balance_mut();
+        // let fees = coin_balance.split(factorySettings.get_mint_fee());
+
+        // let amount = fees.value();
+        let profits = coin::take(coin_balance, factorySettings.get_mint_fee(), ctx);
+
+        factorySettings.send_fees(profits);
 
         // Send the payment to the water cooler
         waterCooler.send_fees(payment);
