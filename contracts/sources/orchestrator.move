@@ -280,7 +280,7 @@ module galliun::orchestrator {
         status: u8,
     ) {
         assert!(object::id(settings) == cap.`for_settings`, ENotOwner);
-        assert!(settings.status == MINT_STATE_INACTIVE || settings.status == MINT_STATE_ACTIVE, EInvalidStatusNumber);
+        assert!(status == MINT_STATE_INACTIVE || status == MINT_STATE_ACTIVE, EInvalidStatusNumber);
         settings.status = status;
     }
 
