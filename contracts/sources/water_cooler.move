@@ -14,6 +14,8 @@ module galliun::water_cooler {
         registry::{Self, Registry},
         collection::{Self, Collection},
         attributes::{Self},
+        settings::{Self},
+        warehouse::{Self},
     };
 
     // === Errors ===
@@ -55,13 +57,17 @@ module galliun::water_cooler {
         // supply of NFTs in the collection
         collection_id: ID,
         // // This is the ID of the mint settings that manages the minting process for the NFTs
-        // setting_id: ID,
+        settings_id: ID,
         // // This is the ID of the mint wearhouse that will store the NFTs before mint
-        // wearhouse_id: ID,
+        warehouse_id: ID,
         is_initialized: bool,
         is_revealed: bool,
         // balance for creator
         balance: Balance<SUI>,
+        // Stores the address of the wallet that created the Water Cooler
+        owner: address,
+        // This bool determins wether or not a to display the Water cooler on the launchpad
+        display: bool
     }
 
     // Admin cap of this Water Cooler to be used but the Cooler owner when making changes
@@ -103,11 +109,15 @@ module galliun::water_cooler {
         placeholder_image_url: String,
         supply: u64,
         treasury: address,
+        settings_id: ID,
+        warehouse_id: ID ,
         ctx: &mut TxContext
     ): ID {
 
         let collection = collection::new(supply as u16, ctx);
         let registry = registry::create_registry(name, description, image_url, ctx);
+        // let settings = settings::new(ctx);
+        // let warehouse = warehouse::new(ctx);
 
         let waterCooler = WaterCooler {
                 id: object::new(ctx),
@@ -121,9 +131,15 @@ module galliun::water_cooler {
                 treasury,
                 registry_id: object::id(&registry),
                 collection_id: object::id(&collection),
+                // settings_id: object::id(&settings),
+                // warehouse_id: object::id(&warehouse),
+                settings_id,
+                warehouse_id,
                 is_initialized: false,
                 is_revealed: false,
                 balance: balance::zero(),
+                owner: ctx.sender(),
+                display: false
             };
 
         let waterCoolerId = object::id(&waterCooler);
@@ -132,6 +148,8 @@ module galliun::water_cooler {
 
         collection::transfer_collection(collection, ctx);
         registry::transfer_registry(registry, ctx);
+        // settings::transfer_setting(settings, ctx);
+        // warehouse::transfer_warehouse(warehouse, ctx);
         
         transfer::transfer(WaterCoolerAdminCap { id: object::new(ctx) }, ctx.sender());
         
@@ -150,6 +168,18 @@ module galliun::water_cooler {
         self: &WaterCooler,
     ): bool {
         self.is_revealed
+    }
+    
+    public(package) fun get_warehouse_id(
+        self: &WaterCooler,
+    ): ID {
+        self.warehouse_id
+    }
+    
+    public(package) fun get_settings_id(
+        self: &WaterCooler,
+    ): ID {
+        self.settings_id
     }
     
     public(package) fun check_registry(
@@ -338,6 +368,10 @@ module galliun::water_cooler {
     
     public fun placeholder_image(self: &WaterCooler): String {
         self.placeholder_image_url
+    }
+    
+    public fun owner(self: &WaterCooler): address {
+        self.owner
     }
 
     // === Test Functions ===
