@@ -71,7 +71,7 @@ module galliun::water_cooler {
     }
 
     // Admin cap of this Water Cooler to be used but the Cooler owner when making changes
-    public struct WaterCoolerAdminCap has key { id: UID }
+    public struct WaterCoolerAdminCap has key { id: UID, `for`: ID }
 
     // === Public mutative functions ===
 
@@ -120,27 +120,35 @@ module galliun::water_cooler {
         // let warehouse = warehouse::new(ctx);
 
         let waterCooler = WaterCooler {
+            id: object::new(ctx),
+            name,
+            description,
+            image_url,
+            placeholder_image_url,
+            supply,
+            nfts: table_vec::empty(ctx),
+            revealed_nfts: vector::empty(),
+            treasury,
+            registry_id: object::id(&registry),
+            collection_id: object::id(&collection),
+            // settings_id: object::id(&settings),
+            // warehouse_id: object::id(&warehouse),
+            settings_id,
+            warehouse_id,
+            is_initialized: false,
+            is_revealed: false,
+            balance: balance::zero(),
+            owner: ctx.sender(),
+            display: false
+        };
+
+        transfer::transfer(
+            WaterCoolerAdminCap { 
                 id: object::new(ctx),
-                name,
-                description,
-                image_url,
-                placeholder_image_url,
-                supply,
-                nfts: table_vec::empty(ctx),
-                revealed_nfts: vector::empty(),
-                treasury,
-                registry_id: object::id(&registry),
-                collection_id: object::id(&collection),
-                // settings_id: object::id(&settings),
-                // warehouse_id: object::id(&warehouse),
-                settings_id,
-                warehouse_id,
-                is_initialized: false,
-                is_revealed: false,
-                balance: balance::zero(),
-                owner: ctx.sender(),
-                display: false
-            };
+                `for`: object::id(&waterCooler)
+            },
+            ctx.sender()
+        );
 
         let waterCoolerId = object::id(&waterCooler);
 
@@ -150,8 +158,6 @@ module galliun::water_cooler {
         registry::transfer_registry(registry, ctx);
         // settings::transfer_setting(settings, ctx);
         // warehouse::transfer_warehouse(warehouse, ctx);
-        
-        transfer::transfer(WaterCoolerAdminCap { id: object::new(ctx) }, ctx.sender());
         
         waterCoolerId
     }
@@ -232,7 +238,7 @@ module galliun::water_cooler {
                 ctx,
             );
 
-            registry::add_new(number as u16, object::id(&nft), registry, collection);
+            // registry::add_new(number as u16, object::id(&nft), registry, collection);
 
             // Add Capsule to factory.
             self.nfts.push_back(object::id(&nft));
@@ -263,7 +269,7 @@ module galliun::water_cooler {
         assert!(self.registry_id == object::id(registry), ERegistryDoesNotMatchCooler);
         assert!(self.collection_id == object::id(collection), ECollectionDoesNotMatchCooler);
         let nft_id = object::id(nft);
-        assert!(registry.is_nft_registered(nft_id), ENFTNotFromCollection);
+        // assert!(registry.is_nft_registered(nft_id), ENFTNotFromCollection);
         assert!(!self.revealed_nfts.contains(&nft_id), ENFTAlreadyRevealed);
 
         let attributes = attributes::admin_new(keys, values, ctx);

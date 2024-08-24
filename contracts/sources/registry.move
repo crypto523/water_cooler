@@ -17,7 +17,8 @@ module galliun::registry {
     use sui::{
         display,
         package,
-        table::{Self, Table}
+        table::{Self, Table},
+        table_vec::{Self, TableVec},
     };
     use galliun::collection::{Self, Collection};
 
@@ -32,8 +33,8 @@ module galliun::registry {
         name: String,
         description: String,
         image_url: String,
-        nft_ids: vector<ID>,
-        kiosk_ids: vector<ID>,
+        nft_ids: TableVec<ID>,
+        kiosk_ids: TableVec<ID>,
         num_to_nft: Table<u16, ID>,
         nft_to_num: Table<ID, u16>,
         is_ready: bool
@@ -76,8 +77,8 @@ module galliun::registry {
     ): Registry {
         Registry {
             id: object::new(ctx),
-            nft_ids: vector::empty(),
-            kiosk_ids: vector::empty(),
+            nft_ids: table_vec::empty(ctx),
+            kiosk_ids: table_vec::empty(ctx),
             num_to_nft: table::new(ctx),
             nft_to_num: table::new(ctx),
             name,
@@ -105,28 +106,28 @@ module galliun::registry {
         self.num_to_nft[number]
     }
     
-    public fun nft_number_from_id(
-        self: &Registry,
-        id: ID,
-    ): u16 {
-        assert!(self.kiosk_ids.contains(&id) == true, ERegistryNotFromThisCollection);
+    // public fun nft_number_from_id(
+    //     self: &Registry,
+    //     id: ID,
+    // ): u16 {
+    //     assert!(self.kiosk_ids.contains(&id) == true, ERegistryNotFromThisCollection);
 
-        self.nft_to_num[id]
-    }
+    //     self.nft_to_num[id]
+    // }
     
-    public fun is_kiosk_registered(
-        self: &Registry,
-        id: ID,
-    ): bool {
-        self.kiosk_ids.contains(&id)
-    }
+    // public fun is_kiosk_registered(
+    //     self: &Registry,
+    //     id: ID,
+    // ): bool {
+    //     self.kiosk_ids.contains(&id)
+    // }
     
-    public fun is_nft_registered(
-        self: &Registry,
-        id: ID,
-    ): bool {
-        self.nft_ids.contains(&id)
-    }
+    // public fun is_nft_registered(
+    //     self: &Registry,
+    //     id: ID,
+    // ): bool {
+    //     self.nft_ids.contains(&id)
+    // }
 
     // === Package Functions ===
 
