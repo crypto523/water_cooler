@@ -241,7 +241,7 @@ module galliun::water_cooler {
             // registry::add_new(number as u16, object::id(&nft), registry, collection);
 
             // Add Capsule to factory.
-            self.nfts.push_back(object::id(&nft));
+            // self.nfts.push_back(object::id(&nft));
 
             transfer::public_transfer(nft, ctx.sender());
 
@@ -285,7 +285,7 @@ module galliun::water_cooler {
         };
     }
     
-    // public fun reveal_all_nfts(
+    // public fun batch_reveal_nfts(
     //     _: &WaterCoolerAdminCap,
     //     self: &mut WaterCooler,
     //     registry: &Registry,
@@ -294,7 +294,7 @@ module galliun::water_cooler {
     //     mut keys: vector<vector<String>>,
     //     mut values: vector<vector<String>>,
     //     // _image: Image,
-    //     image_url: String,
+    //     mut image_urls: vector<String>,
     //     ctx: &mut TxContext
     // ) {
     //     assert!(self.registry_id == object::id(registry), ERegistryDoesNotMatchCooler);
@@ -304,7 +304,7 @@ module galliun::water_cooler {
     //     while (!keys.is_empty()) {
     //         let mut nft = nfts.borrow_mut(number);
     //         let nft_id = object::id(nft);
-    //         assert!(registry.is_nft_registered(nft_id), ENFTNotFromCollection);
+    //         // assert!(registry.is_nft_registered(nft_id), ENFTNotFromCollection);
     //         assert!(!self.revealed_nfts.contains(&nft_id), ENFTAlreadyRevealed);
 
     //         let mut attr_keys = keys.pop_back();
@@ -316,9 +316,11 @@ module galliun::water_cooler {
     //             ctx
     //         );
 
+    //         // capsule::set_feilds(nft, attributes, image_urls.pop_back());
+
     //         capsule::set_attributes(nft, attributes);
     //         // capsule::set_image(nft, image);
-    //         capsule::set_image_url(nft, image_url);
+    //         capsule::set_image_url(nft, image_urls.pop_back());
 
     //         self.revealed_nfts.push_back(nft_id);
 
