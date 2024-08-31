@@ -192,7 +192,7 @@ module galliun::orchestrator {
         mut nfts: vector<Capsule>,
         warehouse: &mut Warehouse,
     ) {
-        assert!(waterCooler.get_is_revealed(), ENFTNotAllReaveled);        
+        assert!(waterCooler.get_is_initialized(), ENFTNotAllReaveled);        
         assert!(object::id(warehouse) == cap.`for_warehouse`, ENotOwner);        
        
        warehouse.stock(waterCooler.supply(), nfts);

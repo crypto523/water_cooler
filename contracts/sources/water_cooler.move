@@ -67,7 +67,8 @@ module galliun::water_cooler {
         // Stores the address of the wallet that created the Water Cooler
         owner: address,
         // This bool determins wether or not a to display the Water cooler on the launchpad
-        display: bool
+        display: bool,
+        init_counter: u64
     }
 
     // Admin cap of this Water Cooler to be used but the Cooler owner when making changes
@@ -139,7 +140,8 @@ module galliun::water_cooler {
             is_revealed: false,
             balance: balance::zero(),
             owner: ctx.sender(),
-            display: false
+            display: false,
+            init_counter: 0
         };
 
         transfer::transfer(
@@ -174,6 +176,12 @@ module galliun::water_cooler {
         self: &WaterCooler,
     ): bool {
         self.is_revealed
+    }
+    
+    public(package) fun get_is_initialized(
+        self: &WaterCooler,
+    ): bool {
+        self.is_initialized
     }
     
     public(package) fun get_warehouse_id(
@@ -211,6 +219,58 @@ module galliun::water_cooler {
 
     // === Admin Functions ===
 
+    // TODO: might need to split in multiple calls if the supply is too high
+    #[allow(lint(share_owned))]
+    public entry fun initialize_with_data(
+        _: &WaterCoolerAdminCap,
+        self: &mut WaterCooler,
+        registry: &mut Registry,
+        collection: &Collection,
+        mut numbers: vector<u64>,
+        mut image_urls: vector<String>,
+        mut keys: vector<vector<String>>,
+        mut values: vector<vector<String>>,
+        ctx: &mut TxContext,
+    ) {
+        assert!(self.is_initialized == false, EWaterCoolerAlreadyInitialized);
+
+        // let mut number = collection::supply(collection) as u64;
+
+        
+
+        // Pre-fill the water cooler with the NFTs to the size of the NFT collection
+        // ! using LIFO here because TableVec
+        while (image_urls.length() > 0) {
+
+            let attributes = attributes::admin_new(keys.pop_back(), values.pop_back(), ctx);            
+
+            let nft: Capsule = capsule::new(
+                numbers.pop_back(),
+                self.name,
+                self.description,
+                option::some(image_urls.pop_back()), // image_url
+                option::some(attributes), // attributes
+                option::none(), // image
+                object::id(self), //water_cooler_id
+                ctx,
+            );
+
+            // registry::add_new(number as u16, object::id(&nft), registry, collection);
+
+            // Add Capsule to factory.
+            // self.nfts.push_back(object::id(&nft));
+
+            transfer::public_transfer(nft, ctx.sender());
+
+            self.init_counter = self.init_counter + 1;
+        };
+
+        // Initialize water cooler if the number of NFT created is equal to the size of the collection.
+        if (self.init_counter == collection::supply(collection) as u64) {
+            self.is_initialized = true;
+        };
+    }
+    
     // TODO: might need to split in multiple calls if the supply is too high
     #[allow(lint(share_owned))]
     public entry fun initialize_water_cooler(
@@ -284,53 +344,6 @@ module galliun::water_cooler {
             self.is_revealed = true;
         };
     }
-    
-    // public fun batch_reveal_nfts(
-    //     _: &WaterCoolerAdminCap,
-    //     self: &mut WaterCooler,
-    //     registry: &Registry,
-    //     collection: &Collection,
-    //     mut nfts: vector<Capsule>,
-    //     mut keys: vector<vector<String>>,
-    //     mut values: vector<vector<String>>,
-    //     // _image: Image,
-    //     mut image_urls: vector<String>,
-    //     ctx: &mut TxContext
-    // ) {
-    //     assert!(self.registry_id == object::id(registry), ERegistryDoesNotMatchCooler);
-    //     assert!(self.collection_id == object::id(collection), ECollectionDoesNotMatchCooler);
-    //     let mut number = collection::supply(collection) as u64 - self.revealed_nfts.length(); 
-
-    //     while (!keys.is_empty()) {
-    //         let mut nft = nfts.borrow_mut(number);
-    //         let nft_id = object::id(nft);
-    //         // assert!(registry.is_nft_registered(nft_id), ENFTNotFromCollection);
-    //         assert!(!self.revealed_nfts.contains(&nft_id), ENFTAlreadyRevealed);
-
-    //         let mut attr_keys = keys.pop_back();
-    //         let attr_values = values.pop_back();
-
-    //         let attributes = attributes::admin_new(
-    //             attr_keys,
-    //             attr_values,
-    //             ctx
-    //         );
-
-    //         // capsule::set_feilds(nft, attributes, image_urls.pop_back());
-
-    //         capsule::set_attributes(nft, attributes);
-    //         // capsule::set_image(nft, image);
-    //         capsule::set_image_url(nft, image_urls.pop_back());
-
-    //         self.revealed_nfts.push_back(nft_id);
-
-    //         number = number - 1;
-    //     };
-
-    //     if (self.revealed_nfts.length() == collection::supply(collection) as u64) {
-    //         self.is_revealed = true;
-    //     }
-    // }
     
     public fun set_treasury(_: &WaterCoolerAdminCap, self: &mut WaterCooler, treasury: address) {
         self.treasury = treasury;
