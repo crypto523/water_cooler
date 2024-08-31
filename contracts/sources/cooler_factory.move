@@ -6,8 +6,12 @@ module galliun::cooler_factory {
         sui::SUI,
         coin::{Coin}
     };
-    use galliun::water_cooler::{Self};
-    use galliun::orchestrator::{Self};
+    use galliun::{
+        water_cooler::{Self},
+        orchestrator::{Self},
+        settings::{Self},
+        warehouse::{Self},
+    };
 
     // === Errors ===
 
@@ -19,7 +23,6 @@ module galliun::cooler_factory {
     public struct CoolerFactory has key {
         id: UID,
         fee: u64,
-        mint_fee: u64,
         treasury: address,
         cooler_list: vector<ID>
     }
@@ -38,7 +41,6 @@ module galliun::cooler_factory {
             CoolerFactory {
                 id: object::new(ctx),
                 fee: 100_000_000,
-                mint_fee: 100_000,
                 treasury: @galliun_treasury,
                 cooler_list: vector::empty()
             }
@@ -58,6 +60,16 @@ module galliun::cooler_factory {
     ) {
         assert!(payment.value() == self.fee, EInsufficientBalance);
 
+                // Create a Mint distributer and give it to the buyer. 
+        // We do this here to avoid create a dependency circle 
+        // with the Mint and water_cooler modules
+        // let settings = settings::new(waterCoolerID, ctx);
+        // let warehouse = warehouse::new(waterCoolerID, ctx);
+
+        let (settings, warehouse) = orchestrator::create_mint_distributer(ctx);
+
+        
+
         // Create a WaterCooler and give it to the buyer
         let waterCoolerID = water_cooler::create_water_cooler(
             name,
@@ -66,18 +78,15 @@ module galliun::cooler_factory {
             placeholder_image_url,
             supply,
             treasury,
-            // mint_setting_id,
-            // mint_warehouse_id,
+            object::id(&settings),
+            object::id(&warehouse),
             ctx
-            );
+        );
 
-        // Create a Mint distributer and give it to the buyer. 
-        // We do this here to avoid create a dependency circle 
-        // with the Mint and water_cooler modules
-        let (settings, warehouse) = orchestrator::create_mint_distributer(waterCoolerID, ctx);
+        settings::transfer_setting(settings, ctx);
+        warehouse::transfer_warehouse(warehouse, ctx);
 
-        orchestrator::transfer_setting(settings);
-        orchestrator::transfer_warehouse(warehouse);
+
 
         self.cooler_list.push_back(waterCoolerID);
 
@@ -92,10 +101,6 @@ module galliun::cooler_factory {
    
     public fun get_fee(self: &CoolerFactory) : u64 {
         self.fee
-    }
-    
-    public fun get_mint_fee(self: &CoolerFactory) : u64 {
-        self.mint_fee
     }
 
     public(package) fun send_fees(
