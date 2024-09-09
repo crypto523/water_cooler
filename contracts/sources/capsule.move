@@ -22,8 +22,8 @@ module galliun::capsule {
         image_url: Option<String>,
         number: u64,
         attributes: Option<Attributes>,
-        image: Option<Image>,
-        water_cooler_id: ID
+        // image: Option<Image>,
+        // water_cooler_id: ID
     }
 
     // === Public view functions ===
@@ -51,8 +51,8 @@ module galliun::capsule {
             description,
             image_url,
             attributes,
-            image,
-            water_cooler_id
+            // image,
+            // water_cooler_id
         }
     }
 
@@ -65,9 +65,9 @@ module galliun::capsule {
         option::fill(&mut self.attributes, attributes);
     }
 
-    public(package) fun set_image(self: &mut Capsule, image: Image) {
-        option::fill(&mut self.image, image);
-    }
+    // public(package) fun set_image(self: &mut Capsule, image: Image) {
+    //     option::fill(&mut self.image, image);
+    // }
     
     public(package) fun set_image_url(self: &mut Capsule, image_url: String) {
         option::swap_or_fill(&mut self.image_url, image_url);
