@@ -250,8 +250,8 @@ module galliun::water_cooler {
                 self.description,
                 option::some(image_urls.pop_back()), // image_url
                 option::some(attributes), // attributes
-                option::none(), // image
-                object::id(self), //water_cooler_id
+                // option::none(), // image
+                // object::id(self), //water_cooler_id
                 ctx,
             );
 
@@ -293,8 +293,8 @@ module galliun::water_cooler {
                 self.description,
                 option::some(self.placeholder_image_url), // image_url
                 option::none(), // attributes
-                option::none(), // image
-                object::id(self), //water_cooler_id
+                // option::none(), // image
+                // object::id(self), //water_cooler_id
                 ctx,
             );
 

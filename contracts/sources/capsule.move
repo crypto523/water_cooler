@@ -40,8 +40,8 @@ module galliun::capsule {
         description: String,
         image_url: Option<String>,
         attributes: Option<Attributes>,
-        image: Option<Image>,
-        water_cooler_id: ID,
+        // image: Option<Image>,
+        // water_cooler_id: ID,
         ctx: &mut TxContext,
     ): Capsule {
         Capsule {
